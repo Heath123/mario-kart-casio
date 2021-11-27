@@ -40,6 +40,7 @@ float fmod(float a, float b) {
 #include "../kartsprites.cpp"
 
 unsigned char getTileType(short xPos, short yPos) {
+  __builtin_expect(xPos < 0 || xPos >= trackImageWidth || yPos < 0 || yPos >= trackImageHeight, 0);
   if (xPos < 0 || xPos >= trackImageWidth || yPos < 0 || yPos >= trackImageHeight) {
     return 0; // Grass
   } else {
@@ -86,6 +87,7 @@ unsigned short getScreenPixel(unsigned short x, unsigned short y) {
     // If both samples are 0 in the Python, the horizon colour is set but that doesn't seem to be needed
 
     unsigned short newY;
+    __builtin_expect(x == (int)(LUT_WIDTH / 2), 0);
     if (x < (int)(LUT_WIDTH / 2)) {
         newY = distortion_correction[x][y - horizon];
     } else if (x == (int)(LUT_WIDTH / 2)) {
