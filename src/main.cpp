@@ -16,9 +16,6 @@
 
 #include "../track.cpp"
 
-#define trackImageWidth 128 * 8
-#define trackImageHeight 128 * 8
-
 #define scale 4
 
 short angle = 0;
@@ -263,7 +260,7 @@ int main() {
   signed char kartSteerAnim = 0;
   float kartVel = 0;
   float kartAngle = 90;
-  #define kartSpeed 1.5
+  #define kartSpeed 2
 
   bool showFPS = false;
   bool exeWasPressed = false;
@@ -295,7 +292,7 @@ int main() {
 
     // Grass or sand = more friction
     unsigned char currentTile = getTileType(kartX / scale, kartY / scale);
-    if (currentTile == 0 || currentTile == 68) {
+    if (currentTile == 0 || currentTile == 7 || currentTile == 9 || currentTile == 12 || currentTile == 14 || currentTile == 15 || currentTile == 50 || currentTile == 52) {
       kartVel *= 0.8;
     } else {
       kartVel *= 0.9;
