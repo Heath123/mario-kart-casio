@@ -4,6 +4,15 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+        // Run the "Build for browser" task
+        {
+            "name": "Run",
+            "type": "chrome",
+            "request": "attach",
+            "url": "http://localhost:8080/index.html",
+            "webRoot": "${workspaceRoot}",
+            "preLaunchTask": "Build for browser"
+        },
         {
             "name": "sh3eb-elf-g++ - Build and debug active file",
             "type": "cppdbg",

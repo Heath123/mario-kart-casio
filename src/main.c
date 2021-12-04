@@ -341,6 +341,9 @@ void main_loop() {
   } else {
     kartVel *= 0.9;
   }
+  if (kartVel < 1.42) {
+    kartVel = 0;
+  }
   float oldKartX = kartX;
   float oldKartY = kartY;
   kartY += kartVel * sin(-kartAngle);

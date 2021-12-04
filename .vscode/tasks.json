@@ -1,6 +1,18 @@
 {
     "tasks": [
         {
+            "label": "Build for browser",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "html/index.html"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always"
+            }
+        },
+        {
             "type": "cppbuild",
             "label": "C/C++: sh3eb-elf-g++ build active file",
             "command": "/usr/local/cross/bin/sh3eb-elf-g++",

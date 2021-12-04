@@ -104,7 +104,7 @@ export OUTPUT	:=	$(CURDIR)/$(TARGET)
 .PHONY: all clean
 
 #---------------------------------------------------------------------------------
-all: $(BUILD) /usr/local/bin/http-server
+all: $(BUILD)
 	@make --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
 # Don't know what I'm doing here
@@ -112,7 +112,7 @@ generated_lut.cpp: /home/heath/ti-mario-kart-py/compress.py lookup_gen_config.ya
 	/usr/bin/env /bin/python3.10 /home/heath/ti-mario-kart-py/compress.py > generated_lut.cpp
 
 # Still not really sure what I'm doing here
-html/index.html: generated_lut.cpp
+html/index.html: all
 	emcc -D FXCG_MOCK -Ifxcg-mock/include -g src/main.c ./fxcg-mock/include/fxcg/*.c -o html/index.html
 
 browser: html/index.html
