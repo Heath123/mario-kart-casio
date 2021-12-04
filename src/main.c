@@ -1,8 +1,13 @@
 #include <fxcg/display.h>
 #include <fxcg/keyboard.h>
+#ifndef FXCG_MOCK
 #include <fxcg/misc.h>
 #include <fxcg/rtc.h>
 #include <fxcg/system.h>
+#else
+#include <fxcg/mock.h>
+#include <emscripten.h>
+#endif
 
 #include "../generated_lut.cpp"
 
@@ -226,6 +231,7 @@ float cos(int angle) {
 #define PI 3.14159265358979323846
 
 // https://www.cemetech.net/forum/viewtopic.php?p=173836&sid=9eabb0dbeddeeb6507c19c8a65dbe249
+#ifndef FXCG_MOCK
 int keydown(int basic_keycode) {
   const unsigned short* keyboard_register = (unsigned short*)0xA44B0000;
   int row, col, word, bit;
@@ -235,6 +241,7 @@ int keydown(int basic_keycode) {
   bit = col + 8 * (row & 1);
   return (0 != (keyboard_register[word] & 1 << bit));
 }
+#endif
 
 void cameraBehind(short x, short y, short objectAngle, short distance) {
   // objectAngle = 90 - objectAngle;
@@ -306,6 +313,7 @@ int frameCount = 0;
 
 void main_loop() {
   // Main game loop
+  #ifndef FXCG_MOCK
   int currentTime = RTC_GetTicks();
   // If 1 second has passed, print framerate
   if (currentTime - lastTime >= 128) {
@@ -324,6 +332,7 @@ void main_loop() {
 
     frameCount = 0;
   }
+  #endif
 
   // Grass or sand = more friction
   unsigned char currentTile = getTileType(kartX / scale, kartY / scale);
@@ -401,6 +410,7 @@ void main_loop() {
   }
   exeWasPressed = exePressed;
 
+  #ifndef FXCG_MOCK
   if (keydown(KEY_PRGM_MENU)) {
     // Allow the OS to handle exiting to the menu
     int key;
@@ -408,9 +418,12 @@ void main_loop() {
     Bdisp_EnableColor(1);
     fillSky(0, LCD_HEIGHT_PX);
   }
+  #endif
 
   if (keydown(KEY_PRGM_ACON)) {
+    #ifndef FXCG_MOCK
     PowerOff(1);
+    #endif
     fillSky(0, LCD_HEIGHT_PX);
   }
 
@@ -439,15 +452,25 @@ void main_loop() {
 }
 
 int main() {
+  #ifdef FXCG_MOCK
+  initMock();
+  #endif
+
   VRAM = (color_t*)GetVRAMAddress();
 
   Bdisp_EnableColor(1);
   fillSky(0, LCD_HEIGHT_PX);
+  #ifndef FXCG_MOCK
   lastTime = RTC_GetTicks();
+  #endif
 
+  #ifdef FXCG_MOCK
+  emscripten_set_main_loop(main_loop, 30, 1);
+  #else
   while (1) {
     main_loop();
   }
+  #endif
 
   /* color_t* VRAM = (color_t*)0xA8000000; // emu address of VRAM
   VRAM += (LCD_WIDTH_PX*y + x);
