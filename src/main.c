@@ -1,10 +1,14 @@
 #include <fxcg/display.h>
 #include <fxcg/keyboard.h>
-#include <fxcg/system.h>
-#include <fxcg/rtc.h>
 #include <fxcg/misc.h>
+#include <fxcg/rtc.h>
+#include <fxcg/system.h>
 
 #include "../generated_lut.cpp"
+
+#define bool unsigned char
+#define true 1
+#define false 0
 
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 #define MAX(X, Y) (((X) < (Y)) ? (Y) : (X))
@@ -39,7 +43,7 @@ float fmod(float a, float b) {
 unsigned char getTileType(short xPos, short yPos) {
   __builtin_expect(xPos < 0 || xPos >= trackImageWidth || yPos < 0 || yPos >= trackImageHeight, 0);
   if (xPos < 0 || xPos >= trackImageWidth || yPos < 0 || yPos >= trackImageHeight) {
-    return 0; // Grass
+    return 0;  // Grass
   } else {
     int xPixel = xPos / precision;
     int yPixel = yPos / precision;
@@ -68,93 +72,85 @@ unsigned short samplePixel(short xPos, short yPos) {
 }
 
 unsigned short getScreenPixel(unsigned short x, unsigned short y) {
-    // Used to indicate framerate
-    /* if (x == 0 && y == 0) {
+  // Used to indicate framerate
+  /* if (x == 0 && y == 0) {
         return angle == 0;
     } */
 
-    x /= WIDTH_DIVIDER;
+  x /= WIDTH_DIVIDER;
 
-    // Temporary for small screen sizes
-    /* if (y >= LUT_HEIGHT) return false;
+  // Temporary for small screen sizes
+  /* if (y >= LUT_HEIGHT) return false;
     if (x >= LUT_WIDTH) return false; */
-    
-    if (y < horizon + 2) return COLOR_BLACK;
 
-    // If both samples are 0 in the Python, the horizon colour is set but that doesn't seem to be needed
+  if (y < horizon + 2) return COLOR_BLACK;
 
-    unsigned short newY;
-    __builtin_expect(x == (int)(LUT_WIDTH / 2), 0);
-    if (x < (int)(LUT_WIDTH / 2)) {
-        newY = distortion_correction[x][y - horizon];
-    } else if (x == (int)(LUT_WIDTH / 2)) {
-        newY = y - 1;
-    } else {
-        newY = distortion_correction[(int)(LUT_WIDTH / 2) + ((int)(LUT_WIDTH / 2) - x)][y - horizon];
+  // If both samples are 0 in the Python, the horizon colour is set but that doesn't seem to be needed
+
+  unsigned short newY;
+  __builtin_expect(x == (int)(LUT_WIDTH / 2), 0);
+  if (x < (int)(LUT_WIDTH / 2)) {
+    newY = distortion_correction[x][y - horizon];
+  } else if (x == (int)(LUT_WIDTH / 2)) {
+    newY = y - 1;
+  } else {
+    newY = distortion_correction[(int)(LUT_WIDTH / 2) + ((int)(LUT_WIDTH / 2) - x)][y - horizon];
+  }
+
+  if ((y - horizon) < sixteenBitHeight) {
+    short index = x + angle;
+    index = mod(index, (angleWidth * 4));
+    unsigned short element = mod(index, angleWidth);
+
+    if (index < angleWidth) {
+      return samplePixel(
+          angles16[element][newY - horizon][0],
+          angles16[element][newY - horizon][1]);
+    } else if (index < angleWidth * 2) {
+      // Return 90 degree rotated position
+      return samplePixel(
+          angles16[element][newY - horizon][1],
+          -angles16[element][newY - horizon][0]);
+    } else if (index < angleWidth * 3) {
+      // Return 180 degree rotated position
+      return samplePixel(
+          -angles16[element][newY - horizon][0],
+          -angles16[element][newY - horizon][1]);
+    } else /*if (index < angleWidth * 4)*/ {
+      // Return 270 degree rotated position
+      return samplePixel(
+          -angles16[element][newY - horizon][1],
+          angles16[element][newY - horizon][0]);
     }
 
-    if ((y - horizon) < sixteenBitHeight) {
-        short index = x + angle;
-        index = mod(index, (angleWidth * 4));
-        unsigned short element = mod(index, angleWidth);
+  } else {
+    // TODO: no duplicated code?
 
-        if (index < angleWidth) {
-            return samplePixel(
-                angles16[element][newY - horizon][0],
-                angles16[element][newY - horizon][1]
-            );
-        } else if (index < angleWidth * 2) {
-            // Return 90 degree rotated position
-            return samplePixel(
-                angles16[element][newY - horizon][1],
-                -angles16[element][newY - horizon][0]
-            );
-        } else if (index < angleWidth * 3) {
-            // Return 180 degree rotated position
-            return samplePixel(
-                -angles16[element][newY - horizon][0],
-                -angles16[element][newY - horizon][1]
-            );
-        } else /*if (index < angleWidth * 4)*/ {
-            // Return 270 degree rotated position
-            return samplePixel(
-                -angles16[element][newY - horizon][1],
-                angles16[element][newY - horizon][0]
-            );
-        }
-        
-    } else {
-        // TODO: no duplicated code?
+    short index = x + angle;
+    index = mod(index, (angleWidth * 4));
+    unsigned short element = mod(index, angleWidth);
 
-        short index = x + angle;
-        index = mod(index, (angleWidth * 4));
-        unsigned short element = mod(index, angleWidth);
-
-        if (index < angleWidth) {
-            return samplePixel(
-                angles8[element][newY - horizon - sixteenBitHeight][0],
-                angles8[element][newY - horizon - sixteenBitHeight][1]
-            );
-        } else if (index < angleWidth * 2) {
-            // Return 90 degree rotated position
-            return samplePixel(
-                angles8[element][newY - horizon - sixteenBitHeight][1],
-                -angles8[element][newY - horizon - sixteenBitHeight][0]
-            );
-        } else if (index < angleWidth * 3) {
-            // Return 180 degree rotated position
-            return samplePixel(
-                -angles8[element][newY - horizon - sixteenBitHeight][0],
-                -angles8[element][newY - horizon - sixteenBitHeight][1]
-            );
-        } else /*if (index < angleWidth * 4)*/ {
-            // Return 270 degree rotated position
-            return samplePixel(
-                -angles8[element][newY - horizon - sixteenBitHeight][1],
-                angles8[element][newY - horizon - sixteenBitHeight][0]
-            );
-        }
+    if (index < angleWidth) {
+      return samplePixel(
+          angles8[element][newY - horizon - sixteenBitHeight][0],
+          angles8[element][newY - horizon - sixteenBitHeight][1]);
+    } else if (index < angleWidth * 2) {
+      // Return 90 degree rotated position
+      return samplePixel(
+          angles8[element][newY - horizon - sixteenBitHeight][1],
+          -angles8[element][newY - horizon - sixteenBitHeight][0]);
+    } else if (index < angleWidth * 3) {
+      // Return 180 degree rotated position
+      return samplePixel(
+          -angles8[element][newY - horizon - sixteenBitHeight][0],
+          -angles8[element][newY - horizon - sixteenBitHeight][1]);
+    } else /*if (index < angleWidth * 4)*/ {
+      // Return 270 degree rotated position
+      return samplePixel(
+          -angles8[element][newY - horizon - sixteenBitHeight][1],
+          angles8[element][newY - horizon - sixteenBitHeight][0]);
     }
+  }
 }
 
 color_t* VRAM;
@@ -164,43 +160,49 @@ void setPixel(int x, int y, color_t color) {
 }
 
 // From https://www.cemetech.net/forum/viewtopic.php?t=6114&postdays=0&postorder=asc&start=100
-void CopySpriteMasked(const void*datar, int x, int y, int width, int height, int maskcolor) {
-   color_t* data = (color_t*) datar;
-   color_t* VRAM2 = (color_t*) VRAM;
-   VRAM2 += LCD_WIDTH_PX*y + x;
-   for(int j=y; j<y+height; j++) {
-      for(int i=x; i<x+width; i++) {
-         if (*(data) != maskcolor) {
-            *(VRAM2++) = *(data++);
-         } else { VRAM2++; data++; }
+void CopySpriteMasked(const void* datar, int x, int y, int width, int height, int maskcolor) {
+  color_t* data = (color_t*)datar;
+  color_t* VRAM2 = (color_t*)VRAM;
+  VRAM2 += LCD_WIDTH_PX * y + x;
+  for (int j = y; j < y + height; j++) {
+    for (int i = x; i < x + width; i++) {
+      if (*(data) != maskcolor) {
+        *(VRAM2++) = *(data++);
+      } else {
+        VRAM2++;
+        data++;
       }
-      VRAM2 += LCD_WIDTH_PX-width;
-   }
+    }
+    VRAM2 += LCD_WIDTH_PX - width;
+  }
 }
 
 // Version of the function above that draws the sprite flipped horizontally
-void CopySpriteMaskedFlipped(const void*datar, int x, int y, int width, int height, int maskcolor) {
-  color_t* data = (color_t*) datar;
-  color_t* VRAM2 = (color_t*) VRAM;
-  VRAM2 += LCD_WIDTH_PX*y + x;
-  for(int j=y; j<y+height; j++) {
+void CopySpriteMaskedFlipped(const void* datar, int x, int y, int width, int height, int maskcolor) {
+  color_t* data = (color_t*)datar;
+  color_t* VRAM2 = (color_t*)VRAM;
+  VRAM2 += LCD_WIDTH_PX * y + x;
+  for (int j = y; j < y + height; j++) {
     // Start at the end of the line and work backwards
     data += width;
-    for(int i=x; i<x+width; i++) {
+    for (int i = x; i < x + width; i++) {
       if (*(data) != maskcolor) {
         *(VRAM2++) = *(data--);
-      } else { VRAM2++; data--; }
+      } else {
+        VRAM2++;
+        data--;
+      }
     }
     data += width;
-    VRAM2 += LCD_WIDTH_PX-width;
+    VRAM2 += LCD_WIDTH_PX - width;
   }
 }
 
 // https://prizm.cemetech.net/index.php?title=PRGM_GetKey
 int PRGM_GetKey(void) {
   unsigned char buffer[12];
-  PRGM_GetKey_OS( buffer );
-  return ( buffer[1] & 0x0F ) * 10 + ( ( buffer[2] & 0xF0 ) >> 4 );
+  PRGM_GetKey_OS(buffer);
+  return (buffer[1] & 0x0F) * 10 + ((buffer[2] & 0xF0) >> 4);
 }
 
 // https://stackoverflow.com/a/3689059/4012708
@@ -227,11 +229,11 @@ float cos(int angle) {
 int keydown(int basic_keycode) {
   const unsigned short* keyboard_register = (unsigned short*)0xA44B0000;
   int row, col, word, bit;
-  row = basic_keycode%10;
-  col = basic_keycode/10-1;
-  word = row>>1;
-  bit = col + 8*(row&1);
-  return (0 != (keyboard_register[word] & 1<<bit));
+  row = basic_keycode % 10;
+  col = basic_keycode / 10 - 1;
+  word = row >> 1;
+  bit = col + 8 * (row & 1);
+  return (0 != (keyboard_register[word] & 1 << bit));
 }
 
 void cameraBehind(short x, short y, short objectAngle, short distance) {
@@ -246,161 +248,205 @@ void fillSky(unsigned short yMin, unsigned short yMax) {
       setPixel(x, y, 0x867D);
     }
   }
+  Bdisp_PutDisp_DD();
+}
+
+// https://prizm.cemetech.net/index.php?title=Useful_Routines
+void drawLine(int x1, int y1, int x2, int y2, unsigned short color) {
+  signed char ix;
+  signed char iy;
+
+  // if x1 == x2 or y1 == y2, then it does not matter what we set here
+  int delta_x = (x2 > x1 ? (ix = 1, x2 - x1) : (ix = -1, x1 - x2)) << 1;
+  int delta_y = (y2 > y1 ? (iy = 1, y2 - y1) : (iy = -1, y1 - y2)) << 1;
+
+  setPixel(x1, y1, color);
+  if (delta_x >= delta_y) {
+    int error = delta_y - (delta_x >> 1);  // error may go below zero
+    while (x1 != x2) {
+      if (error >= 0) {
+        if (error || (ix > 0)) {
+          y1 += iy;
+          error -= delta_x;
+        }  // else do nothing
+      }    // else do nothing
+      x1 += ix;
+      error += delta_y;
+      setPixel(x1, y1, color);
+    }
+  } else {
+    int error = delta_x - (delta_y >> 1);  // error may go below zero
+    while (y1 != y2) {
+      if (error >= 0) {
+        if (error || (iy > 0)) {
+          x1 += ix;
+          error -= delta_y;
+        }  // else do nothing
+      }    // else do nothing
+      y1 += iy;
+      error += delta_x;
+      setPixel(x1, y1, color);
+    }
+  }
+}
+
+unsigned short kartX = 3730;
+unsigned short kartY = 2300;
+signed char kartSteerAnim = 0;
+float kartVel = 0;
+float kartAngle = 90;
+#define kartSpeed 2
+
+bool showFPS = false;
+bool exeWasPressed = false;
+
+// For framerate counter
+int lastTime;
+int frameCount = 0;
+
+void main_loop() {
+  // Main game loop
+  int currentTime = RTC_GetTicks();
+  // If 1 second has passed, print framerate
+  if (currentTime - lastTime >= 128) {
+    lastTime = currentTime;
+
+    if (showFPS) {
+      int x = 8;
+      int y = 0;
+
+      char buffer[17] = "FPS: ";
+      itoa(frameCount, (unsigned char*)buffer + 5);
+
+      PrintMiniMini(&x, &y, buffer, 0, COLOR_BLACK, 0);
+      Bdisp_PutDisp_DD_stripe(24, 34);
+    }
+
+    frameCount = 0;
+  }
+
+  // Grass or sand = more friction
+  unsigned char currentTile = getTileType(kartX / scale, kartY / scale);
+  if (currentTile == 0 || currentTile == 7 || currentTile == 9 || currentTile == 12 || currentTile == 14 || currentTile == 15 || currentTile == 50 || currentTile == 52) {
+    kartVel *= 0.8;
+  } else {
+    kartVel *= 0.9;
+  }
+  float oldKartX = kartX;
+  float oldKartY = kartY;
+  kartY += kartVel * sin(-kartAngle);
+  kartX += kartVel * cos(-kartAngle);
+  unsigned char newTile = getTileType(kartX / scale, kartY / scale);
+  if (newTile >= 240 && newTile <= 243) {  // Barrier
+    kartX = oldKartX;
+    kartY = oldKartY;
+  }
+  cameraBehind(kartX, kartY, kartAngle, 150);  // TODO: calculate this rather than guessing
+
+  // kartVel += kartSpeed;
+
+  // int key = PRGM_GetKey();
+  bool leftPressed = keydown(KEY_PRGM_LEFT);
+  bool rightPressed = keydown(KEY_PRGM_RIGHT);
+  bool shiftPressed = keydown(KEY_PRGM_SHIFT);
+
+  if (shiftPressed) {
+    kartVel += kartSpeed;
+  }
+
+  if (leftPressed && !rightPressed && kartVel > 3) {
+    kartAngle -= kartVel / 10;
+
+    kartSteerAnim++;
+    if (kartSteerAnim > 10) {
+      kartSteerAnim = 10;
+    }
+  } else if (rightPressed && !leftPressed && kartVel > 3) {
+    kartAngle += kartVel / 10;
+
+    kartSteerAnim--;
+    if (kartSteerAnim < -10) {
+      kartSteerAnim = -10;
+    }
+  } else {
+    if (kartSteerAnim > 0) {
+      kartSteerAnim--;
+      if (kartSteerAnim < 0) {
+        kartSteerAnim = 0;
+      }
+    } else {
+      kartSteerAnim++;
+      if (kartSteerAnim > 0) {
+        kartSteerAnim = 0;
+      }
+    }
+  }
+
+  // Control the distance
+  /* if (keydown(KEY_PRGM_UP)) {
+    distance += 2;
+  }
+  if (keydown(KEY_PRGM_DOWN)) {
+    distance -= 2;
+  } */
+
+  bool exePressed = keydown(31);
+  if (exePressed && !exeWasPressed) {
+    showFPS = !showFPS;
+    if (!showFPS) {
+      // Put the sky back
+      fillSky(24, 34);
+      Bdisp_PutDisp_DD_stripe(24, 34);
+    }
+  }
+  exeWasPressed = exePressed;
+
+  if (keydown(KEY_PRGM_MENU)) {
+    // Allow the OS to handle exiting to the menu
+    int key;
+    GetKey(&key);
+    Bdisp_EnableColor(1);
+    fillSky(0, LCD_HEIGHT_PX);
+  }
+
+  if (keydown(KEY_PRGM_ACON)) {
+    PowerOff(1);
+    fillSky(0, LCD_HEIGHT_PX);
+  }
+
+  kartAngle = fmod(kartAngle, 360);
+
+  angle = fmod(kartAngle + 45, 360) * angleWidth / 90;
+
+  for (unsigned short x = 0; x < LCD_WIDTH_PX; x += 2) {
+    // TODO: Plus 2?
+    for (unsigned short y = horizon + 2; y < LCD_HEIGHT_PX; y += 1) {
+      unsigned short thing = getScreenPixel(x, y);
+      setPixel(x, y, thing);
+      setPixel(x + 1, y, thing);
+    }
+  }
+
+  if (kartSteerAnim >= 0) {
+    CopySpriteMasked(mksprites[kartSteerAnim / 2], (LCD_WIDTH_PX / 2) - 36, 128, 72, 80, 0x4fe0);
+  } else {
+    CopySpriteMaskedFlipped(mksprites[-kartSteerAnim / 2], (LCD_WIDTH_PX / 2) - 36, 128, 72, 80, 0x4fe0);
+  }
+
+  Bdisp_PutDisp_DD_stripe(horizon + 2, LCD_HEIGHT_PX);
+
+  frameCount++;
 }
 
 int main() {
-  VRAM = (color_t*) GetVRAMAddress();
+  VRAM = (color_t*)GetVRAMAddress();
 
   Bdisp_EnableColor(1);
   fillSky(0, LCD_HEIGHT_PX);
-  Bdisp_PutDisp_DD();
-
-  unsigned short kartX = 3730;
-  unsigned short kartY = 2300;
-  signed char kartSteerAnim = 0;
-  float kartVel = 0;
-  float kartAngle = 90;
-  #define kartSpeed 2
-
-  bool showFPS = false;
-  bool exeWasPressed = false;
-
-  // For framerate counter
-  int lastTime = RTC_GetTicks();
-  int frameCount = 0;
+  lastTime = RTC_GetTicks();
 
   while (1) {
-    // Main game loop
-    int currentTime = RTC_GetTicks();
-    // If 1 second has passed, print framerate
-    if (currentTime - lastTime >= 128) {
-      lastTime = currentTime;
-
-      if (showFPS) {
-        int x = 8;
-        int y = 0;
-
-        char buffer[17] = "FPS: ";
-        itoa(frameCount, (unsigned char*) buffer + 5);
-
-        PrintMiniMini(&x, &y, buffer, 0, COLOR_BLACK, 0);
-        Bdisp_PutDisp_DD_stripe(24, 34);
-      }
-
-      frameCount = 0;
-    }
-
-    // Grass or sand = more friction
-    unsigned char currentTile = getTileType(kartX / scale, kartY / scale);
-    if (currentTile == 0 || currentTile == 7 || currentTile == 9 || currentTile == 12 || currentTile == 14 || currentTile == 15 || currentTile == 50 || currentTile == 52) {
-      kartVel *= 0.8;
-    } else {
-      kartVel *= 0.9;
-    }
-    float oldKartX = kartX;
-    float oldKartY = kartY;
-    kartY += kartVel * sin(-kartAngle);
-    kartX += kartVel * cos(-kartAngle);
-    unsigned char newTile = getTileType(kartX / scale, kartY / scale);
-    if (newTile >= 240 && newTile <= 243) { // Barrier
-      kartX = oldKartX;
-      kartY = oldKartY;
-    }
-    cameraBehind(kartX, kartY, kartAngle, 150); // TODO: calculate this rather than guessing
-
-    // kartVel += kartSpeed;
-    
-    // int key = PRGM_GetKey();
-    bool leftPressed = keydown(KEY_PRGM_LEFT);
-    bool rightPressed = keydown(KEY_PRGM_RIGHT);
-    bool shiftPressed = keydown(KEY_PRGM_SHIFT);
-
-    if (shiftPressed) {
-      kartVel += kartSpeed;
-    }
-
-    if (leftPressed && !rightPressed && kartVel > 3) {
-      kartAngle -= kartVel / 10;
-
-      kartSteerAnim++;
-      if (kartSteerAnim > 10) {
-        kartSteerAnim = 10;
-      }
-    } else if (rightPressed && !leftPressed && kartVel > 3) {
-      kartAngle += kartVel / 10;
-
-      kartSteerAnim--;
-      if (kartSteerAnim < -10) {
-        kartSteerAnim = -10;
-      }
-    } else {
-      if (kartSteerAnim > 0) {
-        kartSteerAnim--;
-        if (kartSteerAnim < 0) {
-          kartSteerAnim = 0;
-        }
-      } else {
-        kartSteerAnim++;
-        if (kartSteerAnim > 0) {
-          kartSteerAnim = 0;
-        }
-      }
-    }
-
-    // Control the distance
-    /* if (keydown(KEY_PRGM_UP)) {
-      distance += 2;
-    }
-    if (keydown(KEY_PRGM_DOWN)) {
-      distance -= 2;
-    } */
-
-    bool exePressed = keydown(31);
-    if (exePressed && !exeWasPressed) {
-      showFPS = !showFPS;
-      if (!showFPS) {
-        // Put the sky back
-        fillSky(24, 34);
-        Bdisp_PutDisp_DD_stripe(24, 34);
-      }
-    }
-    exeWasPressed = exePressed;
-
-    if (keydown(KEY_PRGM_MENU)) {
-      // Allow the OS to handle exiting to the menu
-      int key;
-      GetKey(&key);
-      Bdisp_EnableColor(1);
-      fillSky(0, LCD_HEIGHT_PX);
-    }
-
-    if (keydown(KEY_PRGM_ACON)) {
-      PowerOff(1);
-      fillSky(0, LCD_HEIGHT_PX);
-    }
-
-    kartAngle = fmod(kartAngle, 360);
-
-    angle = fmod(kartAngle + 45, 360) * angleWidth / 90;
-
-    for (unsigned short x = 0; x < LCD_WIDTH_PX; x += 2) {
-      // TODO: Plus 2?
-      for (unsigned short y = horizon + 2; y < LCD_HEIGHT_PX; y += 1) {
-        unsigned short thing = getScreenPixel(x, y);
-        setPixel(x, y, thing);
-        setPixel(x + 1, y, thing);
-      }
-    }
-
-    if (kartSteerAnim >= 0) {
-      CopySpriteMasked(mksprites[kartSteerAnim / 2], (LCD_WIDTH_PX / 2) - 36, 128, 72, 80, 0x4fe0);
-    } else {
-      CopySpriteMaskedFlipped(mksprites[-kartSteerAnim / 2], (LCD_WIDTH_PX / 2) - 36, 128, 72, 80, 0x4fe0);
-    }
-
-    Bdisp_PutDisp_DD_stripe(horizon + 2, LCD_HEIGHT_PX);
-
-    frameCount++;
+    main_loop();
   }
 
   /* color_t* VRAM = (color_t*)0xA8000000; // emu address of VRAM
