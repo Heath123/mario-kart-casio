@@ -8,14 +8,19 @@ unsigned short screen[384 * 216];
 
 #define byte unsigned char
 
-void Copy_ToCanvas(uint32_t* ptr, int w, int h) {
+void setup() {
   EM_ASM_({
-      let data = Module.HEAPU8.slice($0, $0 + $1 * $2 * 4);
-      let context = Module['canvas'].getContext('2d');
-      let imageData = context.getImageData(0, 0, $1, $2);
-      imageData.data.set(data);
-      context.putImageData(imageData, 0, 0);
-    }, ptr, w, h);
+      window.canvasContext = Module['canvas'].getContext('2d');
+      window.canvasImageData = canvasContext.getImageData(0, 0, 384, 216);
+    });
+}
+
+void Copy_ToCanvas(uint32_t* ptr) { /*, int w, int h) {*/
+  EM_ASM_({
+      let data = Module.HEAPU8.slice($0, $0 + 384 * 216 * 4);
+      canvasImageData.data.set(data);
+      canvasContext.putImageData(canvasImageData, 0, 0);
+    }, ptr);
 }
 
 /* static void main_loop()
@@ -31,6 +36,8 @@ void Copy_ToCanvas(uint32_t* ptr, int w, int h) {
 } */
 
 void* GetVRAMAddress(void) {
+  // TODO: move setup to the init thing
+  setup();
   emscripten_set_canvas_size(384, 216);
   return &screen;
 }
@@ -52,7 +59,7 @@ void Bdisp_PutDisp_DD(void) {
     unsigned int argb = 0xff000000 | ((int)b << 16) | ((int)g << 8) | (int)r;
     screencopy[i] = argb;
   }
-  Copy_ToCanvas(screencopy, 384, 216);
+  Copy_ToCanvas(screencopy);
 }
 
 void Bdisp_PutDisp_DD_stripe(int y1, int y2) {

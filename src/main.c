@@ -88,8 +88,6 @@ unsigned short getScreenPixel(unsigned short x, unsigned short y) {
   /* if (y >= LUT_HEIGHT) return false;
     if (x >= LUT_WIDTH) return false; */
 
-  if (y < horizon + 2) return COLOR_BLACK;
-
   // If both samples are 0 in the Python, the horizon colour is set but that doesn't seem to be needed
 
   unsigned short newY;
