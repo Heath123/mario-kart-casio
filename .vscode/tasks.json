@@ -5,6 +5,7 @@
             "type": "shell",
             "command": "make",
             "args": [
+                "-B",
                 "html/index.html"
             ],
             "group": "build",

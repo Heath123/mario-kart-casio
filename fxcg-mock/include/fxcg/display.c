@@ -4,7 +4,7 @@
 unsigned short screen[384 * 216];
 
 #define false 0
-#define true 0
+#define true 1
 
 #define byte unsigned char
 

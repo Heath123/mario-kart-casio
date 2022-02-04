@@ -6,7 +6,9 @@
 #include <fxcg/system.h>
 #else
 #include <fxcg/mock.h>
+#ifdef EMSCRIPTEN
 #include <emscripten.h>
+#endif
 #endif
 
 #include "../generated_lut.cpp"
@@ -50,8 +52,9 @@ unsigned char getTileType(short xPos, short yPos) {
   if (xPos < 0 || xPos >= trackImageWidth || yPos < 0 || yPos >= trackImageHeight) {
     return 0;  // Grass
   } else {
-    int xPixel = xPos / precision;
-    int yPixel = yPos / precision;
+    // Divide by 8
+    int xPixel = xPos >> 3;
+    int yPixel = yPos >> 3;
 
     return trackData[(yPixel * (trackImageWidth / precision)) + xPixel];
   }
@@ -61,28 +64,27 @@ unsigned short samplePixel(short xPos, short yPos) {
   xPos += xOffset;
   yPos += yOffset;
 
-  xPos /= scale;
-  yPos /= scale;
-
-  // Move to centre
-  // xPos = xPos + trackImageWidth / 2;
-  // yPos = yPos + trackImageHeight / 2;
+  // Divide by 4
+  xPos = xPos >> 2;
+  yPos = yPos >> 2;
 
   // Get the position of the pixel in the tile
-  int xPixelInTile = mod(xPos, precision);
-  int yPixelInTile = mod(yPos, precision);
+  int xPixelInTile = xPos & (precision - 1);
+  int yPixelInTile = yPos & (precision - 1);
 
   // Get the colour of the pixel in the tile
   return tileData[getTileType(xPos, yPos)][(yPixelInTile * precision) + xPixelInTile];
 }
 
+static short index;
+static unsigned short element;
 unsigned short getScreenPixel(unsigned short x, unsigned short y) {
   // Used to indicate framerate
   /* if (x == 0 && y == 0) {
         return angle == 0;
     } */
 
-  x /= WIDTH_DIVIDER;
+  // x /= WIDTH_DIVIDER;
 
   // Temporary for small screen sizes
   /* if (y >= LUT_HEIGHT) return false;
@@ -101,9 +103,9 @@ unsigned short getScreenPixel(unsigned short x, unsigned short y) {
   }
 
   if ((y - horizon) < sixteenBitHeight) {
-    short index = x + angle;
+    /* short index = x + angle;
     index = mod(index, (angleWidth * 4));
-    unsigned short element = mod(index, angleWidth);
+    unsigned short element = mod(index, angleWidth); */
 
     if (index < angleWidth) {
       return samplePixel(
@@ -129,9 +131,9 @@ unsigned short getScreenPixel(unsigned short x, unsigned short y) {
   } else {
     // TODO: no duplicated code?
 
-    short index = x + angle;
+    /* short index = x + angle;
     index = mod(index, (angleWidth * 4));
-    unsigned short element = mod(index, angleWidth);
+    unsigned short element = mod(index, angleWidth); */
 
     if (index < angleWidth) {
       return samplePixel(
@@ -187,7 +189,7 @@ void CopySpriteMaskedFlipped(const void* datar, int x, int y, int width, int hei
   VRAM2 += LCD_WIDTH_PX * y + x;
   for (int j = y; j < y + height; j++) {
     // Start at the end of the line and work backwards
-    data += width;
+    data += width - 1;
     for (int i = x; i < x + width; i++) {
       if (*(data) != maskcolor) {
         *(VRAM2++) = *(data--);
@@ -196,7 +198,7 @@ void CopySpriteMaskedFlipped(const void* datar, int x, int y, int width, int hei
         data--;
       }
     }
-    data += width;
+    data += width + 1;
     VRAM2 += LCD_WIDTH_PX - width;
   }
 }
@@ -432,19 +434,69 @@ void main_loop() {
 
   angle = fmod(kartAngle + 45, 360) * angleWidth / 90;
 
-  for (unsigned short x = 0; x < LCD_WIDTH_PX; x += 2) {
+  for (unsigned short x = 0; x < LCD_WIDTH_PX / 8; x += 2) {
+    index = x + angle;
+    index = mod(index, (angleWidth * 4));
+    element = mod(index, angleWidth);
     // TODO: Plus 2?
-    for (unsigned short y = horizon + 2; y < LCD_HEIGHT_PX; y += 1) {
+    for (unsigned short y = horizon + 2; y < LCD_HEIGHT_PX; y += 2) {
       unsigned short thing = getScreenPixel(x, y);
-      setPixel(x, y, thing);
-      setPixel(x + 1, y, thing);
+      setPixel(x * 2, y, thing);
+      setPixel(x * 2 + 1, y, thing);
+      setPixel(x * 2 + 2, y, thing);
+      setPixel(x * 2 + 3, y, thing);
+
+      setPixel(x * 2, y + 1, thing);
+      setPixel(x * 2 + 1, y + 1, thing);
+      setPixel(x * 2 + 2, y + 1, thing);
+      setPixel(x * 2 + 3, y + 1, thing);
+    }
+  }
+  for (unsigned short x = LCD_WIDTH_PX / 8; x < (LCD_WIDTH_PX / 8) * 3; x += 1) {
+    index = x + angle;
+    index = mod(index, (angleWidth * 4));
+    element = mod(index, angleWidth);
+    // TODO: Plus 2?
+    for (unsigned short y = horizon + 2; y < (LCD_HEIGHT_PX + horizon + 2) / 2; y += 1) {
+      unsigned short thing = getScreenPixel(x, y);
+      setPixel(x * 2, y, thing);
+      setPixel(x * 2 + 1, y, thing);
+    }
+
+    for (unsigned short y = (LCD_HEIGHT_PX + horizon + 2) / 2; y < LCD_HEIGHT_PX; y += 2) {
+      unsigned short thing = getScreenPixel(x, y);
+      setPixel(x * 2, y, thing);
+      setPixel(x * 2 + 1, y, thing);
+
+      setPixel(x * 2, y + 1, thing);
+      setPixel(x * 2 + 1, y + 1, thing);
+    }
+  }
+  for (unsigned short x = (LCD_WIDTH_PX / 8) * 3; x < LCD_WIDTH_PX / 2; x += 2) {
+    index = x + angle;
+    index = mod(index, (angleWidth * 4));
+    element = mod(index, angleWidth);
+    // TODO: Plus 2?
+    for (unsigned short y = horizon + 2; y < LCD_HEIGHT_PX; y += 2) {
+      unsigned short thing = getScreenPixel(x, y);
+      setPixel(x * 2, y, thing);
+      setPixel(x * 2 + 1, y, thing);
+      setPixel(x * 2 + 2, y, thing);
+      setPixel(x * 2 + 3, y, thing);
+
+      setPixel(x * 2, y + 1, thing);
+      setPixel(x * 2 + 1, y + 1, thing);
+      setPixel(x * 2 + 2, y + 1, thing);
+      setPixel(x * 2 + 3, y + 1, thing);
     }
   }
 
   if (kartSteerAnim >= 0) {
     CopySpriteMasked(mksprites[kartSteerAnim / 2], (LCD_WIDTH_PX / 2) - 36, 128, 72, 80, 0x4fe0);
+    // CopySpriteMasked(/*mksprites[kartSteerAnim / 2]*/sprite, (LCD_WIDTH_PX / 2) - 39, 128, 78, 81, 0x07e0);
   } else {
     CopySpriteMaskedFlipped(mksprites[-kartSteerAnim / 2], (LCD_WIDTH_PX / 2) - 36, 128, 72, 80, 0x4fe0);
+    // CopySpriteMaskedFlipped(/*mksprites[-kartSteerAnim / 2]*/sprite, (LCD_WIDTH_PX / 2) - 39, 128, 78, 81, 0x07e0);
   }
 
   Bdisp_PutDisp_DD_stripe(horizon + 2, LCD_HEIGHT_PX);
@@ -466,7 +518,11 @@ int main() {
   #endif
 
   #ifdef FXCG_MOCK
+  #ifdef EMSCRIPTEN
   emscripten_set_main_loop(main_loop, 30, 1);
+  #else
+  set_main_loop(main_loop);
+  #endif
   #else
   while (1) {
     main_loop();
