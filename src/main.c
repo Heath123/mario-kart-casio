@@ -11,7 +11,9 @@
 #endif
 #endif
 
-#include "./graphics.h"
+#include "./3d.h"
+#include "./sprites.h"
+#include "../data-headers/images.h"
 
 #define bool unsigned char
 #define true 1
@@ -45,7 +47,7 @@ float fmod(float a, float b) {
   return r < 0 ? r + b : r;
 }
 
-#include "../data/kartsprites.h"
+#include "../data-headers/kartsprites.h"
 
 // https://stackoverflow.com/a/3689059/4012708
 // TODO: use the symmetry of the sine graph to make this smaller
@@ -72,45 +74,6 @@ color_t* VRAM;
 
 void setPixel(int x, int y, color_t color) {
   VRAM[y * LCD_WIDTH_PX + x] = color;
-}
-
-// From https://www.cemetech.net/forum/viewtopic.php?t=6114&postdays=0&postorder=asc&start=100
-void CopySpriteMasked(const void* datar, int x, int y, int width, int height, int maskcolor) {
-  color_t* data = (color_t*)datar;
-  color_t* VRAM2 = (color_t*)VRAM;
-  VRAM2 += LCD_WIDTH_PX * y + x;
-  for (int j = y; j < y + height; j++) {
-    for (int i = x; i < x + width; i++) {
-      if (*(data) != maskcolor) {
-        *(VRAM2++) = *(data++);
-      } else {
-        VRAM2++;
-        data++;
-      }
-    }
-    VRAM2 += LCD_WIDTH_PX - width;
-  }
-}
-
-// Version of the function above that draws the sprite flipped horizontally
-void CopySpriteMaskedFlipped(const void* datar, int x, int y, int width, int height, int maskcolor) {
-  color_t* data = (color_t*)datar;
-  color_t* VRAM2 = (color_t*)VRAM;
-  VRAM2 += LCD_WIDTH_PX * y + x;
-  for (int j = y; j < y + height; j++) {
-    // Start at the end of the line and work backwards
-    data += width - 1;
-    for (int i = x; i < x + width; i++) {
-      if (*(data) != maskcolor) {
-        *(VRAM2++) = *(data--);
-      } else {
-        VRAM2++;
-        data--;
-      }
-    }
-    data += width + 1;
-    VRAM2 += LCD_WIDTH_PX - width;
-  }
 }
 
 // https://prizm.cemetech.net/index.php?title=PRGM_GetKey
@@ -142,11 +105,12 @@ void cameraBehind(short x, short y, short objectAngle, short distance) {
 }
 
 void fillSky(unsigned short yMin, unsigned short yMax) {
-  for (unsigned short x = 0; x < LCD_WIDTH_PX; x++) {
+  /* for (unsigned short x = 0; x < LCD_WIDTH_PX; x++) {
     for (unsigned short y = yMin; y < yMax; y++) {
       setPixel(x, y, 0x867D);
     }
-  }
+  } */
+  draw(img_bg, 0, 0);
   Bdisp_PutDisp_DD();
 }
 
@@ -196,7 +160,7 @@ float kartVel = 0;
 float kartAngle = 90;
 #define kartSpeed 2
 
-int labelType = 0;
+int debugType = 0;
 bool exeWasPressed = false;
 
 // For framerate counter
@@ -213,7 +177,7 @@ void main_loop() {
   if (currentTime - lastTime >= 128) {
     lastTime = currentTime;
 
-    if (labelType == 1) {
+    if (debugType == 1) {
       int x = 8;
       int y = 0;
 
@@ -222,7 +186,7 @@ void main_loop() {
 
       PrintMiniMini(&x, &y, buffer, 0, COLOR_BLACK, 0);
       Bdisp_PutDisp_DD_stripe(24, 34);
-    } else if (labelType == 2) {
+    } else if (debugType == 2) {
       int x = 8;
       int y = 0;
 
@@ -306,9 +270,9 @@ void main_loop() {
 
   bool exePressed = keydown(31);
   if (exePressed && !exeWasPressed) {
-    labelType++;
-    labelType = labelType % 3;
-    if (!labelType) {
+    debugType++;
+    debugType = debugType % 3;
+    if (!debugType) {
       // Put the sky back
       fillSky(24, 34);
       Bdisp_PutDisp_DD_stripe(24, 34);

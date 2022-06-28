@@ -5,6 +5,8 @@
         "generated_lut.cpp": "c",
         "track.cpp": "c",
         "kartsprites.h": "c",
-        "track.h": "c"
+        "track.h": "c",
+        "3d.h": "c",
+        "display.h": "c"
     }
 }

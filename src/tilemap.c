@@ -1,11 +1,11 @@
 #include "./main.h"
 
-#include "../data/track.h"
+#include "../data-headers/track.h"
 
 #define precision 8
 
 unsigned char getTileType(short xPos, short yPos) {
-  __builtin_expect(xPos < 0 || xPos >= trackImageWidth || yPos < 0 || yPos >= trackImageHeight, 0);
+  // __builtin_expect(xPos < 0 || xPos >= trackImageWidth || yPos < 0 || yPos >= trackImageHeight, 0);
   if (xPos < 0 || xPos >= trackImageWidth || yPos < 0 || yPos >= trackImageHeight) {
     return 0;  // Grass
   } else {
@@ -13,7 +13,7 @@ unsigned char getTileType(short xPos, short yPos) {
     int xPixel = xPos >> 3;
     int yPixel = yPos >> 3;
 
-    return trackData[((yPixel * (trackImageWidth / precision)) + xPixel) /*% 8192*/];//
+    return trackData[((yPixel * (trackImageWidth / precision)) + xPixel)];
   }
 }
 
@@ -30,5 +30,5 @@ unsigned short samplePixel(short xPos, short yPos) {
   int yPixelInTile = yPos & (precision - 1);
 
   // Get the colour of the pixel in the tile
-  return tileData[getTileType(xPos, yPos) /*% 64*/][(yPixelInTile * precision) + xPixelInTile /*% 64*/];
+  return tileData[getTileType(xPos, yPos)][(yPixelInTile * precision) + xPixelInTile];
 }
