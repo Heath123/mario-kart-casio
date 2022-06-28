@@ -1,3 +1,8 @@
 {
-    "makefile.extensionOutputFolder": "./.vscode"
+    "makefile.extensionOutputFolder": "./.vscode",
+    "files.associations": {
+        "*.xsh": "python",
+        "generated_lut.cpp": "c",
+        "track.cpp": "c"
+    }
 }

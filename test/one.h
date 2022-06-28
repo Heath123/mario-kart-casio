@@ -1,0 +1,1 @@
+#define one 1
