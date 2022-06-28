@@ -3,6 +3,8 @@
     "files.associations": {
         "*.xsh": "python",
         "generated_lut.cpp": "c",
-        "track.cpp": "c"
+        "track.cpp": "c",
+        "kartsprites.h": "c",
+        "track.h": "c"
     }
 }

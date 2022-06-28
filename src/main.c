@@ -45,7 +45,7 @@ float fmod(float a, float b) {
   return r < 0 ? r + b : r;
 }
 
-#include "../kartsprites.cpp"
+#include "../data/kartsprites.h"
 
 // https://stackoverflow.com/a/3689059/4012708
 // TODO: use the symmetry of the sine graph to make this smaller
