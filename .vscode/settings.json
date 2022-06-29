@@ -7,6 +7,8 @@
         "kartsprites.h": "c",
         "track.h": "c",
         "3d.h": "c",
-        "display.h": "c"
+        "display.h": "c",
+        "math.h": "c",
+        "generated_lut.h": "c"
     }
 }

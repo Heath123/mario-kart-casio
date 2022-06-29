@@ -7,6 +7,7 @@ main.o: /home/heath/PrizmSDK-win-0.5.2/projects/mario-kart/src/main.c \
  /home/heath/PrizmSDK-win-0.5.2/include/fxcg/system.h \
  /home/heath/PrizmSDK-win-0.5.2/projects/mario-kart/src/./3d.h \
  /home/heath/PrizmSDK-win-0.5.2/projects/mario-kart/src/./sprites.h \
+ /home/heath/PrizmSDK-win-0.5.2/projects/mario-kart/src/./physics.h \
  /home/heath/PrizmSDK-win-0.5.2/projects/mario-kart/src/../data-headers/images.h \
  /home/heath/PrizmSDK-win-0.5.2/projects/mario-kart/src/../data-headers/kartsprites.h
 /home/heath/PrizmSDK-win-0.5.2/include/fxcg/display.h:
@@ -17,5 +18,6 @@ main.o: /home/heath/PrizmSDK-win-0.5.2/projects/mario-kart/src/main.c \
 /home/heath/PrizmSDK-win-0.5.2/include/fxcg/system.h:
 /home/heath/PrizmSDK-win-0.5.2/projects/mario-kart/src/./3d.h:
 /home/heath/PrizmSDK-win-0.5.2/projects/mario-kart/src/./sprites.h:
+/home/heath/PrizmSDK-win-0.5.2/projects/mario-kart/src/./physics.h:
 /home/heath/PrizmSDK-win-0.5.2/projects/mario-kart/src/../data-headers/images.h:
 /home/heath/PrizmSDK-win-0.5.2/projects/mario-kart/src/../data-headers/kartsprites.h:

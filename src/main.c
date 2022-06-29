@@ -13,6 +13,8 @@
 
 #include "./3d.h"
 #include "./sprites.h"
+#include "./physics.h"
+
 #include "../data-headers/images.h"
 
 #define bool unsigned char
@@ -168,6 +170,8 @@ int lastTime;
 int frameCount = 0;
 int totalFrameCount = 0;
 
+Car kart;
+
 void main_loop() {
   // Main game loop
   #ifndef FXCG_MOCK
@@ -201,25 +205,35 @@ void main_loop() {
   #endif
 
   // Grass or sand = more friction
+  // unsigned char currentTile = getTileType(kartX / scale, kartY / scale);
+  // if (currentTile == 0 || currentTile == 7 || currentTile == 9 || currentTile == 12 || currentTile == 14 || currentTile == 15 || currentTile == 50 || currentTile == 52) {
+  //   kartVel *= 0.8;
+  // } else {
+  //   kartVel *= 0.9;
+  // }
+  // if (kartVel < 1.42) {
+  //   kartVel = 0;
+  // }
+  // float oldKartX = kartX;
+  // float oldKartY = kartY;
+  // kartY += kartVel * sin(-kartAngle);
+  // kartX += kartVel * cos(-kartAngle);
+  // unsigned char newTile = getTileType(kartX / scale, kartY / scale);
+  // if (newTile >= 240 && newTile <= 243) {  // Barrier
+  //   kartX = oldKartX;
+  //   kartY = oldKartY;
+  // }
+
   unsigned char currentTile = getTileType(kartX / scale, kartY / scale);
-  if (currentTile == 0 || currentTile == 7 || currentTile == 9 || currentTile == 12 || currentTile == 14 || currentTile == 15 || currentTile == 50 || currentTile == 52) {
-    kartVel *= 0.8;
+  if (currentTile == 0 || currentTile == 3 || currentTile == 4 || currentTile == 7 || currentTile == 8 ||
+      currentTile == 9 || currentTile == 10 || currentTile == 12 || currentTile == 13 || currentTile == 14 ||
+      currentTile == 15 || currentTile == 17 || currentTile == 33 || currentTile == 48 || currentTile == 49 || currentTile == 50 || currentTile == 51 ||
+      currentTile == 52 || currentTile == 53 || currentTile == 64 || currentTile == 67 || currentTile == 68 ||
+      currentTile == 69 || currentTile == 80 || currentTile == 96 || currentTile == 152 || currentTile == 168 || currentTile == 200 || currentTile == 201 || currentTile == 218) {
+    drag = 0.7;
   } else {
-    kartVel *= 0.9;
+    drag = 0.9;
   }
-  if (kartVel < 1.42) {
-    kartVel = 0;
-  }
-  float oldKartX = kartX;
-  float oldKartY = kartY;
-  kartY += kartVel * sin(-kartAngle);
-  kartX += kartVel * cos(-kartAngle);
-  unsigned char newTile = getTileType(kartX / scale, kartY / scale);
-  if (newTile >= 240 && newTile <= 243) {  // Barrier
-    kartX = oldKartX;
-    kartY = oldKartY;
-  }
-  cameraBehind(kartX, kartY, kartAngle, 150);  // TODO: calculate this rather than guessing
 
   // kartVel += kartSpeed;
 
@@ -228,23 +242,40 @@ void main_loop() {
   bool rightPressed = keydown(KEY_PRGM_RIGHT);
   bool shiftPressed = keydown(KEY_PRGM_SHIFT);
 
-  if (shiftPressed) {
-    kartVel += kartSpeed;
-  }
+  ControlState controls = {
+    up: shiftPressed,
+    down: 0,
+    left: rightPressed,
+    right: leftPressed,
+  };
 
-  if (leftPressed && !rightPressed && kartVel > 3) {
+  updateWithControls(&kart, controls);
+
+  kartX = kart.x * 12;
+  kartY = kart.y * 12;
+  // Radians to degrees
+  kartAngle = -kart.angle * 180 / 3.1415926;
+  kartAngle += 90;
+
+  cameraBehind(kartX, kartY, kartAngle, 150);  // TODO: calculate this rather than guessing
+
+  /* if (shiftPressed) {
+    kartVel += kartSpeed;
+  } */
+
+  if (leftPressed && !rightPressed/*  && kartVel > 3 */) {
     kartAngle -= kartVel / 10;
 
     kartSteerAnim++;
-    if (kartSteerAnim > 10) {
-      kartSteerAnim = 10;
+    if (kartSteerAnim > 20) {
+      kartSteerAnim = 20;
     }
-  } else if (rightPressed && !leftPressed && kartVel > 3) {
+  } else if (rightPressed && !leftPressed/*  && kartVel > 3 */) {
     kartAngle += kartVel / 10;
 
     kartSteerAnim--;
-    if (kartSteerAnim < -10) {
-      kartSteerAnim = -10;
+    if (kartSteerAnim < -20) {
+      kartSteerAnim = -20;
     }
   } else {
     if (kartSteerAnim > 0) {
@@ -301,63 +332,6 @@ void main_loop() {
 
   angle = fmod(kartAngle + 45, 360) * angleWidth / 90;
 
-  // for (unsigned short x = 0; x < LCD_WIDTH_PX / 8; x += 2) {
-  //   index2 = x + angle;
-  //   index2 = mod(index2, (angleWidth * 4));
-  //   element = mod(index2, angleWidth);
-  //   // TODO: Plus 2?
-  //   for (unsigned short y = horizon + 2; y < LCD_HEIGHT_PX; y += 2) {
-  //     unsigned short thing = getScreenPixel(x, y);
-  //     setPixel(x * 2, y, thing);
-  //     setPixel(x * 2 + 1, y, thing);
-  //     setPixel(x * 2 + 2, y, thing);
-  //     setPixel(x * 2 + 3, y, thing);
-
-  //     setPixel(x * 2, y + 1, thing);
-  //     setPixel(x * 2 + 1, y + 1, thing);
-  //     setPixel(x * 2 + 2, y + 1, thing);
-  //     setPixel(x * 2 + 3, y + 1, thing);
-  //   }
-  // }
-  // for (unsigned short x = LCD_WIDTH_PX / 8; x < (LCD_WIDTH_PX / 8) * 3; x += 1) {
-  //   index2 = x + angle;
-  //   index2 = mod(index2, (angleWidth * 4));
-  //   element = mod(index2, angleWidth);
-  //   // TODO: Plus 2?
-  //   for (unsigned short y = horizon + 2; y < (LCD_HEIGHT_PX + horizon + 2) / 2; y += 1) {
-  //     unsigned short thing = getScreenPixel(x, y);
-  //     setPixel(x * 2, y, thing);
-  //     setPixel(x * 2 + 1, y, thing);
-  //   }
-
-  //   for (unsigned short y = (LCD_HEIGHT_PX + horizon + 2) / 2; y < LCD_HEIGHT_PX; y += 2) {
-  //     unsigned short thing = getScreenPixel(x, y);
-  //     setPixel(x * 2, y, thing);
-  //     setPixel(x * 2 + 1, y, thing);
-
-  //     setPixel(x * 2, y + 1, thing);
-  //     setPixel(x * 2 + 1, y + 1, thing);
-  //   }
-  // }
-  // for (unsigned short x = (LCD_WIDTH_PX / 8) * 3; x < LCD_WIDTH_PX / 2; x += 2) {
-  //   index2 = x + angle;
-  //   index2 = mod(index2, (angleWidth * 4));
-  //   element = mod(index2, angleWidth);
-  //   // TODO: Plus 2?
-  //   for (unsigned short y = horizon + 2; y < LCD_HEIGHT_PX; y += 2) {
-  //     unsigned short thing = getScreenPixel(x, y);
-  //     setPixel(x * 2, y, thing);
-  //     setPixel(x * 2 + 1, y, thing);
-  //     setPixel(x * 2 + 2, y, thing);
-  //     setPixel(x * 2 + 3, y, thing);
-
-  //     setPixel(x * 2, y + 1, thing);
-  //     setPixel(x * 2 + 1, y + 1, thing);
-  //     setPixel(x * 2 + 2, y + 1, thing);
-  //     setPixel(x * 2 + 3, y + 1, thing);
-  //   }
-  // }
-
   for (unsigned short x = 0; x < LCD_WIDTH_PX / 2; x++) {
     index2 = x + angle;
     index2 = mod(index2, (angleWidth * 4));
@@ -371,14 +345,15 @@ void main_loop() {
   }
 
   if (kartSteerAnim >= 0) {
-    CopySpriteMasked(mksprites[kartSteerAnim / 2], (LCD_WIDTH_PX / 2) - 36, 128, 72, 80, 0x4fe0);
+    CopySpriteMasked(mksprites[kartSteerAnim / 4], (LCD_WIDTH_PX / 2) - 36, 128, 72, 80, 0x4fe0);
     // CopySpriteMasked(/*mksprites[kartSteerAnim / 2]*/sprite, (LCD_WIDTH_PX / 2) - 39, 128, 78, 81, 0x07e0);
   } else {
-    CopySpriteMaskedFlipped(mksprites[-kartSteerAnim / 2], (LCD_WIDTH_PX / 2) - 36, 128, 72, 80, 0x4fe0);
+    CopySpriteMaskedFlipped(mksprites[-kartSteerAnim / 4], (LCD_WIDTH_PX / 2) - 36, 128, 72, 80, 0x4fe0);
     // CopySpriteMaskedFlipped(/*mksprites[-kartSteerAnim / 2]*/sprite, (LCD_WIDTH_PX / 2) - 39, 128, 78, 81, 0x07e0);
   }
 
   Bdisp_PutDisp_DD_stripe(horizon + 2, LCD_HEIGHT_PX);
+  // Bdisp_PutDisp_DD();
 
   frameCount++;
 }
@@ -396,9 +371,23 @@ int main() {
   lastTime = RTC_GetTicks();
   #endif
 
+  kart.x = 3565 / 12;
+  kart.y = 2600 / 12;
+  kart.xVelocity = 0;
+  kart.yVelocity = 0;
+  kart.power = 0;
+  kart.reverse = 0;
+  kart.angle = 0;
+  kart.angularVelocity = 0;
+  kart.isThrottling = false;
+  kart.isReversing = false;
+  kart.isShooting = false;
+  kart.isTurningLeft = false;
+  kart.isTurningRight = false;
+
   #ifdef FXCG_MOCK
   #ifdef EMSCRIPTEN
-  emscripten_set_main_loop(main_loop, 30, 1);
+  emscripten_set_main_loop(main_loop, 60, 1);
   #else
   set_main_loop(main_loop);
   #endif
