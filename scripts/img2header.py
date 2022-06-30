@@ -5,7 +5,7 @@ from PIL import Image
 import sys
 import os
 
-def toHeader(path):
+def toData(path):
   img = Image.open(path)
   img = img.convert("RGBA")
   outData = []
@@ -25,18 +25,51 @@ def toHeader(path):
       if a < 128:
         rgb = 0x4fe0
       outData.append(rgb)
-  out = f"const unsigned short img_{os.path.basename(path).split('.')[0]}[{len(outData)}] = {{"
-  for i in outData:
+  return outData
+
+def dataToHeader(data, filename):
+  out = f"const unsigned short img_{filename.split('.')[0]}[{len(data)}] = {{"
+  for i in data:
     out += f"0x{i:04x}, "
   out = out[:-2] + "};"
   return out
+
+def multiDataToHeader(dataArray, filename):
+  # Check that the lengths of the data arrays are the same.
+  for i in range(len(dataArray)):
+    if len(dataArray[i]) != len(dataArray[0]):
+      raise Exception("Images must have the same dimensions.")
+  
+  out = f"const unsigned short imgs_{filename}[{len(dataArray)}][{len(dataArray[0])}] = {{"
+  for i in range(len(dataArray)):
+    out += "{"
+    for j in range(len(dataArray[i])):
+      out += f"0x{dataArray[i][j]:04x}, "
+    out = out[:-2] + "}, "
+  out = out[:-2] + "};"
+  return out
+  
 
 all = ""
 # Loop over the PNG files in ../assets/img/ (relative to the script)
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 for file in os.listdir("../assets/img/"):
   if file.endswith(".png"):
-    result = toHeader("../assets/img/" + file)
+    result = dataToHeader(toData("../assets/img/" + file), file)
+    print("Converted " + file)
+    all += result + "\n"
+  # If it's a directory, create an array containing the header for each image in the directory.
+  elif os.path.isdir("../assets/img/" + file):
+    dataArray = []
+    for n in range(9999):
+      # Check if n.png exists, and exit the loop if it doesn't.
+      subFile = f"../assets/img/{file}/{n}.png"
+      if not os.path.isfile(subFile):
+        break
+      print("Converting " + subFile)
+      result = toData(subFile)
+      dataArray.append(result)
+    result = multiDataToHeader(dataArray, file)
     print("Converted " + file)
     all += result + "\n"
   else:

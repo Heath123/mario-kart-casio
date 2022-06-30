@@ -50,3 +50,13 @@ void draw(const unsigned short* data, int x, int y) {
   // Now draw the sprite
   CopySpriteMasked(data2, x, y, width, height, 0x4fe0);
 }
+
+void draw_flipped(const unsigned short* data, int x, int y) {
+  // The height and width of the sprite are the first two elements in the data array
+  int width = data[0];
+  int height = data[1];
+  // The data array starts at index 2
+  const unsigned short* data2 = data + 2;
+  // Now draw the sprite
+  CopySpriteMaskedFlipped(data2, x, y, width, height, 0x4fe0);
+}

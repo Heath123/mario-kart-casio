@@ -113,7 +113,7 @@ generated_lut.cpp: /home/heath/ti-mario-kart-py/compress.py lookup_gen_config.ya
 
 # Still not really sure what I'm doing here
 html/index.html: src/*.c data-headers/*.h
-	emcc -D FXCG_MOCK -D EMSCRIPTEN -Ifxcg-mock/include -g src/*.c ./fxcg-mock/include/fxcg/*.c -o html/index.html
+	emcc -D FXCG_MOCK -D EMSCRIPTEN -Ifxcg-mock/include --g src/*.c ./fxcg-mock/include/fxcg/*.c -o html/index.html
 
 browser: html/index.html
 	emrun --browser=chromium --browser_args=--auto-open-devtools-for-tabs html/index.html
