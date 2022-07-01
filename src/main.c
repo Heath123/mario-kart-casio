@@ -20,6 +20,7 @@
 #include "./3d.h"
 #include "./sprites.h"
 #include "./physics.h"
+#include "./buttons.h"
 
 #include "../data-headers/images.h"
 
@@ -161,7 +162,6 @@ float kartAngle = 90;
 #define kartSpeed 2
 
 int debugType = 0;
-bool exeWasPressed = false;
 
 // For framerate counter
 int lastTime;
@@ -177,12 +177,11 @@ const int hopAnim[15] = {
 };
 bool drifting = false;
 
-bool alphaWasPressed = false;
-
 Car kart;
 
 void main_loop() {
   // Main game loop
+  scanButtons();
 
   #ifndef FXCG_MOCK
   int currentTime = RTC_GetTicks();
@@ -247,16 +246,12 @@ void main_loop() {
   // kartVel += kartSpeed;
 
   // int key = PRGM_GetKey();
-  bool leftPressed = keydown(KEY_PRGM_LEFT);
-  bool rightPressed = keydown(KEY_PRGM_RIGHT);
-  bool shiftPressed = keydown(KEY_PRGM_SHIFT);
-  bool alphaPressed = keydown(KEY_PRGM_ALPHA);
 
   ControlState controls = {
-    up: shiftPressed,
+    up: buttons.accel,
     down: 0,
-    left: rightPressed,
-    right: leftPressed,
+    left: buttons.right,
+    right: buttons.left
   };
 
   turnSpeed = drifting ? 0.003: 0.002;
@@ -275,20 +270,20 @@ void main_loop() {
     kartVel += kartSpeed;
   } */
 
-  if (!alphaPressed) {
+  if (!buttons.hop) {
     drifting = false;
   }
 
   // #define maxSteerAnim 10
   int maxSteerAnim = drifting ? 20 : 10;
-  if (leftPressed && !rightPressed/*  && kartVel > 3 */) {
+  if (buttons.left && !buttons.right/*  && kartVel > 3 */) {
     kartAngle -= kartVel / 10;
 
     kartSteerAnim++;
     if (kartSteerAnim > maxSteerAnim) {
       kartSteerAnim = maxSteerAnim;
     }
-  } else if (rightPressed && !leftPressed/*  && kartVel > 3 */) {
+  } else if (buttons.right && !buttons.left/*  && kartVel > 3 */) {
     kartAngle += kartVel / 10;
 
     kartSteerAnim--;
@@ -317,8 +312,7 @@ void main_loop() {
     distance -= 2;
   } */
 
-  bool exePressed = keydown(31);
-  if (exePressed && !exeWasPressed) {
+  if (buttons.debug && !lastButtons.debug) {
     debugType++;
     debugType = debugType % 3;
     if (!debugType) {
@@ -327,7 +321,6 @@ void main_loop() {
       Bdisp_PutDisp_DD_stripe(24, 34);
     }
   }
-  exeWasPressed = exePressed;
 
   #ifndef FXCG_MOCK
   if (keydown(KEY_PRGM_MENU)) {
@@ -377,9 +370,9 @@ void main_loop() {
 
   // debug_printf("totalFrameCount: %d\n", totalFrameCount);
 
-  if (alphaPressed && hopStage == 0 && !alphaWasPressed) {
+  if (buttons.hop && !lastButtons.hop && hopStage == 0) {
     hopStage = 1;
-    if (leftPressed || rightPressed) {
+    if (buttons.left || buttons.right) {
       drifting = true;
     }
   }
@@ -419,7 +412,6 @@ void main_loop() {
   // draw_loop_x(img_bush, 0, 0, angle * 2, LCD_WIDTH_PX);
   // Bdisp_PutDisp_DD();
 
-  alphaWasPressed = alphaPressed;
   totalFrameCount += 1;
   fpsCount++;
 }

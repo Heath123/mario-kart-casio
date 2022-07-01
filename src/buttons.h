@@ -19,4 +19,6 @@ typedef struct {
 extern buttonState buttons;
 extern buttonState lastButtons;
 
+void scanButtons();
+
 #endif // _BUTTONS_H
