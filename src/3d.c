@@ -1,3 +1,5 @@
+#include "./3d.h"
+
 #include "./main.h"
 #include "./tilemap.h"
 #include "./maths.h"

@@ -9,6 +9,7 @@
         "3d.h": "c",
         "display.h": "c",
         "math.h": "c",
-        "generated_lut.h": "c"
+        "generated_lut.h": "c",
+        "stdbool.h": "c"
     }
 }

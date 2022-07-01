@@ -1,3 +1,5 @@
+#include "./maths.h"
+
 #define angleWidth 192
 
 // const short lut[91] = {

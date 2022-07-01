@@ -18,6 +18,9 @@ int setKeyState(unsigned char key, unsigned char state) {
     case 88: // x
       keysPressed[78] = state;
       break;
+    case 90: // z
+      keysPressed[77] = state;
+      break;
     case 68: // d
       keysPressed[31] = state;
       break;

@@ -1,10 +1,8 @@
+#include "./physics.h"
+
 #include "./maths.h"
 
 #define angleWidth 192
-
-#define false 0
-#define true 1
-typedef unsigned char bool;
 
 // #define maxPower 0.075
 #define maxPower 0.125
@@ -15,7 +13,8 @@ typedef unsigned char bool;
 // #define drag 0.9
 double drag = 0.9;
 #define angularDrag 0.9
-#define turnSpeed 0.002
+// #define turnSpeed 0.002
+double turnSpeed = 0.002;
 
 #define WIDTH 500
 #define HEIGHT 500
@@ -34,38 +33,6 @@ double fmin(double a, double b) {
 
 double fmax(double a, double b) {
   return a > b ? a : b;
-}
-
-typedef struct {
-  bool up;
-  bool left;
-  bool right;
-  bool down;
-} ControlState;
-
-typedef struct {
-  double x;
-  double y;
-  double xVelocity;
-  double yVelocity;
-  double power;
-  double reverse;
-  double angle;
-  double angularVelocity;
-  bool isThrottling;
-  bool isReversing;
-  bool isShooting;
-  bool isTurningLeft;
-  bool isTurningRight;
-} Car;
-
-ControlState getControls() {
-  ControlState controls;
-  controls.up = true;
-  controls.left = false;
-  controls.right = true;
-  controls.down = false;
-  return controls;
 }
 
 void updateCar (Car *car) {

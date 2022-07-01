@@ -1,13 +1,19 @@
+#include "./main.h"
+
 #include <fxcg/display.h>
 #include <fxcg/keyboard.h>
 #ifndef FXCG_MOCK
 #include <fxcg/misc.h>
 #include <fxcg/rtc.h>
 #include <fxcg/system.h>
+
+#define debug_printf(...)
 #else
 #include <fxcg/mock.h>
 #ifdef EMSCRIPTEN
 #include <emscripten.h>
+#include <stdio.h>
+#define debug_printf(...) printf(__VA_ARGS__)
 #endif
 #endif
 
@@ -16,10 +22,6 @@
 #include "./physics.h"
 
 #include "../data-headers/images.h"
-
-#define bool unsigned char
-#define true 1
-#define false 0
 
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 #define MAX(X, Y) (((X) < (Y)) ? (Y) : (X))
@@ -60,11 +62,21 @@ float sin(int angle) {
   if (mod(angle, 360) > 180) {
     sign *= -1;
   }
-  return sign * table[(int)(newAngle / 0.18) - 1];
+  return sign * table[(int)(newAngle / 0.18) /*- 1*/];
 }
 
 float cos(int angle) {
   return sin(angle + 90);
+}
+
+double abs_double(double x) {
+  if (x < 0) return -x;
+  return x;
+}
+
+int abs_int(int x) {
+  if (x < 0) return -x;
+  return x;
 }
 
 short index2;
@@ -85,19 +97,6 @@ int PRGM_GetKey(void) {
 
 #define PI 3.14159265358979323846
 
-// https://www.cemetech.net/forum/viewtopic.php?p=173836&sid=9eabb0dbeddeeb6507c19c8a65dbe249
-#ifndef FXCG_MOCK
-int keydown(int basic_keycode) {
-  const unsigned short* keyboard_register = (unsigned short*)0xA44B0000;
-  int row, col, word, bit;
-  row = basic_keycode % 10;
-  col = basic_keycode / 10 - 1;
-  word = row >> 1;
-  bit = col + 8 * (row & 1);
-  return (0 != (keyboard_register[word] & 1 << bit));
-}
-#endif
-
 void cameraBehind(short x, short y, short objectAngle, short distance) {
   // objectAngle = 90 - objectAngle;
   yOffset = y - sin(-objectAngle) * distance;
@@ -111,6 +110,7 @@ void fillSky(unsigned short yMin, unsigned short yMax) {
     }
   } */
   draw(img_bg, 0, 0);
+  // draw_loop_x(img_loop, 0, 0, 0, LCD_WIDTH_PX);
   Bdisp_PutDisp_DD();
 }
 
@@ -165,18 +165,27 @@ bool exeWasPressed = false;
 
 // For framerate counter
 int lastTime;
-int frameCount = 0;
+int fpsCount = 0;
 int totalFrameCount = 0;
 
-int bounce = 0;
+int jitter = 0;
+int hopStage = 0;
+const int hopAnim[15] = {
+  1, 1, 2, 3, 4,
+  4, 5, 5, 5, 4,
+  4, 3, 2, 1, 1,
+};
+bool drifting = false;
+
+bool alphaWasPressed = false;
 
 Car kart;
 
 void main_loop() {
   // Main game loop
+
   #ifndef FXCG_MOCK
   int currentTime = RTC_GetTicks();
-  totalFrameCount += 1;
   // If 1 second has passed, print framerate
   if (currentTime - lastTime >= 128) {
     lastTime = currentTime;
@@ -186,7 +195,7 @@ void main_loop() {
       int y = 0;
 
       char buffer[17] = "FPS: ";
-      itoa(frameCount, (unsigned char*)buffer + 5);
+      itoa(fpsCount, (unsigned char*)buffer + 5);
 
       PrintMiniMini(&x, &y, buffer, 0, COLOR_BLACK, 0);
       Bdisp_PutDisp_DD_stripe(24, 34);
@@ -200,7 +209,7 @@ void main_loop() {
       PrintMiniMini(&x, &y, buffer, 0, COLOR_BLACK, 0);
       Bdisp_PutDisp_DD_stripe(24, 34);
     }
-    frameCount = 0;
+    fpsCount = 0;
   }
   #endif
 
@@ -241,6 +250,7 @@ void main_loop() {
   bool leftPressed = keydown(KEY_PRGM_LEFT);
   bool rightPressed = keydown(KEY_PRGM_RIGHT);
   bool shiftPressed = keydown(KEY_PRGM_SHIFT);
+  bool alphaPressed = keydown(KEY_PRGM_ALPHA);
 
   ControlState controls = {
     up: shiftPressed,
@@ -248,6 +258,8 @@ void main_loop() {
     left: rightPressed,
     right: leftPressed,
   };
+
+  turnSpeed = drifting ? 0.003: 0.002;
 
   updateWithControls(&kart, controls);
 
@@ -263,7 +275,12 @@ void main_loop() {
     kartVel += kartSpeed;
   } */
 
-  #define maxSteerAnim 20
+  if (!alphaPressed) {
+    drifting = false;
+  }
+
+  // #define maxSteerAnim 10
+  int maxSteerAnim = drifting ? 20 : 10;
   if (leftPressed && !rightPressed/*  && kartVel > 3 */) {
     kartAngle -= kartVel / 10;
 
@@ -345,33 +362,66 @@ void main_loop() {
     }
   }
 
-
-  // Pattern: 0 1 2 1 0 1 2 1 0 etc.
-  int newBounce;
-
-  bounce++;
-  bounce = bounce % 4;
-  if (bounce == 3) {
-    newBounce = 0;
+  jitter++;
+  if (abs_double(kart.xVelocity) + abs_double(kart.yVelocity) < 0.02) {
+    jitter = 0;
+  } else if (abs_double(kart.xVelocity) + abs_double(kart.yVelocity) < 0.30) {
+    jitter = (totalFrameCount / 4) % 2;
+  } else if (abs_double(kart.xVelocity) + abs_double(kart.yVelocity) < 0.50) {
+    jitter = (totalFrameCount / 3) % 2;
+  } else if (abs_double(kart.xVelocity) + abs_double(kart.yVelocity) < 1) {
+    jitter = (totalFrameCount / 2) % 2;
   } else {
-    newBounce = bounce;
+    jitter = totalFrameCount % 2;
   }
 
+  // debug_printf("totalFrameCount: %d\n", totalFrameCount);
 
+  if (alphaPressed && hopStage == 0 && !alphaWasPressed) {
+    hopStage = 1;
+    if (leftPressed || rightPressed) {
+      drifting = true;
+    }
+  }
+
+  if (hopStage != 0) {
+    hopStage++;
+    if (hopStage >= 15) {
+      hopStage = 0;
+    }
+  }
+  
+  int animNo = abs_int(kartSteerAnim) / 2 + (jitter * 11);
+
+  // draw_alpha(img_shadow, (LCD_WIDTH_PX / 2) - (96 / 2), 116, 2);
+  // if (totalFrameCount % 2 == 0) {
+    // draw(img_shadow1, (LCD_WIDTH_PX / 2) - (96 / 2), 112);
+  // } else {
+    // draw(img_shadow2, (LCD_WIDTH_PX / 2) - (96 / 2), 112);
+  // }
+  if (hopStage != 0) {
+    draw(img_shadow1, (LCD_WIDTH_PX / 2) - (96 / 2), 112);
+  }
   if (kartSteerAnim >= 0) {
     // CopySpriteMasked(/*mksprites[kartSteerAnim / 2]*/sprite, (LCD_WIDTH_PX / 2) - 39, 128, 78, 81, 0x07e0);
     // CopySpriteMasked(mksprites[kartSteerAnim / 4], (LCD_WIDTH_PX / 2) - 36, 128, 72, 80, 0x4fe0);
-    draw(imgs_kart[kartSteerAnim / 2], (LCD_WIDTH_PX / 2) - (96 / 2), 120 /* + bounce*/);
+    draw(imgs_kart[animNo], (LCD_WIDTH_PX / 2) - (96 / 2), 112 + jitter - (hopAnim[hopStage] * 3));
   } else {
     // CopySpriteMaskedFlipped(/*mksprites[-kartSteerAnim / 2]*/sprite, (LCD_WIDTH_PX / 2) - 39, 128, 78, 81, 0x07e0);
     // CopySpriteMaskedFlipped(mksprites[-kartSteerAnim / 4], (LCD_WIDTH_PX / 2) - 36, 128, 72, 80, 0x4fe0);
-    draw_flipped(imgs_kart[-kartSteerAnim / 2], (LCD_WIDTH_PX / 2) - (96 / 2), 120);
+    draw_flipped(imgs_kart[animNo], (LCD_WIDTH_PX / 2) - (96 / 2), 112 + jitter - (hopAnim[hopStage] * 3));
   }
 
   Bdisp_PutDisp_DD_stripe(horizon + 2, LCD_HEIGHT_PX);
+  
+  // draw_loop_x(img_loop, 0, 0, angle, LCD_WIDTH_PX);
+  // draw_loop_x(img_castle, 0, 0, angle * 1.5, LCD_WIDTH_PX);
+  // draw_loop_x(img_bush, 0, 0, angle * 2, LCD_WIDTH_PX);
   // Bdisp_PutDisp_DD();
 
-  frameCount++;
+  alphaWasPressed = alphaPressed;
+  totalFrameCount += 1;
+  fpsCount++;
 }
 
 int main() {

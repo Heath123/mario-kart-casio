@@ -1,3 +1,5 @@
+#include "./tilemap.h"
+
 #include "./main.h"
 
 #include "../data-headers/track.h"

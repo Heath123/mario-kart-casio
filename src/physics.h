@@ -1,4 +1,7 @@
-typedef unsigned char bool;
+#ifndef _PHYSICS_H
+#define _PHYSICS_H
+
+#include <stdbool.h>
 
 typedef struct {
   bool up;
@@ -24,5 +27,8 @@ typedef struct {
 } Car;
 
 extern double drag;
+extern double turnSpeed;
 
 void updateWithControls(Car *car, ControlState controls);
+
+#endif // _PHYSICS_H
