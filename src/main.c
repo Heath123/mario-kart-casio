@@ -2,10 +2,10 @@
 
 #include <fxcg/display.h>
 #include <fxcg/keyboard.h>
+#include <fxcg/system.h>
 #ifndef FXCG_MOCK
 #include <fxcg/misc.h>
 #include <fxcg/rtc.h>
-#include <fxcg/system.h>
 
 #define debug_printf(...)
 #else
@@ -18,9 +18,12 @@
 #endif
 
 #include "./3d.h"
+#include "./tilemap.h"
 #include "./sprites.h"
 #include "./physics.h"
 #include "./buttons.h"
+#include "./debugHud.h"
+#include "./particles.h"
 
 #include "../data-headers/images.h"
 
@@ -104,6 +107,7 @@ void cameraBehind(short x, short y, short objectAngle, short distance) {
   xOffset = x - cos(-objectAngle) * distance;
 }
 
+// TODO: max and mix
 void fillSky(unsigned short yMin, unsigned short yMax) {
   /* for (unsigned short x = 0; x < LCD_WIDTH_PX; x++) {
     for (unsigned short y = yMin; y < yMax; y++) {
@@ -161,12 +165,8 @@ float kartVel = 0;
 float kartAngle = 90;
 #define kartSpeed 2
 
-int debugType = 0;
-
 // For framerate counter
-int lastTime;
-int fpsCount = 0;
-int totalFrameCount = 0;
+int totalFrameCount = 0; 
 
 int jitter = 0;
 int hopStage = 0;
@@ -176,6 +176,7 @@ const int hopAnim[15] = {
   4, 3, 2, 1, 1,
 };
 bool drifting = false;
+int driftDir = 0;
 
 Car kart;
 
@@ -184,53 +185,8 @@ void main_loop() {
   scanButtons();
 
   #ifndef FXCG_MOCK
-  int currentTime = RTC_GetTicks();
-  // If 1 second has passed, print framerate
-  if (currentTime - lastTime >= 128) {
-    lastTime = currentTime;
-
-    if (debugType == 1) {
-      int x = 8;
-      int y = 0;
-
-      char buffer[17] = "FPS: ";
-      itoa(fpsCount, (unsigned char*)buffer + 5);
-
-      PrintMiniMini(&x, &y, buffer, 0, COLOR_BLACK, 0);
-      Bdisp_PutDisp_DD_stripe(24, 34);
-    } else if (debugType == 2) {
-      int x = 8;
-      int y = 0;
-
-      char buffer[17] = "Time: ";
-      itoa((totalFrameCount / 38), (unsigned char*)buffer + 6);
-
-      PrintMiniMini(&x, &y, buffer, 0, COLOR_BLACK, 0);
-      Bdisp_PutDisp_DD_stripe(24, 34);
-    }
-    fpsCount = 0;
-  }
+  handleDebugHud();
   #endif
-
-  // Grass or sand = more friction
-  // unsigned char currentTile = getTileType(kartX / scale, kartY / scale);
-  // if (currentTile == 0 || currentTile == 7 || currentTile == 9 || currentTile == 12 || currentTile == 14 || currentTile == 15 || currentTile == 50 || currentTile == 52) {
-  //   kartVel *= 0.8;
-  // } else {
-  //   kartVel *= 0.9;
-  // }
-  // if (kartVel < 1.42) {
-  //   kartVel = 0;
-  // }
-  // float oldKartX = kartX;
-  // float oldKartY = kartY;
-  // kartY += kartVel * sin(-kartAngle);
-  // kartX += kartVel * cos(-kartAngle);
-  // unsigned char newTile = getTileType(kartX / scale, kartY / scale);
-  // if (newTile >= 240 && newTile <= 243) {  // Barrier
-  //   kartX = oldKartX;
-  //   kartY = oldKartY;
-  // }
 
   unsigned char currentTile = getTileType(kartX / scale, kartY / scale);
   if (currentTile == 0 || currentTile == 3 || currentTile == 4 || currentTile == 7 || currentTile == 8 ||
@@ -243,47 +199,73 @@ void main_loop() {
     drag = 0.9;
   }
 
-  // kartVel += kartSpeed;
-
-  // int key = PRGM_GetKey();
-
-  ControlState controls = {
-    up: buttons.accel,
-    down: 0,
-    left: buttons.right,
-    right: buttons.left
-  };
-
-  turnSpeed = drifting ? 0.003: 0.002;
-
-  updateWithControls(&kart, controls);
-
-  kartX = kart.x * 12;
-  kartY = kart.y * 12;
-  // Radians to degrees
-  kartAngle = -kart.angle * 180 / 3.1415926;
-  kartAngle += 90;
-
-  cameraBehind(kartX, kartY, kartAngle, 150);  // TODO: calculate this rather than guessing
-
-  /* if (shiftPressed) {
-    kartVel += kartSpeed;
-  } */
+  // turnSpeed = drifting ? 0.003: 0.002;
 
   if (!buttons.hop) {
     drifting = false;
   }
 
-  // #define maxSteerAnim 10
-  int maxSteerAnim = drifting ? 20 : 10;
-  if (buttons.left && !buttons.right/*  && kartVel > 3 */) {
+  if (buttons.hop && !lastButtons.hop && hopStage == 0) {
+    hopStage = 1;
+    if (buttons.left || buttons.right) {
+      drifting = true;
+      driftDir = buttons.left ? -1 : 1;
+    }
+  }
+
+  if (hopStage != 0) {
+    hopStage++;
+    if (hopStage >= 15) {
+      hopStage = 0;
+      if (!drifting && (buttons.left || buttons.right)) {
+        drifting = true;
+        driftDir = buttons.left ? -1 : 1;
+      }
+    }
+  }
+
+  /* if (drifting) {
+    // debug_printf("driftDir: %d\n", driftDir);
+    if (driftDir == 1) {
+      buttons.right = true;
+      buttons.left = false;
+    } else {
+      buttons.left = true;
+      buttons.right = false;
+    }
+  } */
+
+  double oldKartY = kart.y;
+  double oldKartX = kart.x;
+
+  updateWithControls(&kart, buttons);
+
+  unsigned char newTile = getTileType(kart.x * 12 / scale, kart.y * 12 / scale);
+  if (newTile >= 240 && newTile <= 243) {  // Barrier
+    kart.x = oldKartX;
+    kart.y = oldKartY;
+  }
+
+  kartX = kart.x * 12;
+  kartY = kart.y * 12;
+
+  // Radians to degrees
+  kartAngle = -kart.angle * 180 / 3.1415926;
+  kartAngle += 90;
+
+  // TODO: no / 2 when lower FOV?
+  cameraBehind(kartX, kartY, kartAngle, 150 / 2);  // TODO: calculate this rather than guessing
+
+  // maxSteerAnim = drifting ? 20 : 10;
+  #define maxSteerAnim 10
+  /* if (buttons.left && !buttons.right) {
     kartAngle -= kartVel / 10;
 
     kartSteerAnim++;
     if (kartSteerAnim > maxSteerAnim) {
       kartSteerAnim = maxSteerAnim;
     }
-  } else if (buttons.right && !buttons.left/*  && kartVel > 3 */) {
+  } else if (buttons.right && !buttons.left) {
     kartAngle += kartVel / 10;
 
     kartSteerAnim--;
@@ -302,7 +284,7 @@ void main_loop() {
         kartSteerAnim = 0;
       }
     }
-  }
+  } */
 
   // Control the distance
   /* if (keydown(KEY_PRGM_UP)) {
@@ -311,16 +293,6 @@ void main_loop() {
   if (keydown(KEY_PRGM_DOWN)) {
     distance -= 2;
   } */
-
-  if (buttons.debug && !lastButtons.debug) {
-    debugType++;
-    debugType = debugType % 3;
-    if (!debugType) {
-      // Put the sky back
-      fillSky(24, 34);
-      Bdisp_PutDisp_DD_stripe(24, 34);
-    }
-  }
 
   #ifndef FXCG_MOCK
   if (keydown(KEY_PRGM_MENU)) {
@@ -341,9 +313,9 @@ void main_loop() {
 
   kartAngle = fmod(kartAngle, 360);
 
-  angle = fmod(kartAngle + 45, 360) * angleWidth / 90;
+  angle = fmod(kartAngle + 90, 360) * angleWidth / 90;
 
-  for (unsigned short x = 0; x < LCD_WIDTH_PX / 2; x++) {
+  /* for (unsigned short x = 0; x < LCD_WIDTH_PX / 2; x++) {
     index2 = x + angle;
     index2 = mod(index2, (angleWidth * 4));
     element = mod(index2, angleWidth);
@@ -353,38 +325,58 @@ void main_loop() {
       setPixel(x * 2, y, thing);
       setPixel(x * 2 + 1, y, thing);
     }
-  }
+  } */
 
-  jitter++;
+  new3D();
+
   if (abs_double(kart.xVelocity) + abs_double(kart.yVelocity) < 0.02) {
     jitter = 0;
   } else if (abs_double(kart.xVelocity) + abs_double(kart.yVelocity) < 0.30) {
-    jitter = (totalFrameCount / 4) % 2;
+    jitter = (totalFrameCount / 4) % 4;
   } else if (abs_double(kart.xVelocity) + abs_double(kart.yVelocity) < 0.50) {
-    jitter = (totalFrameCount / 3) % 2;
+    jitter = (totalFrameCount / 3) % 4;
   } else if (abs_double(kart.xVelocity) + abs_double(kart.yVelocity) < 1) {
-    jitter = (totalFrameCount / 2) % 2;
+    jitter = (totalFrameCount / 2) % 4;
   } else {
-    jitter = totalFrameCount % 2;
+    jitter = totalFrameCount % 4;
   }
 
   // debug_printf("totalFrameCount: %d\n", totalFrameCount);
 
-  if (buttons.hop && !lastButtons.hop && hopStage == 0) {
-    hopStage = 1;
-    if (buttons.left || buttons.right) {
-      drifting = true;
+  int targetAnim = 0;
+  if (buttons.left && !buttons.right) {
+    targetAnim = maxSteerAnim;
+  } else if (buttons.right && !buttons.left) {
+    targetAnim = -maxSteerAnim;
+  } else {
+    targetAnim = 0;
+  }
+
+  if (drifting) {
+    targetAnim += (driftDir == -1) ? 10 : -10;
+    if (driftDir == 1 && targetAnim > -7) {
+      targetAnim = -7;
+    }
+    if (driftDir == -1 && targetAnim < 7) {
+      targetAnim = 7;
+    }
+    // debug_printf("driftDir: %d, targetAnim: %d\n", driftDir, targetAnim);
+    if (totalFrameCount % 8 == 0) {
+      addParticle(0, 192 + -32 * driftDir, 180, -5 * driftDir, totalFrameCount % 16 == 0 ? -1 : 1);
     }
   }
 
-  if (hopStage != 0) {
-    hopStage++;
-    if (hopStage >= 15) {
-      hopStage = 0;
+  if (kartSteerAnim != targetAnim) {
+    if (kartSteerAnim > targetAnim) {
+      kartSteerAnim--;
+    } else {
+      kartSteerAnim++;
     }
   }
   
-  int animNo = abs_int(kartSteerAnim) / 2 + (jitter * 11);
+  int animNo = abs_int(kartSteerAnim) / 2;
+  int newAnimNo = animNo + ((jitter / 2) * 11);
+  // debug_printf("animNo: %d\n", animNo);
 
   // draw_alpha(img_shadow, (LCD_WIDTH_PX / 2) - (96 / 2), 116, 2);
   // if (totalFrameCount % 2 == 0) {
@@ -398,12 +390,20 @@ void main_loop() {
   if (kartSteerAnim >= 0) {
     // CopySpriteMasked(/*mksprites[kartSteerAnim / 2]*/sprite, (LCD_WIDTH_PX / 2) - 39, 128, 78, 81, 0x07e0);
     // CopySpriteMasked(mksprites[kartSteerAnim / 4], (LCD_WIDTH_PX / 2) - 36, 128, 72, 80, 0x4fe0);
-    draw(imgs_kart[animNo], (LCD_WIDTH_PX / 2) - (96 / 2), 112 + jitter - (hopAnim[hopStage] * 3));
+    draw(imgs_kart[animNo], (LCD_WIDTH_PX / 2) - (96 / 2), 112 + (jitter % 2) - (hopAnim[hopStage] * 3));
+    if (newAnimNo != animNo) {
+      draw(imgs_kart[newAnimNo], (LCD_WIDTH_PX / 2) - (96 / 2), 112 + (jitter % 2) - (hopAnim[hopStage] * 3));
+    }
   } else {
     // CopySpriteMaskedFlipped(/*mksprites[-kartSteerAnim / 2]*/sprite, (LCD_WIDTH_PX / 2) - 39, 128, 78, 81, 0x07e0);
     // CopySpriteMaskedFlipped(mksprites[-kartSteerAnim / 4], (LCD_WIDTH_PX / 2) - 36, 128, 72, 80, 0x4fe0);
-    draw_flipped(imgs_kart[animNo], (LCD_WIDTH_PX / 2) - (96 / 2), 112 + jitter - (hopAnim[hopStage] * 3));
+    draw_flipped(imgs_kart[animNo], (LCD_WIDTH_PX / 2) - (96 / 2), 112 + (jitter % 2) - (hopAnim[hopStage] * 3));
+    if (newAnimNo != animNo) {
+      draw_flipped(imgs_kart[newAnimNo], (LCD_WIDTH_PX / 2) - (96 / 2), 112 + (jitter % 2) - (hopAnim[hopStage] * 3));
+    }
   }
+
+  tickParticles();
 
   Bdisp_PutDisp_DD_stripe(horizon + 2, LCD_HEIGHT_PX);
   
@@ -413,7 +413,6 @@ void main_loop() {
   // Bdisp_PutDisp_DD();
 
   totalFrameCount += 1;
-  fpsCount++;
 }
 
 int main() {
@@ -425,9 +424,6 @@ int main() {
 
   Bdisp_EnableColor(1);
   fillSky(0, LCD_HEIGHT_PX);
-  #ifndef FXCG_MOCK
-  lastTime = RTC_GetTicks();
-  #endif
 
   kart.x = 3565 / 12;
   kart.y = 2600 / 12;
@@ -442,6 +438,8 @@ int main() {
   kart.isShooting = false;
   kart.isTurningLeft = false;
   kart.isTurningRight = false;
+
+  initParticles();
 
   #ifdef FXCG_MOCK
   #ifdef EMSCRIPTEN

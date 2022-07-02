@@ -83,38 +83,50 @@ void draw(const unsigned short* data, int x, int y) {
   // The height and width of the sprite are the first two elements in the data array
   int width = data[0];
   int height = data[1];
-  // The data array starts at index 2
-  const unsigned short* data2 = data + 2;
+  // The offsets of the x and y positions are the third and fourth elements in the data array
+  int xOffset = data[2];
+  int yOffset = data[3];
+  // The data array starts at index 4
+  const unsigned short* data2 = data + 4;
   // Now draw the sprite
-  CopySpriteMasked(data2, x, y, width, height, 0x4fe0);
+  CopySpriteMasked(data2, x + xOffset, y + yOffset, width, height, 0x4fe0);
 }
 
 void draw_alpha(const unsigned short* data, int x, int y, int alpha) {
   // The height and width of the sprite are the first two elements in the data array
   int width = data[0];
   int height = data[1];
-  // The data array starts at index 2
-  const unsigned short* data2 = data + 2;
+  // The offsets of the x and y positions are the third and fourth elements in the data array
+  int xOffset = data[2];
+  int yOffset = data[3];
+  // The data array starts at index 4
+  const unsigned short* data2 = data + 4;
   // Now draw the sprite
-  CopySpriteMaskedAlpha(data2, x, y, width, height, 0x4fe0, alpha);
+  CopySpriteMaskedAlpha(data2, x + xOffset, y + yOffset, width, height, 0x4fe0, alpha);
 }
 
 void draw_flipped(const unsigned short* data, int x, int y) {
   // The height and width of the sprite are the first two elements in the data array
   int width = data[0];
   int height = data[1];
-  // The data array starts at index 2
-  const unsigned short* data2 = data + 2;
+  // The offsets of the x and y positions are the third and fourth elements in the data array
+  int xOffset = data[2];
+  int yOffset = data[3];
+  // The data array starts at index 4
+  const unsigned short* data2 = data + 4;
   // Now draw the sprite
-  CopySpriteMaskedFlipped(data2, x, y, width, height, 0x4fe0);
+  CopySpriteMaskedFlipped(data2, x + xOffset, y + yOffset, width, height, 0x4fe0);
 }
 
 void draw_loop_x(const unsigned short* data, int x, int y, int xOffset, int drawWidth) {
   // The height and width of the sprite are the first two elements in the data array
   int width = data[0];
   int height = data[1];
-  // The data array starts at index 2
-  const unsigned short* data2 = data + 2;
+  // The offsets of the x and y positions are the third and fourth elements in the data array
+  int xOffset2 = data[2];
+  int yOffset = data[3];
+  // The data array starts at index 4
+  const unsigned short* data2 = data + 4;
   // Now draw the sprite
-  CopySpriteLoopX(data2, x, y, width, height, xOffset, drawWidth, 0x4fe0);
+  CopySpriteLoopX(data2, x + xOffset2, y + yOffset, width, height, xOffset, drawWidth, 0x4fe0);
 }

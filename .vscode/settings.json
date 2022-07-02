@@ -10,6 +10,10 @@
         "display.h": "c",
         "math.h": "c",
         "generated_lut.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "SYSTEM.C": "cpp",
+        "rtc.h": "c",
+        "particles.h": "c",
+        "images.h": "c"
     }
 }

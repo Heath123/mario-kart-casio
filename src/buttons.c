@@ -2,8 +2,8 @@
 
 #include <fxcg/keyboard.h>
 
-buttonState buttons = {0};
-buttonState lastButtons = {0};
+ButtonState buttons = {0};
+ButtonState lastButtons = {0};
 
 // https://www.cemetech.net/forum/viewtopic.php?p=173836&sid=9eabb0dbeddeeb6507c19c8a65dbe249
 #ifndef FXCG_MOCK

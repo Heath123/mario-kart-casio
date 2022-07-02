@@ -3,12 +3,7 @@
 
 #include <stdbool.h>
 
-typedef struct {
-  bool up;
-  bool left;
-  bool right;
-  bool down;
-} ControlState;
+#include "./buttons.h"
 
 typedef struct {
   double x;
@@ -29,6 +24,6 @@ typedef struct {
 extern double drag;
 extern double turnSpeed;
 
-void updateWithControls(Car *car, ControlState controls);
+void updateWithControls(Car *car, ButtonState controls);
 
 #endif // _PHYSICS_H

@@ -14,10 +14,10 @@ typedef struct {
   bool accel;
   bool hop;
   bool debug;
-} buttonState;
+} ButtonState;
 
-extern buttonState buttons;
-extern buttonState lastButtons;
+extern ButtonState buttons;
+extern ButtonState lastButtons;
 
 void scanButtons();
 

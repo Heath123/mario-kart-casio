@@ -119,7 +119,7 @@ browser: html/index.html
 	emrun --browser=chromium --browser_args=--auto-open-devtools-for-tabs html/index.html
 
 $(BUILD):
-	@mkdir $@
+	@mkdir -p $@
 
 #---------------------------------------------------------------------------------
 export CYGWIN := nodosfilewarning

@@ -29,13 +29,13 @@ int setKeyState(unsigned char key, unsigned char state) {
 }
 
 int keyDownEvent(int eventType, const EmscriptenKeyboardEvent *keyEvent, void *userData) {
-  printf("keyDownEvent: %d\n", keyEvent->keyCode);
+  // printf("keyDownEvent: %d\n", (int) keyEvent->keyCode);
   setKeyState(keyEvent->keyCode, 1);
   return 0;
 }
 
 int keyUpEvent(int eventType, const EmscriptenKeyboardEvent *keyEvent, void *userData) {
-  printf("keyUpEvent: %d\n", keyEvent->keyCode);
+  // printf("keyUpEvent: %d\n", (int) keyEvent->keyCode);
   setKeyState(keyEvent->keyCode, 0);
   return 0;
 }

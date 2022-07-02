@@ -8,7 +8,7 @@
 
 unsigned char getTileType(short xPos, short yPos) {
   // __builtin_expect(xPos < 0 || xPos >= trackImageWidth || yPos < 0 || yPos >= trackImageHeight, 0);
-  if (xPos < 0 || xPos >= trackImageWidth || yPos < 0 || yPos >= trackImageHeight) {
+  if((unsigned short) xPos >= trackImageWidth || (unsigned short) yPos >= trackImageHeight) {
     return 0;  // Grass
   } else {
     // Divide by 8

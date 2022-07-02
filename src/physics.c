@@ -1,11 +1,14 @@
 #include "./physics.h"
 
+#include "./main.h"
 #include "./maths.h"
+#include "./buttons.h"
 
 #define angleWidth 192
 
 // #define maxPower 0.075
-#define maxPower 0.125
+// #define maxPower 0.125
+#define maxPower 0.1
 #define maxReverse 0.0375
 #define powerFactor 0.001
 #define reverseFactor 0.0005
@@ -35,6 +38,10 @@ double fmax(double a, double b) {
   return a > b ? a : b;
 }
 
+double dmod(double a, double b) {
+  return a - (int)(a / b) * b;
+}
+
 void updateCar (Car *car) {
   if (car->isThrottling) {
     car->power += powerFactor * car->isThrottling;
@@ -52,12 +59,16 @@ void updateCar (Car *car) {
 
   double direction = car->power > car->reverse ? 1 : -1;
 
-  if (car->isTurningLeft) {
-    car->angularVelocity -= direction * turnSpeed * car->isTurningLeft;
+  double change = car->isTurningLeft ? -1 : car->isTurningRight ? 1 : 0;
+  if (drifting) {
+    if (driftDir == -1) {
+      change += 0.7;
+    } else {
+      change -= 0.7;
+    }
   }
-  if (car->isTurningRight) {
-    car->angularVelocity += direction * turnSpeed * car->isTurningRight;
-  }
+  change *= direction * turnSpeed;
+  car->angularVelocity += change;
 
   car->xVelocity += sin2(car->angle) * (car->power - car->reverse);
   car->yVelocity += cos2(car->angle) * (car->power - car->reverse);
@@ -67,6 +78,7 @@ void updateCar (Car *car) {
   car->xVelocity *= drag;
   car->yVelocity *= drag;
   car->angle += car->angularVelocity;
+  car->angle = dmod(car->angle, 3.1415926 * 2);
   car->angularVelocity *= angularDrag;
 }
 
@@ -86,21 +98,23 @@ void updateCar (Car *car) {
 //     isTurningRight: false,
 //   };
 
-void updateWithControls(Car *car, ControlState controls) {
+void updateWithControls(Car *car, ButtonState controls) {
   bool changed;
 
   bool canTurn = car->power > 0.0025 || car->reverse;
 
-  double throttle = controls.up ? 1 : 0;
-  double reverse = controls.down ? 1 : 0;
+  double throttle = controls.accel ? 1 : 0;
+  // double reverse = controls.down ? 1 : 0;
+  double reverse = 0;
 
   if (car->isThrottling != throttle || car->isReversing != reverse) {
     changed = true;
     car->isThrottling = throttle;
     car->isReversing = reverse;
   }
-  bool turnLeft = canTurn && controls.left;
-  bool turnRight = canTurn && controls.right;
+  // Controls are reversed for now
+  bool turnLeft = canTurn && /*controls.left*/ controls.right;
+  bool turnRight = canTurn && /*controls.right*/ controls.left;
 
   if (car->isTurningLeft != turnLeft) {
     changed = true;
