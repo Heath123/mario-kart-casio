@@ -14,6 +14,9 @@ typedef struct {
   bool accel;
   bool hop;
   bool debug;
+  bool save;
+  bool load;
+  bool debug_boost;
 } ButtonState;
 
 extern ButtonState buttons;

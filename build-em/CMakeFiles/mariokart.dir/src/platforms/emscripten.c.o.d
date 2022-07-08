@@ -1,0 +1,29 @@
+CMakeFiles/mariokart.dir/src/platforms/emscripten.c.o: \
+  /home/heath/mk-gint/src/platforms/emscripten.c \
+  /home/heath/.emscripten_cache/sysroot/include/emscripten.h \
+  /home/heath/.emscripten_cache/sysroot/include/emscripten/emscripten.h \
+  /home/heath/.emscripten_cache/sysroot/include/emscripten/em_asm.h \
+  /home/heath/.emscripten_cache/sysroot/include/emscripten/em_macros.h \
+  /home/heath/.emscripten_cache/sysroot/include/emscripten/em_types.h \
+  /home/heath/.emscripten_cache/sysroot/include/emscripten/em_js.h \
+  /home/heath/.emscripten_cache/sysroot/include/emscripten/wget.h \
+  /home/heath/.emscripten_cache/sysroot/include/emscripten/version.h \
+  /home/heath/mk-gint/src/platforms/./emscripten.h \
+  /home/heath/mk-gint/src/platforms/gint.h \
+  /home/heath/.emscripten_cache/sysroot/include/emscripten/html5.h \
+  /home/heath/.emscripten_cache/sysroot/include/pthread.h \
+  /home/heath/.emscripten_cache/sysroot/include/features.h \
+  /home/heath/.emscripten_cache/sysroot/include/bits/alltypes.h \
+  /home/heath/.emscripten_cache/sysroot/include/sched.h \
+  /home/heath/.emscripten_cache/sysroot/include/compat/time.h \
+  /home/heath/.emscripten_cache/sysroot/include/time.h \
+  /home/heath/.emscripten_cache/sysroot/include/emscripten/eventloop.h \
+  /home/heath/.emscripten_cache/sysroot/include/emscripten/console.h \
+  /home/heath/.emscripten_cache/sysroot/include/emscripten/html5_webgl.h \
+  /home/heath/.emscripten_cache/sysroot/include/stdio.h \
+  /home/heath/.emscripten_cache/sysroot/include/wasi/api.h \
+  /opt/emscripten-llvm/lib/clang/15.0.0/include/stddef.h \
+  /opt/emscripten-llvm/lib/clang/15.0.0/include/__stddef_max_align_t.h \
+  /opt/emscripten-llvm/lib/clang/15.0.0/include/stdint.h \
+  /home/heath/.emscripten_cache/sysroot/include/stdint.h \
+  /home/heath/.emscripten_cache/sysroot/include/bits/stdint.h

@@ -2,6 +2,7 @@
 #define _3D_H_
 
 unsigned short getScreenPixel(unsigned short x, unsigned short y);
-void new3D();
+void draw3D();
+extern int hFovModifier;
 
 #endif // _3D_H_

@@ -12,7 +12,14 @@ ParticleType types[] = {
     .animLength = 3,
     .animDelay = 4,
     .animFrames = imgs_smoke
-  }
+  },
+  // Boost fire
+  {
+    .maxAge = 20,
+    .animLength = 5,
+    .animDelay = 4,
+    .animFrames = imgs_boost
+  },
 };
 
 ParticleState particles[MAX_PARTICLES];

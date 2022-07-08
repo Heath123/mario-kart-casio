@@ -1,0 +1,38 @@
+cmake -G "Unix Makefiles" -S /home/heath/mk-gint -B /home/heath/mk-gint
+CMake Error at CMakeLists.txt:7 (include):
+  include could not find requested file:
+
+    GenerateG1A
+
+
+CMake Error at CMakeLists.txt:8 (include):
+  include could not find requested file:
+
+    GenerateG3A
+
+
+CMake Error at CMakeLists.txt:9 (include):
+  include could not find requested file:
+
+    Fxconv
+
+
+CMake Error at CMakeLists.txt:10 (find_package):
+  By not providing "FindGint.cmake" in CMAKE_MODULE_PATH this project has
+  asked CMake to find a package configuration file provided by "Gint", but
+  CMake did not find one.
+
+  Could not find a package configuration file provided by "Gint" (requested
+  version 2.1) with any of the following names:
+
+    GintConfig.cmake
+    gint-config.cmake
+
+  Add the installation prefix of "Gint" to CMAKE_PREFIX_PATH or set
+  "Gint_DIR" to a directory containing one of the above files.  If "Gint"
+  provides a separate development package or SDK, be sure it has been
+  installed.
+
+
+-- Configuring incomplete, errors occurred!
+See also "/home/heath/mk-gint/CMakeFiles/CMakeOutput.log".

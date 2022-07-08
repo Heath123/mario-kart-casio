@@ -1,0 +1,2 @@
+/home/heath/mk-gint/CMakeFiles/edit_cache.dir
+/home/heath/mk-gint/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,1 @@
+/usr/lib/emscripten/emcc --shell-file=../emscripten.html @CMakeFiles/mariokart.dir/objects1.rsp -o mariokart.html 

@@ -11,19 +11,16 @@ typedef struct {
   double xVelocity;
   double yVelocity;
   double power;
-  double reverse;
+  // double reverse;
   double angle;
   double angularVelocity;
-  bool isThrottling;
-  bool isReversing;
-  bool isShooting;
-  bool isTurningLeft;
-  bool isTurningRight;
-} Car;
+} Kart;
 
 extern double drag;
 extern double turnSpeed;
+extern double maxPower;
+extern double powerFactor;
 
-void updateWithControls(Car *car, ButtonState controls);
+void updateWithControls(Kart *car, ButtonState controls);
 
 #endif // _PHYSICS_H

@@ -1,1 +1,0 @@
-void initMock(void);

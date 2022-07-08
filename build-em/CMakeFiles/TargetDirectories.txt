@@ -1,0 +1,3 @@
+/home/heath/mk-gint/build-em/CMakeFiles/mariokart.dir
+/home/heath/mk-gint/build-em/CMakeFiles/edit_cache.dir
+/home/heath/mk-gint/build-em/CMakeFiles/rebuild_cache.dir

@@ -1,12 +1,11 @@
-#ifndef FXCG_MOCK
-
 #include "./debugHud.h"
 
-#include <fxcg/display.h>
-#include <fxcg/rtc.h>
+#include <stdio.h>
 
+#include "./platform.h"
 #include "./main.h"
 #include "./buttons.h"
+#include "./state.h"
 
 int lastTime = 0;
 int debugType = 0;
@@ -19,40 +18,30 @@ void handleDebugHud() {
     debugType = debugType % 3;
     if (!debugType) {
       // Put the sky back
-      fillSky(24, 34);
-      Bdisp_PutDisp_DD_stripe(24, 34);
+      fillSky(8, 20);
     }
   }
 
-  int currentTime = RTC_GetTicks();
+  int currentTime = getTimeMS();
 
+  char buffer[17];
   if (debugType == 1) {
-    int x = 8;
-    int y = 0;
-
-    char buffer[17] = "FPS: ";
-    itoa(currentFps, (unsigned char*)buffer + 5);
-
-    PrintMiniMini(&x, &y, buffer, 0, COLOR_BLACK, 0);
-    Bdisp_PutDisp_DD_stripe(24, 34);
+    char buffer[17];
+    snprintf(buffer, 17, "FPS: %d", currentFps);
   } else if (debugType == 2) {
-    int x = 8;
-    int y = 0;
+    snprintf(buffer, 17, "Time: %d", (state.totalFrameCount / 60));
+  }
 
-    char buffer[17] = "Time: ";
-    itoa((totalFrameCount / 38), (unsigned char*)buffer + 6);
-
-    PrintMiniMini(&x, &y, buffer, 0, COLOR_BLACK, 0);
-    Bdisp_PutDisp_DD_stripe(24, 34);
+  if (debugType) {
+    // Draw the text
+    drawText(8, 8, buffer);
   }
 
   // If 1 second has passed
-  if (currentTime - lastTime >= 128) {
+  if (currentTime - lastTime >= 1000) {
     lastTime = currentTime;
     currentFps = fpsCount;
     fpsCount = 0;
   }
   fpsCount++;
 }
-
-#endif // FXCG_MOCK

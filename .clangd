@@ -1,0 +1,7 @@
+CompileFlags:
+  Add:
+    - "--include-directory=/home/heath/.local/share/giteapc/Lephenixnoir/gint/include/"
+  Remove:
+    - "-m4-nofpu"
+    - "-mb"
+    - "-fstrict-volatile-bitfields"

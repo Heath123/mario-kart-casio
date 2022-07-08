@@ -1,0 +1,3 @@
+bg.png:
+  type: bopti-image
+  name: img_bg

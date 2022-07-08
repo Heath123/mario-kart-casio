@@ -1,22 +1,7 @@
 #include "./main.h"
 
-#include <fxcg/display.h>
-#include <fxcg/keyboard.h>
-#include <fxcg/system.h>
-#ifndef FXCG_MOCK
-#include <fxcg/misc.h>
-#include <fxcg/rtc.h>
-
-#define debug_printf(...)
-#else
-#include <fxcg/mock.h>
-#ifdef EMSCRIPTEN
-#include <emscripten.h>
-#include <stdio.h>
-#define debug_printf(...) printf(__VA_ARGS__)
-#endif
-#endif
-
+#include "./platform.h"
+#include "./state.h"
 #include "./3d.h"
 #include "./tilemap.h"
 #include "./sprites.h"
@@ -26,22 +11,23 @@
 #include "./particles.h"
 
 #include "../data-headers/images.h"
+#include "platforms/gint.h"
 
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 #define MAX(X, Y) (((X) < (Y)) ? (Y) : (X))
 
-#define LCD_WIDTH_PX 384
-#define LCD_HEIGHT_PX 216
-
 // TODO : no duplication with the LUT
 #define angleWidth 192
-#define horizon 108
+#define horizon (LCD_HEIGHT_PX / 2)
+
+#define offX(amount) (LCD_WIDTH_PX / 2 + amount)
+#define offY(amount) (LCD_HEIGHT_PX / 2 + amount)
 
 #define scale 4
 
 short angle = 0;
 short xOffset = 0;
-short yOffset = 0;
+short yOffset = 0; 
 
 // https://stackoverflow.com/a/19288271/4012708
 int mod(int a, int b) {
@@ -86,17 +72,10 @@ int abs_int(int x) {
 short index2;
 unsigned short element;
 
-color_t* VRAM;
+// color_t* VRAM;
 
 void setPixel(int x, int y, color_t color) {
   VRAM[y * LCD_WIDTH_PX + x] = color;
-}
-
-// https://prizm.cemetech.net/index.php?title=PRGM_GetKey
-int PRGM_GetKey(void) {
-  unsigned char buffer[12];
-  PRGM_GetKey_OS(buffer);
-  return (buffer[1] & 0x0F) * 10 + ((buffer[2] & 0xF0) >> 4);
 }
 
 #define PI 3.14159265358979323846
@@ -107,7 +86,9 @@ void cameraBehind(short x, short y, short objectAngle, short distance) {
   xOffset = x - cos(-objectAngle) * distance;
 }
 
-// TODO: max and mix
+// #include <gint/display.h>
+
+// TODO: max and min
 void fillSky(unsigned short yMin, unsigned short yMax) {
   /* for (unsigned short x = 0; x < LCD_WIDTH_PX; x++) {
     for (unsigned short y = yMin; y < yMax; y++) {
@@ -115,8 +96,10 @@ void fillSky(unsigned short yMin, unsigned short yMax) {
     }
   } */
   draw(img_bg, 0, 0);
+  // extern bopti_image_t img_bg;
+  // dimage(0, 0, &img_bg);
   // draw_loop_x(img_loop, 0, 0, 0, LCD_WIDTH_PX);
-  Bdisp_PutDisp_DD();
+  displayUpdate(yMin, yMax);
 }
 
 // https://prizm.cemetech.net/index.php?title=Useful_Routines
@@ -160,189 +143,247 @@ void drawLine(int x1, int y1, int x2, int y2, unsigned short color) {
 
 unsigned short kartX = 3730;
 unsigned short kartY = 2300;
-signed char kartSteerAnim = 0;
 float kartVel = 0;
 float kartAngle = 90;
 #define kartSpeed 2
 
 // For framerate counter
-int totalFrameCount = 0; 
+// int state.totalFrameCount = 0;
 
 int jitter = 0;
-int hopStage = 0;
 const int hopAnim[15] = {
   1, 1, 2, 3, 4,
   4, 5, 5, 5, 4,
   4, 3, 2, 1, 1,
 };
-bool drifting = false;
-int driftDir = 0;
 
-Car kart;
+State savedState;
+
+void draw_time(char* str, int x, int y) {
+  // Loop through each character in the string
+  for (int i = 0; str[i] != '\0'; i++) {
+    // If it's a number
+    int character = 10;
+    if (str[i] >= '0' && str[i] <= '9') { 
+      character = str[i] - '0';
+    }
+    draw(imgs_font[character], x + ((12 - imgs_font[character][0]) / 2), y);
+    x += 10;
+  }
+}
+
+#include <stdio.h>
 
 void main_loop() {
   // Main game loop
   scanButtons();
 
-  #ifndef FXCG_MOCK
-  handleDebugHud();
-  #endif
-
-  unsigned char currentTile = getTileType(kartX / scale, kartY / scale);
-  if (currentTile == 0 || currentTile == 3 || currentTile == 4 || currentTile == 7 || currentTile == 8 ||
-      currentTile == 9 || currentTile == 10 || currentTile == 12 || currentTile == 13 || currentTile == 14 ||
-      currentTile == 15 || currentTile == 17 || currentTile == 33 || currentTile == 48 || currentTile == 49 || currentTile == 50 || currentTile == 51 ||
-      currentTile == 52 || currentTile == 53 || currentTile == 64 || currentTile == 67 || currentTile == 68 ||
-      currentTile == 69 || currentTile == 80 || currentTile == 96 || currentTile == 152 || currentTile == 168 || currentTile == 200 || currentTile == 201 || currentTile == 218) {
-    drag = 0.7;
-  } else {
-    drag = 0.9;
-  }
-
-  // turnSpeed = drifting ? 0.003: 0.002;
-
-  if (!buttons.hop) {
-    drifting = false;
-  }
-
-  if (buttons.hop && !lastButtons.hop && hopStage == 0) {
-    hopStage = 1;
-    if (buttons.left || buttons.right) {
-      drifting = true;
-      driftDir = buttons.left ? -1 : 1;
+  if (state.totalFrameCount > 180) {
+    if (buttons.save) {
+      savedState = state;
     }
-  }
-
-  if (hopStage != 0) {
-    hopStage++;
-    if (hopStage >= 15) {
-      hopStage = 0;
-      if (!drifting && (buttons.left || buttons.right)) {
-        drifting = true;
-        driftDir = buttons.left ? -1 : 1;
-      }
+    if (buttons.load) {
+      state = savedState;
     }
-  }
 
-  /* if (drifting) {
-    // debug_printf("driftDir: %d\n", driftDir);
-    if (driftDir == 1) {
-      buttons.right = true;
-      buttons.left = false;
-    } else {
-      buttons.left = true;
-      buttons.right = false;
-    }
-  } */
+    handleDebugHud();
 
-  double oldKartY = kart.y;
-  double oldKartX = kart.x;
+    // turnSpeed = state.drifting ? 0.003: 0.002;
 
-  updateWithControls(&kart, buttons);
+    unsigned char currentTile = getTileType(kartX / scale, kartY / scale);
+    bool isOffRoad =
+      (currentTile == 0 || currentTile == 3 || currentTile == 4 || currentTile == 7 || currentTile == 8 ||
+        currentTile == 9 || currentTile == 10 || currentTile == 12 || currentTile == 13 || currentTile == 14 ||
+        currentTile == 15 || currentTile == 17 || currentTile == 33 || currentTile == 48 || currentTile == 49 || currentTile == 50 || currentTile == 51 ||
+        currentTile == 52 || currentTile == 53 || currentTile == 64 || currentTile == 67 || currentTile == 68 ||
+        currentTile == 69 || currentTile == 80 || currentTile == 96 || currentTile == 152 || currentTile == 168 || currentTile == 200 || currentTile == 201 || currentTile == 218);
 
-  unsigned char newTile = getTileType(kart.x * 12 / scale, kart.y * 12 / scale);
-  if (newTile >= 240 && newTile <= 243) {  // Barrier
-    kart.x = oldKartX;
-    kart.y = oldKartY;
-  }
-
-  kartX = kart.x * 12;
-  kartY = kart.y * 12;
-
-  // Radians to degrees
-  kartAngle = -kart.angle * 180 / 3.1415926;
-  kartAngle += 90;
-
-  // TODO: no / 2 when lower FOV?
-  cameraBehind(kartX, kartY, kartAngle, 150 / 2);  // TODO: calculate this rather than guessing
-
-  // maxSteerAnim = drifting ? 20 : 10;
-  #define maxSteerAnim 10
-  /* if (buttons.left && !buttons.right) {
-    kartAngle -= kartVel / 10;
-
-    kartSteerAnim++;
-    if (kartSteerAnim > maxSteerAnim) {
-      kartSteerAnim = maxSteerAnim;
-    }
-  } else if (buttons.right && !buttons.left) {
-    kartAngle += kartVel / 10;
-
-    kartSteerAnim--;
-    if (kartSteerAnim < -maxSteerAnim) {
-      kartSteerAnim = -maxSteerAnim;
-    }
-  } else {
-    if (kartSteerAnim > 0) {
-      kartSteerAnim--;
-      if (kartSteerAnim < 0) {
-        kartSteerAnim = 0;
+    if (state.drifting && !isOffRoad) {
+      if ((buttons.left && state.driftDir == -1) || (buttons.right && state.driftDir == 1)) {
+        state.driftCharge += 2;
+      } else {
+        state.driftCharge++;
       }
     } else {
-      kartSteerAnim++;
-      if (kartSteerAnim > 0) {
-        kartSteerAnim = 0;
+      state.driftCharge = 0;
+      /* for (int x = 0; x < LCD_WIDTH_PX / 2; x++) {
+        for (int y = 0; y < 4; y++) {
+          // setPixel(i, j, 0xF800);
+          ((unsigned int *)VRAM)[y * (LCD_WIDTH_PX / 2) + x] = (0x0CDF << 16) | 0x0CDF;
+        }
+      } */
+    }
+
+    if (state.driftCharge > 60) {
+      state.driftCharge = 60;
+    }
+
+    /* if (state.driftCharge > 0) {
+      // Draw a 4px red bar at the top of the screen
+      int barWidth = state.driftCharge * LCD_WIDTH_PX / 60 / 2;
+      for (int x = 0; x < barWidth; x++) {
+        for (int y = 0; y < 4; y++) {
+          // setPixel(i, j, 0xF800);
+          ((unsigned int *)VRAM)[y * (LCD_WIDTH_PX / 2) + x] = (0xF800 << 16) | 0xF800;
+        }
+      }
+    } */
+
+    if (!buttons.hop) {
+      if (state.drifting && state.driftCharge >= 60) {
+        state.boostTime = 30;
+        addParticle(1, LCD_WIDTH_PX / 2 - 28, LCD_HEIGHT_PX - 70, 0, 0);
+      }
+      state.drifting = false;
+    }
+
+    if (buttons.hop && !lastButtons.hop && state.hopStage == 0) {
+      state.hopStage = 1;
+      if (buttons.left || buttons.right) {
+        state.drifting = true;
+        state.driftDir = buttons.left ? -1 : 1;
       }
     }
-  } */
 
-  // Control the distance
-  /* if (keydown(KEY_PRGM_UP)) {
-    distance += 2;
-  }
-  if (keydown(KEY_PRGM_DOWN)) {
-    distance -= 2;
-  } */
-
-  #ifndef FXCG_MOCK
-  if (keydown(KEY_PRGM_MENU)) {
-    // Allow the OS to handle exiting to the menu
-    int key;
-    GetKey(&key);
-    Bdisp_EnableColor(1);
-    fillSky(0, LCD_HEIGHT_PX);
-  }
-  #endif
-
-  if (keydown(KEY_PRGM_ACON)) {
-    #ifndef FXCG_MOCK
-    PowerOff(1);
-    #endif
-    fillSky(0, LCD_HEIGHT_PX);
-  }
-
-  kartAngle = fmod(kartAngle, 360);
-
-  angle = fmod(kartAngle + 90, 360) * angleWidth / 90;
-
-  /* for (unsigned short x = 0; x < LCD_WIDTH_PX / 2; x++) {
-    index2 = x + angle;
-    index2 = mod(index2, (angleWidth * 4));
-    element = mod(index2, angleWidth);
-    // TODO: Plus 2?
-    for (unsigned short y = horizon + 2; y < LCD_HEIGHT_PX; y += 1) {
-      unsigned short thing = getScreenPixel(x, y);
-      setPixel(x * 2, y, thing);
-      setPixel(x * 2 + 1, y, thing);
+    if (state.hopStage != 0) {
+      state.hopStage++;
+      if (state.hopStage >= 15) {
+        state.hopStage = 0;
+        if (!state.drifting && (buttons.left || buttons.right)) {
+          state.drifting = true;
+          state.driftDir = buttons.left ? -1 : 1;
+        }
+      }
     }
-  } */
 
-  new3D();
+    /* if (state.drifting) {
+      // debug_printf("state.driftDir: %d\n", state.driftDir);
+      if (state.driftDir == 1) {
+        buttons.right = true;
+        buttons.left = false;
+      } else {
+        buttons.left = true;
+        buttons.right = false;
+      }
+    } */
 
-  if (abs_double(kart.xVelocity) + abs_double(kart.yVelocity) < 0.02) {
+    if (buttons.debug_boost) {
+      state.boostTime = 30;
+      addParticle(1, LCD_WIDTH_PX / 2 - 28, LCD_HEIGHT_PX - 70, 0, 0);
+    }
+
+    bool boosting = false;
+    if (state.boostTime >= 0) {
+      state.boostTime--;
+      boosting = true;
+    }
+    
+    if (boosting) {
+      maxPower = 0.15;
+      powerFactor = 0.002;
+      state.player.power = maxPower;
+      buttons.accel = true;
+
+      // hFovModifier = (1 << 12) * 1.2;
+      if (hFovModifier < (1 << 12) * 1.2) {
+        hFovModifier += (1 << 12) * 0.05;
+      }
+    } else {
+      maxPower = 0.1;
+      powerFactor = 0.001;
+
+      // hFovModifier = 1 << 12;
+      if (hFovModifier > 1 << 12) {
+        hFovModifier -= (1 << 12) * 0.02;
+      }
+    }
+
+    if (!boosting && isOffRoad) {
+      drag = 0.7;
+    } else {
+      drag = 0.9;
+    }
+
+    double oldKartY = state.player.y;
+    double oldKartX = state.player.x;
+
+    updateWithControls(&state.player, buttons);
+
+    unsigned char newTile = getTileType(state.player.x * 12 / scale, state.player.y * 12 / scale);
+    if (newTile >= 240 && newTile <= 243) {  // Barrier
+      state.player.x = oldKartX;
+      state.player.y = oldKartY;
+    }
+
+    kartX = state.player.x * 12;
+    kartY = state.player.y * 12;
+
+    // Radians to degrees
+    kartAngle = -state.player.angle * 180 / 3.1415926;
+    kartAngle += 90;
+
+    // TODO: no / 2 when lower FOV?
+    cameraBehind(kartX, kartY, kartAngle, 150 / 2);  // TODO: calculate this rather than guessing
+
+    kartAngle = fmod(kartAngle, 360);
+
+    angle = fmod(kartAngle + 90, 360) * angleWidth / 90;
+
+    /* for (unsigned short x = 0; x < LCD_WIDTH_PX / 2; x++) {
+      index2 = x + angle;
+      index2 = mod(index2, (angleWidth * 4));
+      element = mod(index2, angleWidth);
+      // TODO: Plus 2?
+      for (unsigned short y = horizon + 2; y < LCD_HEIGHT_PX; y += 1) {
+        unsigned short thing = getScreenPixel(x, y);
+        setPixel(x * 2, y, thing);
+        setPixel(x * 2 + 1, y, thing);
+      }
+    } */
+  }
+
+  draw3D();
+
+  if (state.driftCharge >= 60) {
+    // Draw fire effect on the wheels
+    int sign = state.kartSteerAnim < 0 ? -1 : 1;
+    sign *= -1;
+    int x = LCD_WIDTH_PX / 2 - (44 * sign) - 8;
+    x += 2;
+    int y = LCD_HEIGHT_PX - 50;
+    int positive = abs_int(state.kartSteerAnim);
+    int v = positive - 10;
+    if (v < 0) {
+      v = 0;
+    }
+    v *= sign;
+    x -= v / 2;
+    x += (state.totalFrameCount / 2) % 3 * sign;
+    y += (state.totalFrameCount / 2) % 2;
+    if (sign == 1) {
+      draw(img_fire, x, y);
+      draw(img_fire, x + (state.totalFrameCount / 2) % 2 * 3, y + 5);
+    } else {
+      draw_flipped(img_fire, x, y);
+      draw_flipped(img_fire, x - (state.totalFrameCount / 2) % 2 * 3, y + 5);
+    }
+  }
+
+  if (abs_double(state.player.xVelocity) + abs_double(state.player.yVelocity) < 0.02) {
     jitter = 0;
-  } else if (abs_double(kart.xVelocity) + abs_double(kart.yVelocity) < 0.30) {
-    jitter = (totalFrameCount / 4) % 4;
-  } else if (abs_double(kart.xVelocity) + abs_double(kart.yVelocity) < 0.50) {
-    jitter = (totalFrameCount / 3) % 4;
-  } else if (abs_double(kart.xVelocity) + abs_double(kart.yVelocity) < 1) {
-    jitter = (totalFrameCount / 2) % 4;
+  } else if (abs_double(state.player.xVelocity) + abs_double(state.player.yVelocity) < 0.30) {
+    jitter = (state.totalFrameCount / 4) % 4;
+  } else if (abs_double(state.player.xVelocity) + abs_double(state.player.yVelocity) < 0.50) {
+    jitter = (state.totalFrameCount / 3) % 4;
+  } else if (abs_double(state.player.xVelocity) + abs_double(state.player.yVelocity) < 1) {
+    jitter = (state.totalFrameCount / 2) % 4;
   } else {
-    jitter = totalFrameCount % 4;
+    jitter = state.totalFrameCount % 4;
   }
 
-  // debug_printf("totalFrameCount: %d\n", totalFrameCount);
+  // debug_printf("state.totalFrameCount: %d\n", state.totalFrameCount);
 
+  #define maxSteerAnim 10
   int targetAnim = 0;
   if (buttons.left && !buttons.right) {
     targetAnim = maxSteerAnim;
@@ -352,106 +393,160 @@ void main_loop() {
     targetAnim = 0;
   }
 
-  if (drifting) {
-    targetAnim += (driftDir == -1) ? 10 : -10;
-    if (driftDir == 1 && targetAnim > -7) {
+  if (state.drifting) {
+    targetAnim += (state.driftDir == -1) ? 10 : -10;
+    if (state.driftDir == 1 && targetAnim > -7) {
       targetAnim = -7;
     }
-    if (driftDir == -1 && targetAnim < 7) {
+    if (state.driftDir == -1 && targetAnim < 7) {
       targetAnim = 7;
     }
-    // debug_printf("driftDir: %d, targetAnim: %d\n", driftDir, targetAnim);
-    if (totalFrameCount % 8 == 0) {
-      addParticle(0, 192 + -32 * driftDir, 180, -5 * driftDir, totalFrameCount % 16 == 0 ? -1 : 1);
+    // debug_printf("state.driftDir: %d, targetAnim: %d\n", state.driftDir, targetAnim);
+    if (state.totalFrameCount % 8 == 0) {
+      addParticle(0, 192 + -32 * state.driftDir, 180, -5 * state.driftDir, state.totalFrameCount % 16 == 0 ? -1 : 1);
     }
   }
 
-  if (kartSteerAnim != targetAnim) {
-    if (kartSteerAnim > targetAnim) {
-      kartSteerAnim--;
+  if (state.kartSteerAnim != targetAnim) {
+    if (state.kartSteerAnim > targetAnim) {
+      state.kartSteerAnim--;
     } else {
-      kartSteerAnim++;
+      state.kartSteerAnim++;
     }
   }
   
-  int animNo = abs_int(kartSteerAnim) / 2;
+  int animNo = abs_int(state.kartSteerAnim) / 2;
   int newAnimNo = animNo + ((jitter / 2) * 11);
   // debug_printf("animNo: %d\n", animNo);
 
   // draw_alpha(img_shadow, (LCD_WIDTH_PX / 2) - (96 / 2), 116, 2);
-  // if (totalFrameCount % 2 == 0) {
+  // if (state.totalFrameCount % 2 == 0) {
     // draw(img_shadow1, (LCD_WIDTH_PX / 2) - (96 / 2), 112);
   // } else {
     // draw(img_shadow2, (LCD_WIDTH_PX / 2) - (96 / 2), 112);
   // }
-  if (hopStage != 0) {
+  if (state.hopStage != 0) {
     draw(img_shadow1, (LCD_WIDTH_PX / 2) - (96 / 2), 112);
   }
-  if (kartSteerAnim >= 0) {
-    // CopySpriteMasked(/*mksprites[kartSteerAnim / 2]*/sprite, (LCD_WIDTH_PX / 2) - 39, 128, 78, 81, 0x07e0);
-    // CopySpriteMasked(mksprites[kartSteerAnim / 4], (LCD_WIDTH_PX / 2) - 36, 128, 72, 80, 0x4fe0);
-    draw(imgs_kart[animNo], (LCD_WIDTH_PX / 2) - (96 / 2), 112 + (jitter % 2) - (hopAnim[hopStage] * 3));
+  if (state.kartSteerAnim >= 0) {
+    // CopySpriteMasked(/*mksprites[state.kartSteerAnim / 2]*/sprite, (LCD_WIDTH_PX / 2) - 39, 128, 78, 81, 0x07e0);
+    // CopySpriteMasked(mksprites[state.kartSteerAnim / 4], (LCD_WIDTH_PX / 2) - 36, 128, 72, 80, 0x4fe0);
+    draw(imgs_kart[animNo], (LCD_WIDTH_PX / 2) - (96 / 2), horizon + 4 + (jitter % 2) - (hopAnim[state.hopStage] * 3));
     if (newAnimNo != animNo) {
-      draw(imgs_kart[newAnimNo], (LCD_WIDTH_PX / 2) - (96 / 2), 112 + (jitter % 2) - (hopAnim[hopStage] * 3));
+      draw(imgs_kart[newAnimNo], (LCD_WIDTH_PX / 2) - (96 / 2), horizon + 4 + (jitter % 2) - (hopAnim[state.hopStage] * 3));
     }
   } else {
-    // CopySpriteMaskedFlipped(/*mksprites[-kartSteerAnim / 2]*/sprite, (LCD_WIDTH_PX / 2) - 39, 128, 78, 81, 0x07e0);
-    // CopySpriteMaskedFlipped(mksprites[-kartSteerAnim / 4], (LCD_WIDTH_PX / 2) - 36, 128, 72, 80, 0x4fe0);
-    draw_flipped(imgs_kart[animNo], (LCD_WIDTH_PX / 2) - (96 / 2), 112 + (jitter % 2) - (hopAnim[hopStage] * 3));
+    // CopySpriteMaskedFlipped(/*mksprites[-state.kartSteerAnim / 2]*/sprite, (LCD_WIDTH_PX / 2) - 39, 128, 78, 81, 0x07e0);
+    // CopySpriteMaskedFlipped(mksprites[-state.kartSteerAnim / 4], (LCD_WIDTH_PX / 2) - 36, 128, 72, 80, 0x4fe0);
+    draw_flipped(imgs_kart[animNo], (LCD_WIDTH_PX / 2) - (96 / 2), horizon + 4 + (jitter % 2) - (hopAnim[state.hopStage] * 3));
     if (newAnimNo != animNo) {
-      draw_flipped(imgs_kart[newAnimNo], (LCD_WIDTH_PX / 2) - (96 / 2), 112 + (jitter % 2) - (hopAnim[hopStage] * 3));
+      draw_flipped(imgs_kart[newAnimNo], (LCD_WIDTH_PX / 2) - (96 / 2), horizon + 4 + (jitter % 2) - (hopAnim[state.hopStage] * 3));
     }
   }
 
   tickParticles();
 
-  Bdisp_PutDisp_DD_stripe(horizon + 2, LCD_HEIGHT_PX);
+  // Bdisp_PutDisp_DD_stripe(horizon + 2, LCD_HEIGHT_PX);
+	// dupdate();
+
+  // const int fontWidths[] = {10, 5, 10, 9, 11, };
+
+  // Blank out the box that contains the time
+  for (int x = (LCD_WIDTH_PX - 90) / 2; x < LCD_WIDTH_PX / 2; x++) {
+    for (int y = 8; y < 20; y++) {
+      ((unsigned int *)VRAM)[y * (LCD_WIDTH_PX / 2) + x] = (0x0CDF << 16) | 0x0CDF;
+    }
+  }
+
+  static int lastStage = -1;
+  if (state.totalFrameCount < 240) {
+    int stage = state.totalFrameCount / 60;
+    // TODO: max and min
+    if (stage != lastStage) {
+      fillSky(0, horizon);
+    }
+    draw(imgs_countdown[3 - stage], offX(-152 / 2), offY(-66 / 2));
+    if (stage != lastStage) {
+      displayUpdate(0, horizon + 2);
+    }
+    lastStage = stage;
+  }
+  if (state.totalFrameCount == 180) {
+    state.boostTime = 30;
+    addParticle(1, LCD_WIDTH_PX / 2 - 28, LCD_HEIGHT_PX - 70, 0, 0);
+  }
+  if (state.totalFrameCount == 240) {
+    fillSky(0, horizon);
+    displayUpdate(0, horizon + 2);
+  }
+
+  // Calculate the total time in mm:ss:xx format
+  int timerFrames = state.totalFrameCount - 180;
+  if (timerFrames >= 0) {
+    int minutes = timerFrames / 60 / 60;
+    int seconds = (timerFrames / 60) % 60;
+    int milliseconds = ((timerFrames % 60) * 16667) / 1000;
+    if (milliseconds >= 1000) {
+      milliseconds = 999;
+    }
+    char timeStr[9];
+    sprintf(timeStr, "%02d:%02d:%02d", minutes, seconds, milliseconds / 10);
+    // Draw text
+    draw_time(timeStr, LCD_WIDTH_PX - 90, 8);
+  }
+
+  // Update timer on screen
+  displayUpdate(8, 20);
+
+  // Update track on screen
+  displayUpdate(horizon + 2, LCD_HEIGHT_PX);
+
+  // displayUpdate(0, LCD_HEIGHT_PX);
   
   // draw_loop_x(img_loop, 0, 0, angle, LCD_WIDTH_PX);
   // draw_loop_x(img_castle, 0, 0, angle * 1.5, LCD_WIDTH_PX);
   // draw_loop_x(img_bush, 0, 0, angle * 2, LCD_WIDTH_PX);
   // Bdisp_PutDisp_DD();
 
-  totalFrameCount += 1;
+  state.totalFrameCount += 1;
 }
 
 int main() {
-  #ifdef FXCG_MOCK
-  initMock();
-  #endif
+  platformInit();
 
-  VRAM = (color_t*)GetVRAMAddress();
-
-  Bdisp_EnableColor(1);
   fillSky(0, LCD_HEIGHT_PX);
 
-  kart.x = 3565 / 12;
-  kart.y = 2600 / 12;
-  kart.xVelocity = 0;
-  kart.yVelocity = 0;
-  kart.power = 0;
-  kart.reverse = 0;
-  kart.angle = 0;
-  kart.angularVelocity = 0;
-  kart.isThrottling = false;
-  kart.isReversing = false;
-  kart.isShooting = false;
-  kart.isTurningLeft = false;
-  kart.isTurningRight = false;
+  /* state.player.x = 3565.0 / 12;
+  state.player.y = 2600.0 / 12;
+  state.player.xVelocity = 0;
+  state.player.yVelocity = 0;
+  state.player.power = 0;
+  state.player.reverse = 0;
+  state.player.angle = 0;
+  state.player.angularVelocity = 0;
+  state.player.isThrottling = false;
+  state.player.isReversing = false;
+  state.player.isShooting = false;
+  state.player.isTurningLeft = false;
+  state.player.isTurningRight = false; */
 
+  initState();
+  kartX = state.player.x * 12;
+  kartY = state.player.y * 12;
+  // Radians to degrees
+  kartAngle = -state.player.angle * 180 / 3.1415926;
+  kartAngle += 90;
+
+  // TODO: no / 2 when lower FOV?
+  cameraBehind(kartX, kartY, kartAngle, 150 / 2);  // TODO: calculate this rather than guessing
+
+  kartAngle = fmod(kartAngle, 360);
+
+  angle = fmod(kartAngle + 90, 360) * angleWidth / 90;
+  savedState = state;
   initParticles();
 
-  #ifdef FXCG_MOCK
-  #ifdef EMSCRIPTEN
-  emscripten_set_main_loop(main_loop, 60, 1);
-  #else
-  set_main_loop(main_loop);
-  #endif
-  #else
-  while (1) {
-    main_loop();
-  }
-  #endif
+  runMainLoop(main_loop, 60);
 
   /* color_t* VRAM = (color_t*)0xA8000000; // emu address of VRAM
   VRAM += (LCD_WIDTH_PX*y + x);

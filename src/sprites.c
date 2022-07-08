@@ -1,7 +1,6 @@
 #include "./sprites.h"
 
-#include <fxcg/display.h>
-
+#include "./platform.h"
 #include "./main.h"
 
 // From https://www.cemetech.net/forum/viewtopic.php?t=6114&postdays=0&postorder=asc&start=100
@@ -24,18 +23,18 @@ void CopySpriteMasked(const void* datar, int x, int y, int width, int height, in
 
 void CopySpriteMaskedAlpha(const void*datar, int x, int y, int width, int height, color_t maskcolor, int alpha) { 
   color_t*data = (color_t*) datar; 
-  color_t* VRAM = (color_t*)GetVRAMAddress(); 
-  VRAM += LCD_WIDTH_PX*y + x; 
+  color_t* VRAM2 = (color_t*) VRAM;
+  VRAM2 += LCD_WIDTH_PX*y + x; 
   alpha %= 32; 
   for(int j=y; j<y+height; j++) { 
     for(int i=x; i<x+width;  i++) { 
       if (*(data) != maskcolor) { 
-      *(VRAM) = (color_t)((((int)(*data & 0xf81f) * alpha + (int)(*VRAM & 0xf81f) * (32-alpha) + 0x8010) >> 5) & 0xf81f) | 
-            (color_t)((((int)(*data & 0x07e0) * alpha + (int)(*VRAM & 0x07e0) * (32-alpha) + 0x0400) >> 6) & 0x07e0); 
-        VRAM++; data++; 
-      } else { VRAM++; data++; } 
+      *(VRAM2) = (color_t)((((int)(*data & 0xf81f) * alpha + (int)(*VRAM2 & 0xf81f) * (32-alpha) + 0x8010) >> 5) & 0xf81f) | 
+            (color_t)((((int)(*data & 0x07e0) * alpha + (int)(*VRAM2 & 0x07e0) * (32-alpha) + 0x0400) >> 6) & 0x07e0); 
+        VRAM2++; data++; 
+      } else { VRAM2++; data++; } 
     } 
-    VRAM += LCD_WIDTH_PX-width; 
+    VRAM2 += LCD_WIDTH_PX-width; 
   } 
 }
 
@@ -60,8 +59,38 @@ void CopySpriteMaskedFlipped(const void* datar, int x, int y, int width, int hei
   }
 }
 
+// void CopySpritePartial(const void* datar, int x, int y, int width, int height, color_t maskcolor, int maxX, int maxY) {
+//   color_t* data = (color_t*)datar;
+//   color_t* VRAM2 = (color_t*) VRAM;
+//   VRAM2 += LCD_WIDTH_PX * y + x;
+//   for (int j = y; j < y + maxY; j++) {
+//     for (int i = x; i < x + maxX; i++) {
+//       *(VRAM2++) = *(data++);
+//     }
+//     data += width - maxX;
+//     VRAM2 += LCD_WIDTH_PX - maxX;
+//   }
+// }
+
+void CopySpritePartial(const void* datar, int x, int y, int width, int height, int minX, int minY, int maxX, int maxY) {
+  color_t* data = (color_t*)datar;
+  color_t* VRAM2 = (color_t*) VRAM;
+  VRAM2 += LCD_WIDTH_PX * (y + minY) + x;
+  data += width * minY;
+  for (int j = y + minY; j < y + maxY; j++) {
+    data += minX;
+    VRAM2 += minX;
+    for (int i = x + minX; i < x + maxX; i++) {
+      *(VRAM2++) = *(data++);
+    }
+    data += width - maxX;
+    VRAM2 += LCD_WIDTH_PX - maxX;
+  }
+}
+
+
 // Copy a sprite that loops around with an X offset
-void CopySpriteLoopX(const void* datar, int x, int y, int width, int height, int xOffset, int drawWidth, int maskcolor) {
+/* void CopySpriteLoopX(const void* datar, int x, int y, int width, int height, int xOffset, int drawWidth, int maskcolor) {
   color_t* data = (color_t*)datar;
   // color_t* VRAM2 = (color_t*)VRAM;
   // Loop over all the y positions
@@ -76,8 +105,21 @@ void CopySpriteLoopX(const void* datar, int x, int y, int width, int height, int
       }
     }
   }
-}
+} */
 
+// New version that uses CopySpritePartial which is faster
+void CopySpriteLoopX(const void* datar, int x, int y, int width, int height, int xOffset, int drawWidth, int maskcolor) {
+  xOffset -= 384;
+  int copies = drawWidth / width;
+  int remainder = drawWidth % width;
+  for (int i = 0; i < copies; i++) {
+    CopySpritePartial(datar, x + i * width - xOffset, y, width, height, xOffset, 0, width, height);
+  }
+  // Copy the remainder
+  if (remainder > 0) {
+    CopySpritePartial(datar, x + (copies * width) - xOffset, y, width, height, xOffset, 0, remainder, height);
+  }
+}
 
 void draw(const unsigned short* data, int x, int y) {
   // The height and width of the sprite are the first two elements in the data array

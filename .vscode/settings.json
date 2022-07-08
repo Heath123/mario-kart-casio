@@ -1,19 +1,22 @@
 {
-    "makefile.extensionOutputFolder": "./.vscode",
-    "files.associations": {
-        "*.xsh": "python",
-        "generated_lut.cpp": "c",
-        "track.cpp": "c",
-        "kartsprites.h": "c",
-        "track.h": "c",
-        "3d.h": "c",
-        "display.h": "c",
-        "math.h": "c",
-        "generated_lut.h": "c",
-        "stdbool.h": "c",
-        "SYSTEM.C": "cpp",
-        "rtc.h": "c",
-        "particles.h": "c",
-        "images.h": "c"
-    }
+  "files.associations": {
+    "*.xsh": "python",
+    "display.h": "c",
+    "types.h": "c",
+    "stddef.h": "c",
+    "stdint.h": "c",
+    "stdint-gcc.h": "c",
+    "keyboard.h": "c",
+    "main.h": "c",
+    "tilemap.h": "c",
+    "generated_lut.h": "c",
+    "rtc.h": "c",
+    "gint.h": "c",
+    "drivers.h": "c",
+    "platform.h": "c",
+    "display-cg.h": "c",
+    "attributes.h": "c",
+    "r61524.h": "c"
+  },
+  "C_Cpp.intelliSenseEngineFallback": "Enabled"
 }
