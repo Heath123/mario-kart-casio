@@ -97,10 +97,24 @@ CMakeFiles/mariokart.dir/src/buttons.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/mariokart.dir/src/buttons.c.s"
 	/usr/lib/emscripten/emcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/heath/mk-gint/src/buttons.c -o CMakeFiles/mariokart.dir/src/buttons.c.s
 
+CMakeFiles/mariokart.dir/src/data.c.o: CMakeFiles/mariokart.dir/flags.make
+CMakeFiles/mariokart.dir/src/data.c.o: ../src/data.c
+CMakeFiles/mariokart.dir/src/data.c.o: CMakeFiles/mariokart.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/heath/mk-gint/build-em/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building C object CMakeFiles/mariokart.dir/src/data.c.o"
+	/usr/lib/emscripten/emcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/mariokart.dir/src/data.c.o -MF CMakeFiles/mariokart.dir/src/data.c.o.d -o CMakeFiles/mariokart.dir/src/data.c.o -c /home/heath/mk-gint/src/data.c
+
+CMakeFiles/mariokart.dir/src/data.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/mariokart.dir/src/data.c.i"
+	/usr/lib/emscripten/emcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/heath/mk-gint/src/data.c > CMakeFiles/mariokart.dir/src/data.c.i
+
+CMakeFiles/mariokart.dir/src/data.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/mariokart.dir/src/data.c.s"
+	/usr/lib/emscripten/emcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/heath/mk-gint/src/data.c -o CMakeFiles/mariokart.dir/src/data.c.s
+
 CMakeFiles/mariokart.dir/src/debugHud.c.o: CMakeFiles/mariokart.dir/flags.make
 CMakeFiles/mariokart.dir/src/debugHud.c.o: ../src/debugHud.c
 CMakeFiles/mariokart.dir/src/debugHud.c.o: CMakeFiles/mariokart.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/heath/mk-gint/build-em/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building C object CMakeFiles/mariokart.dir/src/debugHud.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/heath/mk-gint/build-em/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building C object CMakeFiles/mariokart.dir/src/debugHud.c.o"
 	/usr/lib/emscripten/emcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/mariokart.dir/src/debugHud.c.o -MF CMakeFiles/mariokart.dir/src/debugHud.c.o.d -o CMakeFiles/mariokart.dir/src/debugHud.c.o -c /home/heath/mk-gint/src/debugHud.c
 
 CMakeFiles/mariokart.dir/src/debugHud.c.i: cmake_force
@@ -114,7 +128,7 @@ CMakeFiles/mariokart.dir/src/debugHud.c.s: cmake_force
 CMakeFiles/mariokart.dir/src/images.c.o: CMakeFiles/mariokart.dir/flags.make
 CMakeFiles/mariokart.dir/src/images.c.o: ../src/images.c
 CMakeFiles/mariokart.dir/src/images.c.o: CMakeFiles/mariokart.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/heath/mk-gint/build-em/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building C object CMakeFiles/mariokart.dir/src/images.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/heath/mk-gint/build-em/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building C object CMakeFiles/mariokart.dir/src/images.c.o"
 	/usr/lib/emscripten/emcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/mariokart.dir/src/images.c.o -MF CMakeFiles/mariokart.dir/src/images.c.o.d -o CMakeFiles/mariokart.dir/src/images.c.o -c /home/heath/mk-gint/src/images.c
 
 CMakeFiles/mariokart.dir/src/images.c.i: cmake_force
@@ -128,7 +142,7 @@ CMakeFiles/mariokart.dir/src/images.c.s: cmake_force
 CMakeFiles/mariokart.dir/src/main.c.o: CMakeFiles/mariokart.dir/flags.make
 CMakeFiles/mariokart.dir/src/main.c.o: ../src/main.c
 CMakeFiles/mariokart.dir/src/main.c.o: CMakeFiles/mariokart.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/heath/mk-gint/build-em/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building C object CMakeFiles/mariokart.dir/src/main.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/heath/mk-gint/build-em/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building C object CMakeFiles/mariokart.dir/src/main.c.o"
 	/usr/lib/emscripten/emcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/mariokart.dir/src/main.c.o -MF CMakeFiles/mariokart.dir/src/main.c.o.d -o CMakeFiles/mariokart.dir/src/main.c.o -c /home/heath/mk-gint/src/main.c
 
 CMakeFiles/mariokart.dir/src/main.c.i: cmake_force
@@ -142,7 +156,7 @@ CMakeFiles/mariokart.dir/src/main.c.s: cmake_force
 CMakeFiles/mariokart.dir/src/maths.c.o: CMakeFiles/mariokart.dir/flags.make
 CMakeFiles/mariokart.dir/src/maths.c.o: ../src/maths.c
 CMakeFiles/mariokart.dir/src/maths.c.o: CMakeFiles/mariokart.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/heath/mk-gint/build-em/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building C object CMakeFiles/mariokart.dir/src/maths.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/heath/mk-gint/build-em/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building C object CMakeFiles/mariokart.dir/src/maths.c.o"
 	/usr/lib/emscripten/emcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/mariokart.dir/src/maths.c.o -MF CMakeFiles/mariokart.dir/src/maths.c.o.d -o CMakeFiles/mariokart.dir/src/maths.c.o -c /home/heath/mk-gint/src/maths.c
 
 CMakeFiles/mariokart.dir/src/maths.c.i: cmake_force
@@ -153,10 +167,24 @@ CMakeFiles/mariokart.dir/src/maths.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/mariokart.dir/src/maths.c.s"
 	/usr/lib/emscripten/emcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/heath/mk-gint/src/maths.c -o CMakeFiles/mariokart.dir/src/maths.c.s
 
+CMakeFiles/mariokart.dir/src/miniz.c.o: CMakeFiles/mariokart.dir/flags.make
+CMakeFiles/mariokart.dir/src/miniz.c.o: ../src/miniz.c
+CMakeFiles/mariokart.dir/src/miniz.c.o: CMakeFiles/mariokart.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/heath/mk-gint/build-em/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building C object CMakeFiles/mariokart.dir/src/miniz.c.o"
+	/usr/lib/emscripten/emcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/mariokart.dir/src/miniz.c.o -MF CMakeFiles/mariokart.dir/src/miniz.c.o.d -o CMakeFiles/mariokart.dir/src/miniz.c.o -c /home/heath/mk-gint/src/miniz.c
+
+CMakeFiles/mariokart.dir/src/miniz.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/mariokart.dir/src/miniz.c.i"
+	/usr/lib/emscripten/emcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/heath/mk-gint/src/miniz.c > CMakeFiles/mariokart.dir/src/miniz.c.i
+
+CMakeFiles/mariokart.dir/src/miniz.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/mariokart.dir/src/miniz.c.s"
+	/usr/lib/emscripten/emcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/heath/mk-gint/src/miniz.c -o CMakeFiles/mariokart.dir/src/miniz.c.s
+
 CMakeFiles/mariokart.dir/src/particles.c.o: CMakeFiles/mariokart.dir/flags.make
 CMakeFiles/mariokart.dir/src/particles.c.o: ../src/particles.c
 CMakeFiles/mariokart.dir/src/particles.c.o: CMakeFiles/mariokart.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/heath/mk-gint/build-em/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building C object CMakeFiles/mariokart.dir/src/particles.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/heath/mk-gint/build-em/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building C object CMakeFiles/mariokart.dir/src/particles.c.o"
 	/usr/lib/emscripten/emcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/mariokart.dir/src/particles.c.o -MF CMakeFiles/mariokart.dir/src/particles.c.o.d -o CMakeFiles/mariokart.dir/src/particles.c.o -c /home/heath/mk-gint/src/particles.c
 
 CMakeFiles/mariokart.dir/src/particles.c.i: cmake_force
@@ -170,7 +198,7 @@ CMakeFiles/mariokart.dir/src/particles.c.s: cmake_force
 CMakeFiles/mariokart.dir/src/physics.c.o: CMakeFiles/mariokart.dir/flags.make
 CMakeFiles/mariokart.dir/src/physics.c.o: ../src/physics.c
 CMakeFiles/mariokart.dir/src/physics.c.o: CMakeFiles/mariokart.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/heath/mk-gint/build-em/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building C object CMakeFiles/mariokart.dir/src/physics.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/heath/mk-gint/build-em/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building C object CMakeFiles/mariokart.dir/src/physics.c.o"
 	/usr/lib/emscripten/emcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/mariokart.dir/src/physics.c.o -MF CMakeFiles/mariokart.dir/src/physics.c.o.d -o CMakeFiles/mariokart.dir/src/physics.c.o -c /home/heath/mk-gint/src/physics.c
 
 CMakeFiles/mariokart.dir/src/physics.c.i: cmake_force
@@ -184,7 +212,7 @@ CMakeFiles/mariokart.dir/src/physics.c.s: cmake_force
 CMakeFiles/mariokart.dir/src/sprites.c.o: CMakeFiles/mariokart.dir/flags.make
 CMakeFiles/mariokart.dir/src/sprites.c.o: ../src/sprites.c
 CMakeFiles/mariokart.dir/src/sprites.c.o: CMakeFiles/mariokart.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/heath/mk-gint/build-em/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building C object CMakeFiles/mariokart.dir/src/sprites.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/heath/mk-gint/build-em/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building C object CMakeFiles/mariokart.dir/src/sprites.c.o"
 	/usr/lib/emscripten/emcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/mariokart.dir/src/sprites.c.o -MF CMakeFiles/mariokart.dir/src/sprites.c.o.d -o CMakeFiles/mariokart.dir/src/sprites.c.o -c /home/heath/mk-gint/src/sprites.c
 
 CMakeFiles/mariokart.dir/src/sprites.c.i: cmake_force
@@ -198,7 +226,7 @@ CMakeFiles/mariokart.dir/src/sprites.c.s: cmake_force
 CMakeFiles/mariokart.dir/src/state.c.o: CMakeFiles/mariokart.dir/flags.make
 CMakeFiles/mariokart.dir/src/state.c.o: ../src/state.c
 CMakeFiles/mariokart.dir/src/state.c.o: CMakeFiles/mariokart.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/heath/mk-gint/build-em/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building C object CMakeFiles/mariokart.dir/src/state.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/heath/mk-gint/build-em/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building C object CMakeFiles/mariokart.dir/src/state.c.o"
 	/usr/lib/emscripten/emcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/mariokart.dir/src/state.c.o -MF CMakeFiles/mariokart.dir/src/state.c.o.d -o CMakeFiles/mariokart.dir/src/state.c.o -c /home/heath/mk-gint/src/state.c
 
 CMakeFiles/mariokart.dir/src/state.c.i: cmake_force
@@ -212,7 +240,7 @@ CMakeFiles/mariokart.dir/src/state.c.s: cmake_force
 CMakeFiles/mariokart.dir/src/tilemap.c.o: CMakeFiles/mariokart.dir/flags.make
 CMakeFiles/mariokart.dir/src/tilemap.c.o: ../src/tilemap.c
 CMakeFiles/mariokart.dir/src/tilemap.c.o: CMakeFiles/mariokart.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/heath/mk-gint/build-em/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building C object CMakeFiles/mariokart.dir/src/tilemap.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/heath/mk-gint/build-em/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building C object CMakeFiles/mariokart.dir/src/tilemap.c.o"
 	/usr/lib/emscripten/emcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/mariokart.dir/src/tilemap.c.o -MF CMakeFiles/mariokart.dir/src/tilemap.c.o.d -o CMakeFiles/mariokart.dir/src/tilemap.c.o -c /home/heath/mk-gint/src/tilemap.c
 
 CMakeFiles/mariokart.dir/src/tilemap.c.i: cmake_force
@@ -226,7 +254,7 @@ CMakeFiles/mariokart.dir/src/tilemap.c.s: cmake_force
 CMakeFiles/mariokart.dir/src/platforms/emscripten.c.o: CMakeFiles/mariokart.dir/flags.make
 CMakeFiles/mariokart.dir/src/platforms/emscripten.c.o: ../src/platforms/emscripten.c
 CMakeFiles/mariokart.dir/src/platforms/emscripten.c.o: CMakeFiles/mariokart.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/heath/mk-gint/build-em/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building C object CMakeFiles/mariokart.dir/src/platforms/emscripten.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/heath/mk-gint/build-em/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building C object CMakeFiles/mariokart.dir/src/platforms/emscripten.c.o"
 	/usr/lib/emscripten/emcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/mariokart.dir/src/platforms/emscripten.c.o -MF CMakeFiles/mariokart.dir/src/platforms/emscripten.c.o.d -o CMakeFiles/mariokart.dir/src/platforms/emscripten.c.o -c /home/heath/mk-gint/src/platforms/emscripten.c
 
 CMakeFiles/mariokart.dir/src/platforms/emscripten.c.i: cmake_force
@@ -241,10 +269,12 @@ CMakeFiles/mariokart.dir/src/platforms/emscripten.c.s: cmake_force
 mariokart_OBJECTS = \
 "CMakeFiles/mariokart.dir/src/3d.c.o" \
 "CMakeFiles/mariokart.dir/src/buttons.c.o" \
+"CMakeFiles/mariokart.dir/src/data.c.o" \
 "CMakeFiles/mariokart.dir/src/debugHud.c.o" \
 "CMakeFiles/mariokart.dir/src/images.c.o" \
 "CMakeFiles/mariokart.dir/src/main.c.o" \
 "CMakeFiles/mariokart.dir/src/maths.c.o" \
+"CMakeFiles/mariokart.dir/src/miniz.c.o" \
 "CMakeFiles/mariokart.dir/src/particles.c.o" \
 "CMakeFiles/mariokart.dir/src/physics.c.o" \
 "CMakeFiles/mariokart.dir/src/sprites.c.o" \
@@ -257,10 +287,12 @@ mariokart_EXTERNAL_OBJECTS =
 
 mariokart.html: CMakeFiles/mariokart.dir/src/3d.c.o
 mariokart.html: CMakeFiles/mariokart.dir/src/buttons.c.o
+mariokart.html: CMakeFiles/mariokart.dir/src/data.c.o
 mariokart.html: CMakeFiles/mariokart.dir/src/debugHud.c.o
 mariokart.html: CMakeFiles/mariokart.dir/src/images.c.o
 mariokart.html: CMakeFiles/mariokart.dir/src/main.c.o
 mariokart.html: CMakeFiles/mariokart.dir/src/maths.c.o
+mariokart.html: CMakeFiles/mariokart.dir/src/miniz.c.o
 mariokart.html: CMakeFiles/mariokart.dir/src/particles.c.o
 mariokart.html: CMakeFiles/mariokart.dir/src/physics.c.o
 mariokart.html: CMakeFiles/mariokart.dir/src/sprites.c.o
@@ -270,7 +302,7 @@ mariokart.html: CMakeFiles/mariokart.dir/src/platforms/emscripten.c.o
 mariokart.html: CMakeFiles/mariokart.dir/build.make
 mariokart.html: CMakeFiles/mariokart.dir/objects1.rsp
 mariokart.html: CMakeFiles/mariokart.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/heath/mk-gint/build-em/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Linking C executable mariokart.html"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/heath/mk-gint/build-em/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Linking C executable mariokart.html"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/mariokart.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

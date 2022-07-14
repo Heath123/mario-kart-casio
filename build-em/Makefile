@@ -177,6 +177,30 @@ src/buttons.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/mariokart.dir/build.make CMakeFiles/mariokart.dir/src/buttons.c.s
 .PHONY : src/buttons.c.s
 
+src/data.o: src/data.c.o
+.PHONY : src/data.o
+
+# target to build an object file
+src/data.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mariokart.dir/build.make CMakeFiles/mariokart.dir/src/data.c.o
+.PHONY : src/data.c.o
+
+src/data.i: src/data.c.i
+.PHONY : src/data.i
+
+# target to preprocess a source file
+src/data.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mariokart.dir/build.make CMakeFiles/mariokart.dir/src/data.c.i
+.PHONY : src/data.c.i
+
+src/data.s: src/data.c.s
+.PHONY : src/data.s
+
+# target to generate assembly for a file
+src/data.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mariokart.dir/build.make CMakeFiles/mariokart.dir/src/data.c.s
+.PHONY : src/data.c.s
+
 src/debugHud.o: src/debugHud.c.o
 .PHONY : src/debugHud.o
 
@@ -272,6 +296,30 @@ src/maths.s: src/maths.c.s
 src/maths.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/mariokart.dir/build.make CMakeFiles/mariokart.dir/src/maths.c.s
 .PHONY : src/maths.c.s
+
+src/miniz.o: src/miniz.c.o
+.PHONY : src/miniz.o
+
+# target to build an object file
+src/miniz.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mariokart.dir/build.make CMakeFiles/mariokart.dir/src/miniz.c.o
+.PHONY : src/miniz.c.o
+
+src/miniz.i: src/miniz.c.i
+.PHONY : src/miniz.i
+
+# target to preprocess a source file
+src/miniz.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mariokart.dir/build.make CMakeFiles/mariokart.dir/src/miniz.c.i
+.PHONY : src/miniz.c.i
+
+src/miniz.s: src/miniz.c.s
+.PHONY : src/miniz.s
+
+# target to generate assembly for a file
+src/miniz.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mariokart.dir/build.make CMakeFiles/mariokart.dir/src/miniz.c.s
+.PHONY : src/miniz.c.s
 
 src/particles.o: src/particles.c.o
 .PHONY : src/particles.o
@@ -432,6 +480,9 @@ help:
 	@echo "... src/buttons.o"
 	@echo "... src/buttons.i"
 	@echo "... src/buttons.s"
+	@echo "... src/data.o"
+	@echo "... src/data.i"
+	@echo "... src/data.s"
 	@echo "... src/debugHud.o"
 	@echo "... src/debugHud.i"
 	@echo "... src/debugHud.s"
@@ -444,6 +495,9 @@ help:
 	@echo "... src/maths.o"
 	@echo "... src/maths.i"
 	@echo "... src/maths.s"
+	@echo "... src/miniz.o"
+	@echo "... src/miniz.i"
+	@echo "... src/miniz.s"
 	@echo "... src/particles.o"
 	@echo "... src/particles.i"
 	@echo "... src/particles.s"

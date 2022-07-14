@@ -7,10 +7,12 @@ project(MarioKart)
 set(SOURCES
   src/3d.c
   src/buttons.c
+  src/data.c
   src/debugHud.c
   src/images.c
   src/main.c
   src/maths.c
+  src/miniz.c
   src/particles.c
   src/physics.c
   src/sprites.c

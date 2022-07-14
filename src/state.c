@@ -19,7 +19,11 @@ typedef struct {
   int hopStage;
   bool drifting;
   int driftDir;
+  int driftCharge;
+  int boostTime;
+  int lapCount;
 
+  if (state.totalFrameCoun
   int totalFrameCount;
 } State;
 */
@@ -27,17 +31,23 @@ typedef struct {
 State state;
 
 void initState() {
-  state.player.x = 3565.0 / 12;
-  state.player.y = 2600.0 / 12;
-  state.player.xVelocity = 0;
-  state.player.yVelocity = 0;
-  state.player.power = 0;
-  state.player.angle = 0;
-  state.player.angularVelocity = 0;
-  state.hopStage = 0;
-  state.drifting = false;
-  state.driftDir = 0;
-  state.driftCharge = 0;
-  state.boostTime = -1;
-  state.totalFrameCount = 0;
+  state = (State) {
+    .player = (Kart) {
+      .x = 3565.0 / 12,
+      .y = 2600.0 / 12,
+      .xVelocity = 0,
+      .yVelocity = 0,
+      .power = 0,
+      .angle = 0,
+      .angularVelocity = 0,
+    },
+    .kartSteerAnim = 0,
+    .hopStage = 0,
+    .drifting = false,
+    .driftDir = 0,
+    .driftCharge = 0,
+    .boostTime = -1,
+    .totalFrameCount = 0,
+    .lapCount = 0,
+  };
 }

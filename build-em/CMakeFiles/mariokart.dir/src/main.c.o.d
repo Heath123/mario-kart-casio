@@ -8,7 +8,7 @@ CMakeFiles/mariokart.dir/src/main.c.o: /home/heath/mk-gint/src/main.c \
   /home/heath/mk-gint/src/./tilemap.h \
   /home/heath/mk-gint/src/./sprites.h \
   /home/heath/mk-gint/src/./debugHud.h \
-  /home/heath/mk-gint/src/./particles.h \
+  /home/heath/mk-gint/src/./particles.h /home/heath/mk-gint/src/./data.h \
   /home/heath/mk-gint/src/../data-headers/images.h \
   /home/heath/mk-gint/src/platforms/gint.h \
   /home/heath/.emscripten_cache/sysroot/include/stdio.h \

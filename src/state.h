@@ -14,6 +14,7 @@ typedef struct {
   int driftDir;
   int driftCharge;
   int boostTime;
+  int lapCount;
 
   int totalFrameCount;
 } State;

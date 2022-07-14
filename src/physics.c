@@ -72,10 +72,11 @@ void updateWithControls(Kart *kart, ButtonState controls) {
   double change = isTurningLeft ? -1 : isTurningRight ? 1 : 0;
   if (state.drifting) {
     if (state.driftDir == -1) {
-      change += 0.7;
+      change += 1.2;
     } else {
-      change -= 0.7;
+      change -= 1.2;
     }
+    change *= 1.7 / 2.2;
   }
   change *= direction * turnSpeed;
   kart->angularVelocity += change;

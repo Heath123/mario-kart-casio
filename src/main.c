@@ -9,6 +9,7 @@
 #include "./buttons.h"
 #include "./debugHud.h"
 #include "./particles.h"
+#include "./data.h"
 
 #include "../data-headers/images.h"
 #include "platforms/gint.h"
@@ -178,6 +179,7 @@ void main_loop() {
   // Main game loop
   scanButtons();
 
+  bool didFinishLap = false;
   if (state.totalFrameCount > 180) {
     if (buttons.save) {
       savedState = state;
@@ -214,9 +216,9 @@ void main_loop() {
       } */
     }
 
-    if (state.driftCharge > 60) {
-      state.driftCharge = 60;
-    }
+    // if (state.driftCharge > 60) {
+    //   state.driftCharge = 60;
+    // }
 
     /* if (state.driftCharge > 0) {
       // Draw a 4px red bar at the top of the screen
@@ -231,8 +233,16 @@ void main_loop() {
 
     if (!buttons.hop) {
       if (state.drifting && state.driftCharge >= 60) {
-        state.boostTime = 30;
-        addParticle(1, LCD_WIDTH_PX / 2 - 28, LCD_HEIGHT_PX - 70, 0, 0);
+        if (state.driftCharge > 360) {
+           state.boostTime = 100;
+          addParticle(2, LCD_WIDTH_PX / 2 - 28, LCD_HEIGHT_PX - 70, 0, 0);
+        } else if (state.driftCharge >= 180) {
+          state.boostTime = 50;
+          addParticle(1, LCD_WIDTH_PX / 2 - 28, LCD_HEIGHT_PX - 70, 0, 0);
+        } else {
+          state.boostTime = 20;
+          addParticle(3, LCD_WIDTH_PX / 2 - 28, LCD_HEIGHT_PX - 70, 0, 0);
+        }
       }
       state.drifting = false;
     }
@@ -340,12 +350,28 @@ void main_loop() {
         setPixel(x * 2 + 1, y, thing);
       }
     } */
+    
+    if (newTile == 254 && currentTile != 254) {
+      state.lapCount++;
+      didFinishLap = true;
+      #ifdef __EMSCRIPTEN__
+      printf("Lap %d\n", state.lapCount);
+      #endif
+    }
   }
 
   draw3D();
 
   if (state.driftCharge >= 60) {
     // Draw fire effect on the wheels
+    int fireStage;
+    if (state.driftCharge > 360) {
+      fireStage = 2;
+    } else if (state.driftCharge >= 180) {
+      fireStage = 1;
+    } else {
+      fireStage = 0;
+    }
     int sign = state.kartSteerAnim < 0 ? -1 : 1;
     sign *= -1;
     int x = LCD_WIDTH_PX / 2 - (44 * sign) - 8;
@@ -361,11 +387,11 @@ void main_loop() {
     x += (state.totalFrameCount / 2) % 3 * sign;
     y += (state.totalFrameCount / 2) % 2;
     if (sign == 1) {
-      draw(img_fire, x, y);
-      draw(img_fire, x + (state.totalFrameCount / 2) % 2 * 3, y + 5);
+      draw(imgs_fire[fireStage], x, y);
+      draw(imgs_fire[fireStage], x + (state.totalFrameCount / 2) % 2 * 3, y + 5);
     } else {
-      draw_flipped(img_fire, x, y);
-      draw_flipped(img_fire, x - (state.totalFrameCount / 2) % 2 * 3, y + 5);
+      draw_flipped(imgs_fire[fireStage], x, y);
+      draw_flipped(imgs_fire[fireStage], x - (state.totalFrameCount / 2) % 2 * 3, y + 5);
     }
   }
 
@@ -440,7 +466,8 @@ void main_loop() {
     // CopySpriteMaskedFlipped(mksprites[-state.kartSteerAnim / 4], (LCD_WIDTH_PX / 2) - 36, 128, 72, 80, 0x4fe0);
     draw_flipped(imgs_kart[animNo], (LCD_WIDTH_PX / 2) - (96 / 2), horizon + 4 + (jitter % 2) - (hopAnim[state.hopStage] * 3));
     if (newAnimNo != animNo) {
-      draw_flipped(imgs_kart[newAnimNo], (LCD_WIDTH_PX / 2) - (96 / 2), horizon + 4 + (jitter % 2) - (hopAnim[state.hopStage] * 3));
+      // printf("kartSteerAnim: %d,\n", state.kartSteerAnim);
+      draw_flipped(imgs_kart[newAnimNo], (LCD_WIDTH_PX / 2) - (96 / 2) - (state.kartSteerAnim == -20 ? 1 : 0), horizon + 4 + (jitter % 2) - (hopAnim[state.hopStage] * 3));
     }
   }
 
@@ -481,11 +508,32 @@ void main_loop() {
   }
 
   // Calculate the total time in mm:ss:xx format
-  int timerFrames = state.totalFrameCount - 180;
-  if (timerFrames >= 0) {
-    int minutes = timerFrames / 60 / 60;
-    int seconds = (timerFrames / 60) % 60;
-    int milliseconds = ((timerFrames % 60) * 16667) / 1000;
+  static int timerFrames;
+
+  static int freezeForFrames = 0;
+  static int freezeTime;
+
+  if (state.lapCount <= 3) {
+    timerFrames = state.totalFrameCount - 180;
+  }
+
+  int newTimerFrames = timerFrames;
+  static int lastLapTime = 0;
+  if (didFinishLap && state.lapCount > 1) {
+    freezeForFrames = 150;
+    freezeTime = (state.totalFrameCount - 180) - lastLapTime;
+    lastLapTime = (state.totalFrameCount - 180);
+  }
+
+  if (freezeForFrames > 0) {
+    freezeForFrames--;
+    newTimerFrames = freezeTime;
+  }
+
+  if (newTimerFrames >= 0 && (freezeForFrames == 0 || (freezeForFrames / 10) % 2 == 0)) {
+    int minutes = newTimerFrames / 60 / 60;
+    int seconds = (newTimerFrames / 60) % 60;
+    int milliseconds = ((newTimerFrames % 60) * 16667) / 1000;
     if (milliseconds >= 1000) {
       milliseconds = 999;
     }
@@ -493,10 +541,14 @@ void main_loop() {
     sprintf(timeStr, "%02d:%02d:%02d", minutes, seconds, milliseconds / 10);
     // Draw text
     draw_time(timeStr, LCD_WIDTH_PX - 90, 8);
+
+    // Lap count
+    int lap = MIN(MAX(state.lapCount, 1), 3);
+    draw(imgs_lap[lap - 1], 8, 8);
   }
 
   // Update timer on screen
-  displayUpdate(8, 20);
+  displayUpdate(8, 24);
 
   // Update track on screen
   displayUpdate(horizon + 2, LCD_HEIGHT_PX);
@@ -508,11 +560,19 @@ void main_loop() {
   // draw_loop_x(img_bush, 0, 0, angle * 2, LCD_WIDTH_PX);
   // Bdisp_PutDisp_DD();
 
+  // #ifdef __EMSCRIPTEN__
+  // if (state.totalFrameCount % 30 == 0) {
+  //   printf("kartX: %d, kartY: %d\n", kartX, kartY);
+  //   printf("Tile: %d\n", getTileType(kartX / scale, kartY / scale));
+  // }
+  // #endif
+
   state.totalFrameCount += 1;
 }
 
 int main() {
   platformInit();
+  initData();
 
   fillSky(0, LCD_HEIGHT_PX);
 

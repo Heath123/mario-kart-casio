@@ -13,12 +13,26 @@ ParticleType types[] = {
     .animDelay = 4,
     .animFrames = imgs_smoke
   },
-  // Boost fire
+  // Boost fire (small)
   {
     .maxAge = 20,
     .animLength = 5,
     .animDelay = 4,
     .animFrames = imgs_boost
+  },
+  // Boost fire (large)
+  {
+    .maxAge = 40,
+    .animLength = 5,
+    .animDelay = 4,
+    .animFrames = imgs_boost
+  },
+  // Small boost fire
+  {
+    .maxAge = 10,
+    .animLength = 5,
+    .animDelay = 2,
+    .animFrames = imgs_smallboost
   },
 };
 
@@ -44,7 +58,7 @@ void tickParticles() {
       particle->x += particle->xVel;
       particle->y += particle->yVel;
       // Draw the particle
-      int frame = (particle->age / types[particle->type].animLength) % types[particle->type].animLength;
+      int frame = (particle->age / types[particle->type].animDelay) % types[particle->type].animLength;
       draw(types[particle->type].animFrames[frame], particle->x, particle->y);
     }
   }
