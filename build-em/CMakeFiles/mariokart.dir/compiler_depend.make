@@ -56,7 +56,8 @@ CMakeFiles/mariokart.dir/src/debugHud.c.o: ../src/debugHud.c \
   /opt/emscripten-llvm/lib/clang/15.0.0/include/stdbool.h \
   ../src/buttons.h \
   ../src/state.h \
-  ../src/physics.h
+  ../src/physics.h \
+  ../src/platforms/emscripten.h
 
 CMakeFiles/mariokart.dir/src/images.c.o: ../src/images.c \
   ../data-headers/images.c
@@ -76,7 +77,6 @@ CMakeFiles/mariokart.dir/src/main.c.o: ../src/main.c \
   ../src/particles.h \
   ../src/data.h \
   ../data-headers/images.h \
-  ../src/platforms/gint.h \
   /home/heath/.emscripten_cache/sysroot/include/stdio.h \
   /home/heath/.emscripten_cache/sysroot/include/wasi/api.h \
   /opt/emscripten-llvm/lib/clang/15.0.0/include/stddef.h \
@@ -112,6 +112,8 @@ CMakeFiles/mariokart.dir/src/miniz.c.o: ../src/miniz.c \
 
 CMakeFiles/mariokart.dir/src/particles.c.o: ../src/particles.c \
   ../src/particles.h \
+  ../src/platform.h \
+  ../src/platforms/emscripten.h \
   ../src/sprites.h \
   /opt/emscripten-llvm/lib/clang/15.0.0/include/stdbool.h \
   ../data-headers/images.h
@@ -151,7 +153,8 @@ CMakeFiles/mariokart.dir/src/platforms/emscripten.c.o: ../src/platforms/emscript
   /opt/emscripten-llvm/lib/clang/15.0.0/include/__stddef_max_align_t.h \
   /opt/emscripten-llvm/lib/clang/15.0.0/include/stdint.h \
   /home/heath/.emscripten_cache/sysroot/include/stdint.h \
-  /home/heath/.emscripten_cache/sysroot/include/bits/stdint.h
+  /home/heath/.emscripten_cache/sysroot/include/bits/stdint.h \
+  ../src/platforms/sprites-simple.c
 
 CMakeFiles/mariokart.dir/src/sprites.c.o: ../src/sprites.c \
   ../src/sprites.h \
@@ -238,6 +241,8 @@ CMakeFiles/mariokart.dir/src/tilemap.c.o: ../src/tilemap.c \
 
 ../src/platforms/emscripten.h:
 
+../src/platforms/sprites-simple.c:
+
 ../src/buttons.c:
 
 /home/heath/.emscripten_cache/sysroot/include/stdlib.h:
@@ -276,8 +281,6 @@ CMakeFiles/mariokart.dir/src/tilemap.c.o: ../src/tilemap.c \
 
 ../data-headers/images.h:
 
-../src/platforms/gint.h:
-
 ../src/maths.c:
 
 /home/heath/.emscripten_cache/sysroot/include/compat/stdlib.h:
@@ -305,5 +308,7 @@ CMakeFiles/mariokart.dir/src/tilemap.c.o: ../src/tilemap.c \
 /home/heath/.emscripten_cache/sysroot/include/emscripten/em_js.h:
 
 /home/heath/.emscripten_cache/sysroot/include/emscripten/version.h:
+
+../src/platforms/gint.h:
 
 /home/heath/.emscripten_cache/sysroot/include/sched.h:

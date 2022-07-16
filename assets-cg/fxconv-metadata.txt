@@ -1,3 +1,242 @@
+kart_0.png:
+  type: bopti-image
+  name: b_kart_0
+  profile: p8
+kart_1.png:
+  type: bopti-image
+  name: b_kart_1
+  profile: p8
+kart_2.png:
+  type: bopti-image
+  name: b_kart_2
+  profile: p8
+kart_3.png:
+  type: bopti-image
+  name: b_kart_3
+  profile: p8
+kart_4.png:
+  type: bopti-image
+  name: b_kart_4
+  profile: p8
+kart_5.png:
+  type: bopti-image
+  name: b_kart_5
+  profile: p8
+kart_6.png:
+  type: bopti-image
+  name: b_kart_6
+  profile: p8
+kart_7.png:
+  type: bopti-image
+  name: b_kart_7
+  profile: p8
+kart_8.png:
+  type: bopti-image
+  name: b_kart_8
+  profile: p8
+kart_9.png:
+  type: bopti-image
+  name: b_kart_9
+  profile: p8
+kart_10.png:
+  type: bopti-image
+  name: b_kart_10
+  profile: p8
+kart_11.png:
+  type: bopti-image
+  name: b_kart_11
+  profile: p8
+kart_12.png:
+  type: bopti-image
+  name: b_kart_12
+  profile: p8
+kart_13.png:
+  type: bopti-image
+  name: b_kart_13
+  profile: p8
+kart_14.png:
+  type: bopti-image
+  name: b_kart_14
+  profile: p8
+kart_15.png:
+  type: bopti-image
+  name: b_kart_15
+  profile: p8
+kart_16.png:
+  type: bopti-image
+  name: b_kart_16
+  profile: p8
+kart_17.png:
+  type: bopti-image
+  name: b_kart_17
+  profile: p8
+kart_18.png:
+  type: bopti-image
+  name: b_kart_18
+  profile: p8
+kart_19.png:
+  type: bopti-image
+  name: b_kart_19
+  profile: p8
+kart_20.png:
+  type: bopti-image
+  name: b_kart_20
+  profile: p8
+kart_21.png:
+  type: bopti-image
+  name: b_kart_21
+  profile: p8
+loop.png:
+  type: bopti-image
+  name: b_loop
+castle.png:
+  type: bopti-image
+  name: b_castle
+bush.png:
+  type: bopti-image
+  name: b_bush
+shadow1.png:
+  type: bopti-image
+  name: b_shadow1
+shadow2.png:
+  type: bopti-image
+  name: b_shadow2
+smoke_0.png:
+  type: bopti-image
+  name: b_smoke_0
+  profile: p8
+smoke_1.png:
+  type: bopti-image
+  name: b_smoke_1
+  profile: p8
+smoke_2.png:
+  type: bopti-image
+  name: b_smoke_2
+  profile: p8
 bg.png:
   type: bopti-image
-  name: img_bg
+  name: b_bg
+boost_0.png:
+  type: bopti-image
+  name: b_boost_0
+  profile: p8
+boost_1.png:
+  type: bopti-image
+  name: b_boost_1
+  profile: p8
+boost_2.png:
+  type: bopti-image
+  name: b_boost_2
+  profile: p8
+boost_3.png:
+  type: bopti-image
+  name: b_boost_3
+  profile: p8
+boost_4.png:
+  type: bopti-image
+  name: b_boost_4
+  profile: p8
+font_0.png:
+  type: bopti-image
+  name: b_font_0
+  profile: p8
+font_1.png:
+  type: bopti-image
+  name: b_font_1
+  profile: p8
+font_2.png:
+  type: bopti-image
+  name: b_font_2
+  profile: p8
+font_3.png:
+  type: bopti-image
+  name: b_font_3
+  profile: p8
+font_4.png:
+  type: bopti-image
+  name: b_font_4
+  profile: p8
+font_5.png:
+  type: bopti-image
+  name: b_font_5
+  profile: p8
+font_6.png:
+  type: bopti-image
+  name: b_font_6
+  profile: p8
+font_7.png:
+  type: bopti-image
+  name: b_font_7
+  profile: p8
+font_8.png:
+  type: bopti-image
+  name: b_font_8
+  profile: p8
+font_9.png:
+  type: bopti-image
+  name: b_font_9
+  profile: p8
+font_10.png:
+  type: bopti-image
+  name: b_font_10
+  profile: p8
+countdown_0.png:
+  type: bopti-image
+  name: b_countdown_0
+  profile: p8
+countdown_1.png:
+  type: bopti-image
+  name: b_countdown_1
+  profile: p8
+countdown_2.png:
+  type: bopti-image
+  name: b_countdown_2
+  profile: p8
+countdown_3.png:
+  type: bopti-image
+  name: b_countdown_3
+  profile: p8
+fire_0.png:
+  type: bopti-image
+  name: b_fire_0
+  profile: p8
+fire_1.png:
+  type: bopti-image
+  name: b_fire_1
+  profile: p8
+fire_2.png:
+  type: bopti-image
+  name: b_fire_2
+  profile: p8
+smallboost_0.png:
+  type: bopti-image
+  name: b_smallboost_0
+  profile: p8
+smallboost_1.png:
+  type: bopti-image
+  name: b_smallboost_1
+  profile: p8
+smallboost_2.png:
+  type: bopti-image
+  name: b_smallboost_2
+  profile: p8
+smallboost_3.png:
+  type: bopti-image
+  name: b_smallboost_3
+  profile: p8
+smallboost_4.png:
+  type: bopti-image
+  name: b_smallboost_4
+  profile: p8
+lap_0.png:
+  type: bopti-image
+  name: b_lap_0
+  profile: p8
+lap_1.png:
+  type: bopti-image
+  name: b_lap_1
+  profile: p8
+lap_2.png:
+  type: bopti-image
+  name: b_lap_2
+  profile: p8

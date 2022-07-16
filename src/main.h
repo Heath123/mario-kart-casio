@@ -19,4 +19,16 @@ float cos(int angle);
 // TODO: Move into a separate file
 void fillSky(unsigned short yMin, unsigned short yMax);
 
+// Profiling
+extern int timeUpdate;
+extern int time3D;
+extern int timeLogic;
+extern int timeLogic1;
+extern int timeLogic2;
+extern int timeLogic3;
+extern int timePhysics;
+extern int timeSprites;
+extern int timeKartSprite;
+extern int timeDebugHud;
+
 #endif // _MAIN_H

@@ -12,7 +12,9 @@
 #include "./data.h"
 
 #include "../data-headers/images.h"
-#include "platforms/gint.h"
+#ifdef PROFILING_ENABLED
+#include "libprof.h"
+#endif
 
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 #define MAX(X, Y) (((X) < (Y)) ? (Y) : (X))
@@ -89,6 +91,11 @@ void cameraBehind(short x, short y, short objectAngle, short distance) {
 
 // #include <gint/display.h>
 
+void drawLapCount() {
+  int lap = MIN(MAX(state.lapCount, 1), 3);
+  draw(imgs_lap[lap - 1], 8, 8);
+}
+
 // TODO: max and min
 void fillSky(unsigned short yMin, unsigned short yMax) {
   /* for (unsigned short x = 0; x < LCD_WIDTH_PX; x++) {
@@ -97,6 +104,7 @@ void fillSky(unsigned short yMin, unsigned short yMax) {
     }
   } */
   draw(img_bg, 0, 0);
+  drawLapCount();
   // extern bopti_image_t img_bg;
   // dimage(0, 0, &img_bg);
   // draw_loop_x(img_loop, 0, 0, 0, LCD_WIDTH_PX);
@@ -168,15 +176,35 @@ void draw_time(char* str, int x, int y) {
     if (str[i] >= '0' && str[i] <= '9') { 
       character = str[i] - '0';
     }
-    draw(imgs_font[character], x + ((12 - imgs_font[character][0]) / 2), y);
+    draw(imgs_font[character], x + ((12 - get_width(imgs_font[character])) / 2), y);
     x += 10;
   }
 }
 
 #include <stdio.h>
 
+int timeUpdate = 0;
+int time3D = 0;
+int timeLogic = 0;
+int timeLogic1 = 0;
+int timeLogic2 = 0;
+int timeLogic3 = 0;
+int timePhysics = 0;
+int timeSprites = 0;
+int timeKartSprite = 0;
+int timeDebugHud = 0;
+
 void main_loop() {
   // Main game loop
+  #ifdef PROFILING_ENABLED
+  prof_t prof_logic = prof_make();
+  prof_t prof_logic1 = prof_make();
+  prof_t prof_logic2 = prof_make();
+  prof_t prof_logic3 = prof_make();
+  prof_t prof_sprites = prof_make();
+  prof_enter(prof_logic);
+  #endif
+
   scanButtons();
 
   bool didFinishLap = false;
@@ -188,7 +216,17 @@ void main_loop() {
       state = savedState;
     }
 
-    handleDebugHud();
+    #ifdef PROFILING_ENABLED
+    prof_leave(prof_logic);
+    #endif
+
+    timeDebugHud = profile({
+      handleDebugHud();
+    });
+
+    #ifdef PROFILING_ENABLED
+    prof_enter(prof_logic);
+    #endif
 
     // turnSpeed = state.drifting ? 0.003: 0.002;
 
@@ -231,10 +269,15 @@ void main_loop() {
       }
     } */
 
+    #ifdef PROFILING_ENABLED
+    prof_leave(prof_logic);
+    prof_enter(prof_logic1);
+    #endif
+
     if (!buttons.hop) {
       if (state.drifting && state.driftCharge >= 60) {
         if (state.driftCharge > 360) {
-           state.boostTime = 100;
+          state.boostTime = 100;
           addParticle(2, LCD_WIDTH_PX / 2 - 28, LCD_HEIGHT_PX - 70, 0, 0);
         } else if (state.driftCharge >= 180) {
           state.boostTime = 50;
@@ -277,6 +320,11 @@ void main_loop() {
       }
     } */
 
+    #ifdef PROFILING_ENABLED
+    prof_leave(prof_logic1);
+    prof_enter(prof_logic2);
+    #endif
+
     if (buttons.debug_boost) {
       state.boostTime = 30;
       addParticle(1, LCD_WIDTH_PX / 2 - 28, LCD_HEIGHT_PX - 70, 0, 0);
@@ -306,6 +354,9 @@ void main_loop() {
       if (hFovModifier > 1 << 12) {
         hFovModifier -= (1 << 12) * 0.02;
       }
+      if (hFovModifier < 1 << 12) {
+        hFovModifier = 1 << 12;
+      }
     }
 
     if (!boosting && isOffRoad) {
@@ -317,7 +368,17 @@ void main_loop() {
     double oldKartY = state.player.y;
     double oldKartX = state.player.x;
 
-    updateWithControls(&state.player, buttons);
+    #ifdef PROFILING_ENABLED
+    prof_leave(prof_logic2);
+    #endif
+
+    timePhysics = profile({
+      updateWithControls(&state.player, buttons);
+    });
+
+    #ifdef PROFILING_ENABLED
+    prof_enter(prof_logic2);
+    #endif
 
     unsigned char newTile = getTileType(state.player.x * 12 / scale, state.player.y * 12 / scale);
     if (newTile >= 240 && newTile <= 243) {  // Barrier
@@ -358,9 +419,19 @@ void main_loop() {
       printf("Lap %d\n", state.lapCount);
       #endif
     }
+
+    #ifdef PROFILING_ENABLED
+    prof_leave(prof_logic2);
+    #endif
   }
 
-  draw3D();
+  time3D = profile({
+    draw3D();
+  });
+
+  #ifdef PROFILING_ENABLED
+  prof_enter(prof_logic3);
+  #endif
 
   if (state.driftCharge >= 60) {
     // Draw fire effect on the wheels
@@ -386,6 +457,10 @@ void main_loop() {
     x -= v / 2;
     x += (state.totalFrameCount / 2) % 3 * sign;
     y += (state.totalFrameCount / 2) % 2;
+    #ifdef PROFILING_ENABLED
+    prof_leave(prof_logic3);
+    prof_enter(prof_sprites);
+    #endif
     if (sign == 1) {
       draw(imgs_fire[fireStage], x, y);
       draw(imgs_fire[fireStage], x + (state.totalFrameCount / 2) % 2 * 3, y + 5);
@@ -393,6 +468,10 @@ void main_loop() {
       draw_flipped(imgs_fire[fireStage], x, y);
       draw_flipped(imgs_fire[fireStage], x - (state.totalFrameCount / 2) % 2 * 3, y + 5);
     }
+    #ifdef PROFILING_ENABLED
+    prof_leave(prof_sprites);
+    prof_enter(prof_logic3);
+    #endif
   }
 
   if (abs_double(state.player.xVelocity) + abs_double(state.player.yVelocity) < 0.02) {
@@ -451,39 +530,60 @@ void main_loop() {
   // } else {
     // draw(img_shadow2, (LCD_WIDTH_PX / 2) - (96 / 2), 112);
   // }
-  if (state.hopStage != 0) {
-    draw(img_shadow1, (LCD_WIDTH_PX / 2) - (96 / 2), 112);
-  }
-  if (state.kartSteerAnim >= 0) {
-    // CopySpriteMasked(/*mksprites[state.kartSteerAnim / 2]*/sprite, (LCD_WIDTH_PX / 2) - 39, 128, 78, 81, 0x07e0);
-    // CopySpriteMasked(mksprites[state.kartSteerAnim / 4], (LCD_WIDTH_PX / 2) - 36, 128, 72, 80, 0x4fe0);
-    draw(imgs_kart[animNo], (LCD_WIDTH_PX / 2) - (96 / 2), horizon + 4 + (jitter % 2) - (hopAnim[state.hopStage] * 3));
-    if (newAnimNo != animNo) {
-      draw(imgs_kart[newAnimNo], (LCD_WIDTH_PX / 2) - (96 / 2), horizon + 4 + (jitter % 2) - (hopAnim[state.hopStage] * 3));
-    }
-  } else {
-    // CopySpriteMaskedFlipped(/*mksprites[-state.kartSteerAnim / 2]*/sprite, (LCD_WIDTH_PX / 2) - 39, 128, 78, 81, 0x07e0);
-    // CopySpriteMaskedFlipped(mksprites[-state.kartSteerAnim / 4], (LCD_WIDTH_PX / 2) - 36, 128, 72, 80, 0x4fe0);
-    draw_flipped(imgs_kart[animNo], (LCD_WIDTH_PX / 2) - (96 / 2), horizon + 4 + (jitter % 2) - (hopAnim[state.hopStage] * 3));
-    if (newAnimNo != animNo) {
-      // printf("kartSteerAnim: %d,\n", state.kartSteerAnim);
-      draw_flipped(imgs_kart[newAnimNo], (LCD_WIDTH_PX / 2) - (96 / 2) - (state.kartSteerAnim == -20 ? 1 : 0), horizon + 4 + (jitter % 2) - (hopAnim[state.hopStage] * 3));
-    }
-  }
+  
+  #ifdef PROFILING_ENABLED
+  prof_leave(prof_logic3);
+  #endif
 
+  timeKartSprite = profile({
+    if (state.hopStage != 0) {
+      draw(img_shadow1, (LCD_WIDTH_PX / 2) - (96 / 2), 112);
+    }
+    if (state.kartSteerAnim >= 0) {
+      // CopySpriteMasked(/*mksprites[state.kartSteerAnim / 2]*/sprite, (LCD_WIDTH_PX / 2) - 39, 128, 78, 81, 0x07e0);
+      // CopySpriteMasked(mksprites[state.kartSteerAnim / 4], (LCD_WIDTH_PX / 2) - 36, 128, 72, 80, 0x4fe0);
+      if (newAnimNo == animNo) {
+        draw(imgs_kart[animNo], (LCD_WIDTH_PX / 2) - (96 / 2), horizon + 4 + (jitter % 2) - (hopAnim[state.hopStage] * 3));
+      } else {
+        draw_partial(imgs_kart[animNo], (LCD_WIDTH_PX / 2) - (96 / 2), horizon + 4 + (jitter % 2) - (hopAnim[state.hopStage] * 3), 0, 0, 96, 52);
+        draw(imgs_kart[newAnimNo], (LCD_WIDTH_PX / 2) - (96 / 2), horizon + 4 + (jitter % 2) - (hopAnim[state.hopStage] * 3));
+      }
+    } else {
+      // CopySpriteMaskedFlipped(/*mksprites[-state.kartSteerAnim / 2]*/sprite, (LCD_WIDTH_PX / 2) - 39, 128, 78, 81, 0x07e0);
+      // CopySpriteMaskedFlipped(mksprites[-state.kartSteerAnim / 4], (LCD_WIDTH_PX / 2) - 36, 128, 72, 80, 0x4fe0);
+      if (newAnimNo == animNo) {
+        draw_flipped(imgs_kart[animNo], (LCD_WIDTH_PX / 2) - (96 / 2), horizon + 4 + (jitter % 2) - (hopAnim[state.hopStage] * 3));
+      } else {
+        draw_partial_flipped(imgs_kart[animNo], (LCD_WIDTH_PX / 2) - (96 / 2), horizon + 4 + (jitter % 2) - (hopAnim[state.hopStage] * 3), 0, 0, 96, 52);
+        draw_flipped(imgs_kart[newAnimNo], (LCD_WIDTH_PX / 2) - (96 / 2) - (state.kartSteerAnim == -20 ? 1 : 0), horizon + 4 + (jitter % 2) - (hopAnim[state.hopStage] * 3));
+      }
+    }
+  });
+
+  #ifdef PROFILING_ENABLED
+  prof_enter(prof_sprites);
+  #endif
+
+  // TODO: Don't profile all of it as sprites?
   tickParticles();
 
   // Bdisp_PutDisp_DD_stripe(horizon + 2, LCD_HEIGHT_PX);
-	// dupdate();
+  // dupdate();
 
   // const int fontWidths[] = {10, 5, 10, 9, 11, };
 
-  // Blank out the box that contains the time
-  for (int x = (LCD_WIDTH_PX - 90) / 2; x < LCD_WIDTH_PX / 2; x++) {
-    for (int y = 8; y < 20; y++) {
-      ((unsigned int *)VRAM)[y * (LCD_WIDTH_PX / 2) + x] = (0x0CDF << 16) | 0x0CDF;
+  if (debugType <= 1) {
+    // Blank out the box that contains the time
+    for (int x = (LCD_WIDTH_PX - 90) / 2; x < LCD_WIDTH_PX / 2; x++) {
+      for (int y = 8; y < 20; y++) {
+        ((unsigned int *)VRAM)[y * (LCD_WIDTH_PX / 2) + x] = (0x0CDF << 16) | 0x0CDF;
+      }
     }
   }
+  #ifdef PROFILING_ENABLED
+  prof_leave(prof_sprites);
+  prof_enter(prof_logic3);
+  #endif
 
   static int lastStage = -1;
   if (state.totalFrameCount < 240) {
@@ -530,7 +630,7 @@ void main_loop() {
     newTimerFrames = freezeTime;
   }
 
-  if (newTimerFrames >= 0 && (freezeForFrames == 0 || (freezeForFrames / 10) % 2 == 0)) {
+  if (newTimerFrames >= 0 && (freezeForFrames == 0 || (freezeForFrames / 10) % 2 == 0) && debugType <= 1) {
     int minutes = newTimerFrames / 60 / 60;
     int seconds = (newTimerFrames / 60) % 60;
     int milliseconds = ((newTimerFrames % 60) * 16667) / 1000;
@@ -539,19 +639,49 @@ void main_loop() {
     }
     char timeStr[9];
     sprintf(timeStr, "%02d:%02d:%02d", minutes, seconds, milliseconds / 10);
+
+    #ifdef PROFILING_ENABLED
+    prof_leave(prof_logic3);
+    #endif
+
+    #ifdef PROFILING_ENABLED
+    prof_enter(prof_sprites);
+    #endif
+
     // Draw text
     draw_time(timeStr, LCD_WIDTH_PX - 90, 8);
 
     // Lap count
+    static int lastLap = -1;
     int lap = MIN(MAX(state.lapCount, 1), 3);
-    draw(imgs_lap[lap - 1], 8, 8);
+    if (lap != lastLap) {
+      drawLapCount();
+      lastLap = lap;
+    }
+
+    #ifdef PROFILING_ENABLED
+    prof_leave(prof_sprites);
+    prof_enter(prof_logic3);
+    #endif
   }
 
-  // Update timer on screen
-  displayUpdate(8, 24);
+  #ifdef PROFILING_ENABLED
+  prof_leave(prof_logic3);
+  timeLogic = prof_time(prof_logic);
+  timeLogic2 = prof_time(prof_logic2);
+  timeLogic3 = prof_time(prof_logic3);
+  timeSprites = prof_time(prof_sprites);
+  #endif
 
-  // Update track on screen
-  displayUpdate(horizon + 2, LCD_HEIGHT_PX);
+  timeUpdate = profile({
+    // if (state.totalFrameCount % 2 == 0) {
+      // Update timer on screen
+      displayUpdate(8, 24);
+
+      // Update track on screen
+      displayUpdate(horizon + 2, LCD_HEIGHT_PX);
+    // }
+  });
 
   // displayUpdate(0, LCD_HEIGHT_PX);
   

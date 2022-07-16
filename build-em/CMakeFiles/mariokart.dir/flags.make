@@ -6,5 +6,5 @@ C_DEFINES =
 
 C_INCLUDES = 
 
-C_FLAGS = -Wall -Wextra -Werror-implicit-function-declaration -O3 -flto
+C_FLAGS = -Wall -Wextra -Werror=implicit-function-declaration -Werror=incompatible-pointer-types -g
 

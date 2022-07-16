@@ -95,18 +95,24 @@ void Copy_ToCanvas(uint32_t* ptr) { /*, int w, int h) {*/
   }, ptr);
 }
 
-void displayUpdate(int minY, int maxY) {
+void displayUpdateBox(int x, int y, int w, int h) {
   static unsigned int screencopy[LCD_WIDTH_PX * LCD_HEIGHT_PX];
-  for (int i = (minY * LCD_WIDTH_PX); i < (LCD_WIDTH_PX * maxY); i++) {
-    int c = VRAM[i];
-    // https://gist.github.com/companje/11deb82e807f2cf927b3a0da1646e795#file-rgb565-pde-L8
-    unsigned char r = (unsigned char)(((c & 0xF800) >> 11) << 3);
-    unsigned char g = (unsigned char)(((c & 0x7E0) >> 5) << 2);
-    unsigned char b = (unsigned char)(((c & 0x1F)) << 3);
-    unsigned int argb = 0xff000000 | ((int)b << 16) | ((int)g << 8) | (int)r;
-    screencopy[i] = argb;
+  for (int yPos = y; yPos < y + h; yPos++) {
+    for (int xPos = x; xPos < x + w; xPos++) {
+      int c = VRAM[yPos * LCD_WIDTH_PX + xPos];
+      // https://gist.github.com/companje/11deb82e807f2cf927b3a0da1646e795#file-rgb565-pde-L8
+      unsigned char r = (unsigned char)(((c & 0xF800) >> 11) << 3);
+      unsigned char g = (unsigned char)(((c & 0x7E0) >> 5) << 2);
+      unsigned char b = (unsigned char)(((c & 0x1F)) << 3);
+      unsigned int argb = 0xff000000 | ((int)b << 16) | ((int)g << 8) | (int)r;
+      screencopy[yPos * LCD_WIDTH_PX + xPos] = argb;
+    }
   }
   Copy_ToCanvas(screencopy);
+}
+
+void displayUpdate(int minY, int maxY) {
+  displayUpdateBox(0, minY, LCD_WIDTH_PX, maxY - minY);
 }
 
 void drawText(int x, int y, const char *text) {}
@@ -118,3 +124,33 @@ EM_JS(int, getTimeMS, (), {
 int check_key(int key) {
   return keysPressed[key];
 }
+
+#include "./sprites-simple.c"
+
+// void CopySpriteLoopX(const void* datar, int x, int y, int width, int height, int xOffset, int drawWidth, int maskcolor) {
+//   xOffset -= 384;
+//   int copies = drawWidth / width;
+//   int remainder = drawWidth % width;
+//   for (int i = 0; i < copies; i++) {
+//     CopySpritePartial(datar, x + i * width - xOffset, y, width, height, xOffset, 0, width, height);
+//   }
+//   // Copy the remainder
+//   if (remainder > 0) {
+//     CopySpritePartial(datar, x + (copies * width) - xOffset, y, width, height, xOffset, 0, remainder, height);
+//   }
+// }
+
+// void draw_loop_x(const struct image* img, int x, int y, int xOffset, int drawWidth) {
+//   const unsigned short* data = img->data;
+//   // The height and width of the sprite are the first two elements in the data array
+//   int width = data[0];
+//   int height = data[1];
+//   // The offsets of the x and y positions are the third and fourth elements in the data array
+//   int xOffset2 = data[2];
+//   int yOffset = data[3];
+//   // The data array starts at index 4
+//   const unsigned short* data2 = data + 4;
+//   // Now draw the sprite
+//   CopySpriteLoopX(data2, x + xOffset2, y + yOffset, width, height, xOffset, drawWidth, 0x4fe0);
+// }
+

@@ -1,6 +1,8 @@
 #ifndef _PARTICLES_H_
 #define _PARTICLES_H_
 
+#include "./platform.h"
+
 typedef struct {
   short type;
   short age;
@@ -16,7 +18,7 @@ typedef struct {
   short maxAge;
   short animLength;
   char animDelay;
-  const unsigned short** animFrames;
+  const struct image** animFrames;
 } ParticleType;
 
 void initParticles();

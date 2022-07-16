@@ -5,6 +5,8 @@
 
 void handleDebugHud();
 
+extern int debugType;
+
 #endif // FXCG_MOCK
 
 #endif // _DEBUGHUD_H

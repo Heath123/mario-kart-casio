@@ -53,11 +53,13 @@ def toData(path):
   return outData
 
 def dataToCFile(data, name):
-  header = f"extern const unsigned short img_{name}[{len(data)}];"
-  out = f"const unsigned short img_{name}[{len(data)}] = {{"
+  header = f"extern const struct image* img_{name};"
+  out = f"const unsigned short data_img_{name}[{len(data)}] = {{"
   for i in data:
     out += f"0x{i:04x}, "
-  out = out[:-2] + "};"
+  out = out[:-2] + "};\n"
+  out += "const struct image internal_img_" + name + " = { data_img_" + name + " };\n"
+  out += "const struct image* img_" + name + " = &internal_img_" + name + ";\n"
   return header, out
 
 # def multiDataToHeader(dataArray, filename):
@@ -82,15 +84,20 @@ def multiDataToCFile(dataArray, filename):
     head, data = dataToCFile(data, f"{filename.split('.')[0]}_{index}")
     result += data + "\n"
     header += head + "\n"
-  result += "const unsigned short* imgs_" + filename.split('.')[0] + "[" + str(len(dataArray)) + "] = {"
+  result += "const struct image* imgs_" + filename.split('.')[0] + "[" + str(len(dataArray)) + "] = {"
   for index, data in enumerate(dataArray):
-    result += f"img_{filename.split('.')[0]}_{index}, "
-  result = result[:-2] + "};"
-  header += "extern const unsigned short* imgs_" + filename.split('.')[0] + "[" + str(len(dataArray)) + "];"
+    result += f"&internal_img_{filename.split('.')[0]}_{index}, "
+  result = result[:-2] + "};\n"
+  header += "extern const struct image* imgs_" + filename.split('.')[0] + "[" + str(len(dataArray)) + "];"
   return header, result
 
-all = ""
-allHeader = ""
+all = """
+struct image {
+  const unsigned short *data;
+};
+"""
+
+allHeader = "struct image;\n"
 # Loop over the PNG files in ../assets/img/ (relative to the script)
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 for file in os.listdir("../assets/img/"):

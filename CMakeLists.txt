@@ -29,6 +29,7 @@ if (DEFINED FXSDK_PLATFORM_LONG)
   include(GenerateG3A)
   include(Fxconv)
   find_package(Gint 2.1 REQUIRED)
+  find_package(LibProf 2.1 REQUIRED)
 
   # Shared assets, fx-9860G-only assets and fx-CG-50-only assets
   set(ASSETS
@@ -40,6 +41,69 @@ if (DEFINED FXSDK_PLATFORM_LONG)
   set(ASSETS_cg
     # assets-cg/example.png
     # assets-cg/bg.png
+
+    assets-cg/bg.png
+    assets-cg/boost_0.png
+    assets-cg/boost_1.png
+    assets-cg/boost_2.png
+    assets-cg/boost_3.png
+    assets-cg/boost_4.png
+    # assets-cg/bush.png
+    # assets-cg/castle.png
+    assets-cg/countdown_0.png
+    assets-cg/countdown_1.png
+    assets-cg/countdown_2.png
+    assets-cg/countdown_3.png
+    assets-cg/fire_0.png
+    assets-cg/fire_1.png
+    assets-cg/fire_2.png
+    assets-cg/font_0.png
+    assets-cg/font_1.png
+    assets-cg/font_10.png
+    assets-cg/font_2.png
+    assets-cg/font_3.png
+    assets-cg/font_4.png
+    assets-cg/font_5.png
+    assets-cg/font_6.png
+    assets-cg/font_7.png
+    assets-cg/font_8.png
+    assets-cg/font_9.png
+    assets-cg/kart_0.png
+    assets-cg/kart_1.png
+    assets-cg/kart_10.png
+    assets-cg/kart_11.png
+    assets-cg/kart_12.png
+    assets-cg/kart_13.png
+    assets-cg/kart_14.png
+    assets-cg/kart_15.png
+    assets-cg/kart_16.png
+    assets-cg/kart_17.png
+    assets-cg/kart_18.png
+    assets-cg/kart_19.png
+    assets-cg/kart_2.png
+    assets-cg/kart_20.png
+    assets-cg/kart_21.png
+    assets-cg/kart_3.png
+    assets-cg/kart_4.png
+    assets-cg/kart_5.png
+    assets-cg/kart_6.png
+    assets-cg/kart_7.png
+    assets-cg/kart_8.png
+    assets-cg/kart_9.png
+    assets-cg/lap_0.png
+    assets-cg/lap_1.png
+    assets-cg/lap_2.png
+    # assets-cg/loop.png
+    assets-cg/shadow1.png
+    assets-cg/shadow2.png
+    assets-cg/smallboost_0.png
+    assets-cg/smallboost_1.png
+    assets-cg/smallboost_2.png
+    assets-cg/smallboost_3.png
+    assets-cg/smallboost_4.png
+    assets-cg/smoke_0.png
+    assets-cg/smoke_1.png
+    assets-cg/smoke_2.png
   )
 
   fxconv_declare_assets(${ASSETS} ${ASSETS_fx} ${ASSETS_cg} WITH_METADATA)
@@ -47,6 +111,7 @@ if (DEFINED FXSDK_PLATFORM_LONG)
   add_executable(mariokart ${SOURCES} ${ASSETS} ${ASSETS_${FXSDK_PLATFORM}})
   target_compile_options(mariokart PRIVATE -Wall -Wextra -Werror-implicit-function-declaration -Ofast -flto)
   target_link_libraries(mariokart Gint::Gint)
+  target_link_libraries(mariokart LibProf::LibProf)
 
   if("${FXSDK_PLATFORM_LONG}" STREQUAL fx9860G)
     generate_g1a(TARGET mariokart OUTPUT "MarioKart.g1a"
@@ -63,6 +128,6 @@ else()
 
   set(CMAKE_EXECUTABLE_SUFFIX ".html")
   add_executable(mariokart ${SOURCES})
-  target_compile_options(mariokart PRIVATE -Wall -Wextra -Werror-implicit-function-declaration -O3 -flto)
-  target_link_options(mariokart PRIVATE --shell-file=../emscripten.html)
+  target_compile_options(mariokart PRIVATE -Wall -Wextra -Werror=implicit-function-declaration -Werror=incompatible-pointer-types -g)
+  target_link_options(mariokart PRIVATE --shell-file=../emscripten.html -g)
 endif()

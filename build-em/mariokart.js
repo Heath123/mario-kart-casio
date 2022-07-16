@@ -1692,8 +1692,8 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  490692: () => { window.canvasContext = Module['canvas'].getContext('2d'); window.canvasImageData = canvasContext.getImageData(0, 0, 396, 224); },  
- 490823: ($0) => { let data = Module.HEAPU8.slice($0, $0 + 396 * 224 * 4); canvasImageData.data.set(data); canvasContext.putImageData(canvasImageData, 0, 0); }
+  490940: () => { window.canvasContext = Module['canvas'].getContext('2d'); window.canvasImageData = canvasContext.getImageData(0, 0, 396, 224); },  
+ 491071: ($0) => { let data = Module.HEAPU8.slice($0, $0 + 396 * 224 * 4); canvasImageData.data.set(data); canvasContext.putImageData(canvasImageData, 0, 0); }
 };
 function getTimeMS() { return Date.now() - 1657104690407; }
 function logInit() { console.log("platformInit"); }
@@ -3279,8 +3279,16 @@ function callMain(args) {
 
   var entryFunction = Module['_main'];
 
-  var argc = 0;
-  var argv = 0;
+  args = args || [];
+  args.unshift(thisProgram);
+
+  var argc = args.length;
+  var argv = stackAlloc((argc + 1) * 4);
+  var argv_ptr = argv >> 2;
+  args.forEach((arg) => {
+    HEAP32[argv_ptr++] = allocateUTF8OnStack(arg);
+  });
+  HEAP32[argv_ptr] = 0;
 
   try {
 

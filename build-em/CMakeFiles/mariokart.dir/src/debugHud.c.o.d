@@ -15,4 +15,5 @@ CMakeFiles/mariokart.dir/src/debugHud.c.o: \
   /home/heath/mk-gint/src/./main.h \
   /opt/emscripten-llvm/lib/clang/15.0.0/include/stdbool.h \
   /home/heath/mk-gint/src/./buttons.h /home/heath/mk-gint/src/./state.h \
-  /home/heath/mk-gint/src/./physics.h
+  /home/heath/mk-gint/src/./physics.h \
+  /home/heath/mk-gint/src/platforms/emscripten.h

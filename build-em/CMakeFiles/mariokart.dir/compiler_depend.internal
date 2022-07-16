@@ -61,6 +61,7 @@ CMakeFiles/mariokart.dir/src/debugHud.c.o
  /home/heath/mk-gint/src/buttons.h
  /home/heath/mk-gint/src/state.h
  /home/heath/mk-gint/src/physics.h
+ /home/heath/mk-gint/src/platforms/emscripten.h
 
 CMakeFiles/mariokart.dir/src/images.c.o
  /home/heath/mk-gint/src/images.c
@@ -82,7 +83,6 @@ CMakeFiles/mariokart.dir/src/main.c.o
  /home/heath/mk-gint/src/particles.h
  /home/heath/mk-gint/src/data.h
  /home/heath/mk-gint/data-headers/images.h
- /home/heath/mk-gint/src/platforms/gint.h
  /home/heath/.emscripten_cache/sysroot/include/stdio.h
  /home/heath/.emscripten_cache/sysroot/include/wasi/api.h
  /opt/emscripten-llvm/lib/clang/15.0.0/include/stddef.h
@@ -121,6 +121,8 @@ CMakeFiles/mariokart.dir/src/miniz.c.o
 CMakeFiles/mariokart.dir/src/particles.c.o
  /home/heath/mk-gint/src/particles.c
  /home/heath/mk-gint/src/particles.h
+ /home/heath/mk-gint/src/platform.h
+ /home/heath/mk-gint/src/platforms/emscripten.h
  /home/heath/mk-gint/src/sprites.h
  /opt/emscripten-llvm/lib/clang/15.0.0/include/stdbool.h
  /home/heath/mk-gint/data-headers/images.h
@@ -163,6 +165,7 @@ CMakeFiles/mariokart.dir/src/platforms/emscripten.c.o
  /opt/emscripten-llvm/lib/clang/15.0.0/include/stdint.h
  /home/heath/.emscripten_cache/sysroot/include/stdint.h
  /home/heath/.emscripten_cache/sysroot/include/bits/stdint.h
+ /home/heath/mk-gint/src/platforms/sprites-simple.c
 
 CMakeFiles/mariokart.dir/src/sprites.c.o
  /home/heath/mk-gint/src/sprites.c

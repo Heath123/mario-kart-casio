@@ -1,6 +1,7 @@
 #include "./particles.h"
 
 #include "./sprites.h"
+#include "./platform.h"
 #include "../data-headers/images.h"
 
 #define MAX_PARTICLES 32

@@ -26,4 +26,5 @@ CMakeFiles/mariokart.dir/src/platforms/emscripten.c.o: \
   /opt/emscripten-llvm/lib/clang/15.0.0/include/__stddef_max_align_t.h \
   /opt/emscripten-llvm/lib/clang/15.0.0/include/stdint.h \
   /home/heath/.emscripten_cache/sysroot/include/stdint.h \
-  /home/heath/.emscripten_cache/sysroot/include/bits/stdint.h
+  /home/heath/.emscripten_cache/sysroot/include/bits/stdint.h \
+  /home/heath/mk-gint/src/platforms/./sprites-simple.c

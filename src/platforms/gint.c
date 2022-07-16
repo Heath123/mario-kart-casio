@@ -9,11 +9,19 @@
 #include <gint/clock.h>
 #include <stdbool.h>
 
-
 #include "../main.h"
+#include "gint/display-cg.h"
+#include "gint/image.h"
+
+#ifdef PROFILING_ENABLED
+#include <libprof.h>
+#endif
 
 void platformInit() {
   // clock_set_speed(CLOCK_SPEED_F5);
+  #ifdef PROFILING_ENABLED
+  prof_init();
+  #endif
 }
 
 static int callback_tick(volatile int *newFrameNeeded) {
@@ -48,9 +56,18 @@ void updateKeys() {
 // Align to a multiple of 4, rounding up.
 #define alignTo4Up(n) (((n) + 3) & ~3)
 
+void displayUpdateBox(int x, int y, int w, int h) {
+  // TODO
+}
+
 void displayUpdate(int minY, int maxY) {
   minY = alignTo4Down(minY);
-  r61524_display(gint_vram, minY, alignTo4Up(maxY - minY), R61524_DMA);
+  #ifdef PROFILING_ENABLED
+  #define method R61524_DMA_WAIT
+  #else
+  #define method R61524_DMA
+  #endif
+  r61524_display(gint_vram, minY, alignTo4Up(maxY - minY), method);
 }
 
 void drawText(int x, int y, const char *text) {
@@ -65,4 +82,32 @@ int getTimeMS(void) {
 int check_key(int key) {
   if (key == -1) return 0;
   return keydown(key);
+}
+
+struct image {
+  int xOffset;
+  int yOffset;
+  const bopti_image_t* data;
+};
+
+void draw(const struct image *img, int x, int y) {
+  dimage(x + img->xOffset, y + img->yOffset, img->data);
+}
+
+void draw_flipped(const struct image *img, int x, int y) {
+  // dimage(x + img->xOffset, y + img->yOffset, img->data);
+  dimage_p8_effect(x + img->xOffset, y + img->yOffset, img->data, IMAGE_HFLIP);
+}
+// void draw_loop_x(const struct image* data, int x, int y, int xOffset, int drawWidth);
+
+void draw_partial(const struct image *img, int x, int y, int sx, int sy, int w, int h) {
+  dsubimage(x + img->xOffset, y + img->yOffset, img->data, sx, sy, w, h, 0);
+}
+
+void draw_partial_flipped(const struct image *img, int x, int y, int sx, int sy, int w, int h) {
+  dsubimage_p8_effect(x + img->xOffset, y + img->yOffset, img->data, sx, sy, w, h, IMAGE_HFLIP);
+}
+
+int get_width(const struct image* img) {
+  return img->data->width;
 }
