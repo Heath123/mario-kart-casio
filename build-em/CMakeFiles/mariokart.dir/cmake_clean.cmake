@@ -3,6 +3,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/mariokart.dir/src/3d.c.o.d"
   "CMakeFiles/mariokart.dir/src/buttons.c.o"
   "CMakeFiles/mariokart.dir/src/buttons.c.o.d"
+  "CMakeFiles/mariokart.dir/src/configurableConstants.c.o"
+  "CMakeFiles/mariokart.dir/src/configurableConstants.c.o.d"
   "CMakeFiles/mariokart.dir/src/data.c.o"
   "CMakeFiles/mariokart.dir/src/data.c.o.d"
   "CMakeFiles/mariokart.dir/src/debugHud.c.o"

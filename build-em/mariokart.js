@@ -1692,10 +1692,23 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  417732: () => { window.canvasContext = Module['canvas'].getContext('2d'); window.canvasImageData = canvasContext.getImageData(0, 0, 396, 224); },  
- 417863: ($0) => { let data = Module.HEAPU8.slice($0, $0 + 396 * 224 * 4); canvasImageData.data.set(data); canvasContext.putImageData(canvasImageData, 0, 0); }
+  410381: () => { return window.constantValues.turnSpeed; },  
+ 410425: () => { return window.constantValues.drag; },  
+ 410464: () => { return window.constantValues.offRoadDrag; },  
+ 410510: () => { return window.constantValues.angularDrag; },  
+ 410556: () => { return window.constantValues.maxPower; },  
+ 410599: () => { return window.constantValues.powerFactor; },  
+ 410645: () => { return window.constantValues.boostMaxPower; },  
+ 410693: () => { return window.constantValues.boostPowerFactor; },  
+ 410744: () => { return window.constantValues.maxSteerNormal; },  
+ 410793: () => { return window.constantValues.minSteerDrift; },  
+ 410841: () => { return window.constantValues.neutralSteerDrift; },  
+ 410893: () => { return window.constantValues.maxSteerDrift; },  
+ 410941: () => { window.canvasContext = Module['canvas'].getContext('2d'); window.canvasImageData = canvasContext.getImageData(0, 0, 396, 224); },  
+ 411072: ($0) => { let data = Module.HEAPU8.slice($0, $0 + 396 * 224 * 4); canvasImageData.data.set(data); canvasContext.putImageData(canvasImageData, 0, 0); }
 };
 function getTimeMS() { return Date.now() - 1657104690407; }
+function initSliders() { window.constantValues = {}; const container = document.getElementById("sliderContainer"); const constants = [ { name: "turnSpeed", min: 0, max: 0.01, step: 0.0001, value: 0.002, description: "Turning this up makes the kart... well... turn faster. Acts as a multiplier for all the turn angle options (maxSteerNormal, minSteerDrift, neutralSteerDrift and maxSteerDrift).", }, { name: "drag", min: 0, max: 1, step: 0.01, value: 0.1, description: "A multiplier that is applied to the velocity every frame. This also affects the top speed, so if you adjust this, you'll probably want to adjust maxPower unless this is intended (as in the case of being off road)." }, { name: "offRoadDrag", min: 0, max: 1, step: 0.01, value: 0.3, description: "Used instead of drag when the kart is off road." }, { name: "angularDrag", min: 0, max: 1, step: 0.01, value: 0.9, description: "A multiplier that is applied to the angular velocity every frame. Turning this up makes turning feel more slippery, as you will continue to turn for a bit after you stop pressing a direction." }, { name: "maxPower", min: 0, max: 0.5, step: 0.0001, value: 0.1, description: "The maximum acceleration that can be applied to the kart - this is the main way of changing the top speed, along with drag." }, { name: "powerFactor", min: 0, max: 0.01, step: 0.0001, value: 0.001, description: "Controls the speed at which the power changes. Affects how quickly you can get back up to speed after you stop." }, { name: "boostMaxPower", min: 0, max: 0.5, step: 0.0001, value: 0.15, description: "Used instead of maxPower when the kart is boosting from a drift (and in the future, other things like mushrooms and boost pads)." }, { name: "boostPowerFactor", min: 0, max: 0.01, step: 0.0001, value: 0.002, description: "Used instead of powerFactor when the kart is boosting." }, { name: "maxSteerNormal", min: 0, max: 3, step: 0.01, value: 1, description: "The maximum steering angle that can be applied to the kart when not drifting." }, { name: "minSteerDrift", min: -3, max: 3, step: 0.01, value: 0.15, description: "The minimum steering angle that can be applied to the kart when the kart is drifting, when holding the button in the opposite direction of the drift. Having this lower makes it easier to not go off the track, and having it higher makes it harder (which can be good, because there should be some challenge to drifting so you have to earn the boosts). Having this negative means you can steer in the opposite direction of the drift, which makes things even easier." }, { name: "neutralSteerDrift", min: 0, max: 3, step: 0.01, value: 0.77, description: "The steering angle that is applied to the kart when the kart is drifting and not turning." }, { name: "maxSteerDrift", min: 0, max: 3, step: 0.01, value: 1.7, description: "The maximum steering angle that can be applied to the kart when the kart is drifting, by holding the button in the same direction as the drift." } ]; for (const constant of constants) { window.constantValues[constant.name] = constant.value; const label = document.createElement("label"); label.innerHTML = constant.name; label.setAttribute("for", constant.name); const slider = document.createElement("input"); slider.type = "range"; slider.min = constant.min; slider.max = constant.max; slider.step = constant.step; slider.value = constant.value; slider.style.width = "400px"; slider.id = constant.name; const valueIndicator = document.createElement("div"); valueIndicator.id = constant.name + "Value"; valueIndicator.innerHTML = constant.value; slider.oninput = function() { window.constantValues[constant.name] = Number(this.value); valueIndicator.innerHTML = this.value; if (this.value != constant.value) { valueIndicator.style.color = "orange"; } else { valueIndicator.style.color = "black"; } }; const description = document.createElement("div"); description.innerHTML = constant.description; const resetButton = document.createElement("button"); resetButton.innerHTML = "Reset"; resetButton.onclick = function() { window.constantValues[constant.name] = constant.value; slider.value = constant.value; valueIndicator.innerHTML = constant.value; valueIndicator.style.color = "black"; }; container.appendChild(label); container.appendChild(document.createElement("br")); container.appendChild(slider); container.appendChild(valueIndicator); container.appendChild(description); container.appendChild(resetButton); container.appendChild(document.createElement("hr")); } }
 function logInit() { console.log("platformInit"); }
 
 
@@ -1877,6 +1890,11 @@ function logInit() { console.log("platformInit"); }
       if (!ASM_CONSTS.hasOwnProperty(code)) abort('No EM_ASM constant found at address ' + code);
       return ASM_CONSTS[code].apply(null, args);
     }
+  function _emscripten_asm_const_double(a0,a1,a2
+  ) {
+  return _emscripten_asm_const_int(a0,a1,a2);
+  }
+
 
   function _emscripten_memcpy_big(dest, src, num) {
       HEAPU8.copyWithin(dest, src, src + num);
@@ -2957,6 +2975,7 @@ function checkIncomingModuleAPI() {
 }
 var asmLibraryArg = {
   "__assert_fail": ___assert_fail,
+  "emscripten_asm_const_double": _emscripten_asm_const_double,
   "emscripten_asm_const_int": _emscripten_asm_const_int,
   "emscripten_memcpy_big": _emscripten_memcpy_big,
   "emscripten_resize_heap": _emscripten_resize_heap,
@@ -2966,6 +2985,7 @@ var asmLibraryArg = {
   "emscripten_set_main_loop": _emscripten_set_main_loop,
   "fd_write": _fd_write,
   "getTimeMS": getTimeMS,
+  "initSliders": initSliders,
   "logInit": logInit,
   "setTempRet0": _setTempRet0
 };

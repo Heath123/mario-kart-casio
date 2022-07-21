@@ -18,6 +18,17 @@ CMakeFiles/mariokart.dir/src/buttons.c.o: ../src/buttons.c \
   ../src/platforms/emscripten.h \
   ../src/main.h
 
+CMakeFiles/mariokart.dir/src/configurableConstants.c.o: ../src/configurableConstants.c \
+  ../src/configurableConstants.h \
+  /home/heath/.emscripten_cache/sysroot/include/emscripten.h \
+  /home/heath/.emscripten_cache/sysroot/include/emscripten/emscripten.h \
+  /home/heath/.emscripten_cache/sysroot/include/emscripten/em_asm.h \
+  /home/heath/.emscripten_cache/sysroot/include/emscripten/em_macros.h \
+  /home/heath/.emscripten_cache/sysroot/include/emscripten/em_types.h \
+  /home/heath/.emscripten_cache/sysroot/include/emscripten/em_js.h \
+  /home/heath/.emscripten_cache/sysroot/include/emscripten/wget.h \
+  /home/heath/.emscripten_cache/sysroot/include/emscripten/version.h
+
 CMakeFiles/mariokart.dir/src/data.c.o: ../src/data.c \
   ../src/data.h \
   ../src/miniz.h \
@@ -76,6 +87,7 @@ CMakeFiles/mariokart.dir/src/main.c.o: ../src/main.c \
   ../src/debugHud.h \
   ../src/particles.h \
   ../src/data.h \
+  ../src/configurableConstants.h \
   ../data-headers/images.h \
   ../src/platforms/emscripten.h \
   /home/heath/.emscripten_cache/sysroot/include/stdio.h \
@@ -194,29 +206,7 @@ CMakeFiles/mariokart.dir/src/tilemap.c.o: ../src/tilemap.c \
 
 /home/heath/.emscripten_cache/sysroot/include/compat/time.h:
 
-/home/heath/.emscripten_cache/sysroot/include/strings.h:
-
-/opt/emscripten-llvm/lib/clang/15.0.0/include/stdbool.h:
-
-/home/heath/.emscripten_cache/sysroot/include/string.h:
-
-/home/heath/.emscripten_cache/sysroot/include/stdio.h:
-
-../src/platform.h:
-
-../src/particles.h:
-
-/home/heath/.emscripten_cache/sysroot/include/stdint.h:
-
-/home/heath/.emscripten_cache/sysroot/include/alloca.h:
-
-/home/heath/.emscripten_cache/sysroot/include/bits/alltypes.h:
-
-../src/debugHud.h:
-
-/home/heath/.emscripten_cache/sysroot/include/emscripten/wget.h:
-
-/home/heath/.emscripten_cache/sysroot/include/features.h:
+/home/heath/.emscripten_cache/sysroot/include/sched.h:
 
 /opt/emscripten-llvm/lib/clang/15.0.0/include/stddef.h:
 
@@ -230,37 +220,79 @@ CMakeFiles/mariokart.dir/src/tilemap.c.o: ../src/tilemap.c \
 
 ../src/state.h:
 
-../src/3d.c:
+../src/data.c:
 
-../src/tilemap.h:
-
-/opt/emscripten-llvm/lib/clang/15.0.0/include/__stddef_max_align_t.h:
+/home/heath/.emscripten_cache/sysroot/include/assert.h:
 
 ../src/data.h:
 
-../src/3d.h:
+/opt/emscripten-llvm/lib/clang/15.0.0/include/__stddef_max_align_t.h:
 
-../src/platforms/emscripten.h:
+/home/heath/.emscripten_cache/sysroot/include/emscripten/version.h:
+
+/home/heath/.emscripten_cache/sysroot/include/emscripten/html5_webgl.h:
+
+/home/heath/.emscripten_cache/sysroot/include/emscripten/em_js.h:
+
+/home/heath/.emscripten_cache/sysroot/include/emscripten/em_asm.h:
+
+/home/heath/.emscripten_cache/sysroot/include/emscripten/emscripten.h:
+
+/home/heath/.emscripten_cache/sysroot/include/features.h:
 
 ../src/platforms/sprites-simple.c:
 
 ../src/buttons.c:
 
-/home/heath/.emscripten_cache/sysroot/include/stdlib.h:
+../src/3d.c:
 
-/home/heath/.emscripten_cache/sysroot/include/bits/stdint.h:
+../src/tilemap.h:
 
-../src/main.h:
+../src/3d.h:
 
-../src/data.c:
+/opt/emscripten-llvm/lib/clang/15.0.0/include/stdbool.h:
 
-../src/buttons.h:
+/home/heath/.emscripten_cache/sysroot/include/strings.h:
+
+../src/platforms/emscripten.h:
+
+/home/heath/.emscripten_cache/sysroot/include/emscripten/em_macros.h:
+
+/home/heath/.emscripten_cache/sysroot/include/emscripten/em_types.h:
+
+../src/platform.h:
+
+/home/heath/.emscripten_cache/sysroot/include/stdio.h:
 
 ../src/maths.h:
 
 ../data-headers/generated_lut.h:
 
-/home/heath/.emscripten_cache/sysroot/include/assert.h:
+/home/heath/.emscripten_cache/sysroot/include/emscripten/wget.h:
+
+/home/heath/.emscripten_cache/sysroot/include/bits/alltypes.h:
+
+../src/debugHud.h:
+
+../src/configurableConstants.c:
+
+../src/platforms/gint.h:
+
+../src/buttons.h:
+
+/home/heath/.emscripten_cache/sysroot/include/stdint.h:
+
+/home/heath/.emscripten_cache/sysroot/include/alloca.h:
+
+../src/particles.h:
+
+../src/main.h:
+
+/home/heath/.emscripten_cache/sysroot/include/bits/stdint.h:
+
+/home/heath/.emscripten_cache/sysroot/include/stdlib.h:
+
+/home/heath/.emscripten_cache/sysroot/include/string.h:
 
 /home/heath/.emscripten_cache/sysroot/include/wasi/api.h:
 
@@ -273,6 +305,12 @@ CMakeFiles/mariokart.dir/src/tilemap.c.o: ../src/tilemap.c \
 /home/heath/.emscripten_cache/sysroot/include/pthread.h:
 
 ../src/physics.h:
+
+/opt/emscripten-llvm/lib/clang/15.0.0/include/stdint.h:
+
+../src/configurableConstants.h:
+
+../src/main.c:
 
 ../src/sprites.h:
 
@@ -290,28 +328,4 @@ CMakeFiles/mariokart.dir/src/tilemap.c.o: ../src/tilemap.c \
 
 ../src/physics.c:
 
-/opt/emscripten-llvm/lib/clang/15.0.0/include/stdint.h:
-
-../src/main.c:
-
-../src/configurableConstants.h:
-
 ../src/platforms/emscripten.c:
-
-/home/heath/.emscripten_cache/sysroot/include/emscripten/emscripten.h:
-
-/home/heath/.emscripten_cache/sysroot/include/emscripten/em_asm.h:
-
-/home/heath/.emscripten_cache/sysroot/include/emscripten/em_macros.h:
-
-/home/heath/.emscripten_cache/sysroot/include/emscripten/em_types.h:
-
-/home/heath/.emscripten_cache/sysroot/include/emscripten/html5_webgl.h:
-
-/home/heath/.emscripten_cache/sysroot/include/emscripten/em_js.h:
-
-/home/heath/.emscripten_cache/sysroot/include/emscripten/version.h:
-
-../src/platforms/gint.h:
-
-/home/heath/.emscripten_cache/sysroot/include/sched.h:

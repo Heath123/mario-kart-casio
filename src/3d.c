@@ -7,7 +7,7 @@
 
 #include "../data-headers/generated_lut.h"
 
-#define lowResCutoff (LCD_HEIGHT_PX * 3 / 4) - 20
+#define lowResCutoff (LCD_HEIGHT_PX * 3 / 4) - 30
 
 inline void setPixel(int x, int y, color_t color) {
   VRAM[y * LCD_WIDTH_PX + x] = color;

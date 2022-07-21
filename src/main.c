@@ -10,6 +10,7 @@
 #include "./debugHud.h"
 #include "./particles.h"
 #include "./data.h"
+#include "./configurableConstants.h"
 
 #include "../data-headers/images.h"
 #include "platforms/emscripten.h"
@@ -235,16 +236,16 @@ void drawTimer() {
     if (minutes != lastMinutes) {
       minutesUpdated = true;
       lastMinutes = minutes;
-      printf("Minutes updated to %d\n", minutes);
+      // printf("Minutes updated to %d\n", minutes);
     }
     if (seconds != lastSeconds) {
       secondsUpdated = true;
       lastSeconds = seconds;
-      printf("Seconds updated to %d\n", seconds);
+      // printf("Seconds updated to %d\n", seconds);
     }
     if (milliseconds != lastMilliseconds) {
       millisecondsUpdated = true;
-      lastMilliseconds = milliseconds;
+      // lastMilliseconds = milliseconds;
     }
 
     char timeStr[9];
@@ -253,6 +254,11 @@ void drawTimer() {
     // Draw text
     draw_time(timeStr, LCD_WIDTH_PX - 90, 8);
   }
+}
+
+void drawParallaxBackground(int angle) {
+  draw_loop_x(img_loop, 0, 88, angle / 2, LCD_WIDTH_PX);
+  draw_loop_x(img_bush, 0, 100, angle, LCD_WIDTH_PX);
 }
 
 // TODO: max and min
@@ -268,6 +274,7 @@ void fillSky(unsigned short yMin, unsigned short yMax) {
   }
   drawLapCount();
   drawTimer();
+  drawParallaxBackground(angle);
   // extern bopti_image_t img_bg;
   // dimage(0, 0, &img_bg);
   // draw_loop_x(img_loop, 0, 0, 0, LCD_WIDTH_PX);
@@ -277,6 +284,8 @@ void fillSky(unsigned short yMin, unsigned short yMax) {
 bool frameCapEnabled = true;
 
 void main_loop() {
+  updateConstants();
+
   didFinishLap = false;
   hudUpdated = false;
   minutesUpdated = false;
@@ -429,8 +438,9 @@ void main_loop() {
     }
     
     if (boosting) {
-      maxPower = 0.15;
-      powerFactor = 0.002;
+      // maxPower = 0.15;
+      // powerFactor = 0.002;
+      applyBoost = true;
       state.player.power = maxPower;
       buttons.accel = true;
 
@@ -439,8 +449,9 @@ void main_loop() {
         hFovModifier += (1 << 12) * 0.05;
       }
     } else {
-      maxPower = 0.1;
-      powerFactor = 0.001;
+      // maxPower = 0.1;
+      // powerFactor = 0.001;
+      applyBoost = false;
 
       // hFovModifier = 1 << 12;
       if (hFovModifier > 1 << 12) {
@@ -452,9 +463,9 @@ void main_loop() {
     }
 
     if (!boosting && isOffRoad) {
-      drag = 0.7;
+      applyOffRoadDrag = true;
     } else {
-      drag = 0.9;
+      applyOffRoadDrag = false;
     }
 
     double oldKartY = state.player.y;
@@ -609,6 +620,16 @@ void main_loop() {
   #ifdef PROFILING_ENABLED
   prof_enter(prof_logic3);
   #endif
+
+  // Draw parallax background if the angle has changed
+  // TODO: Can we use the existing variable here?
+  static int lastAngle2 = 99999;
+  bool bgRedraw = false;
+  if (lastAngle2 != angle) {
+    bgRedraw = true;
+    drawParallaxBackground(angle);
+    lastAngle2 = angle;
+  }
 
   if (state.driftCharge >= 60) {
     // Draw fire effect on the wheels
@@ -781,11 +802,10 @@ void main_loop() {
 
   timeUpdate = profile({
       // draw(img_loop, angle, 92);
-
-      draw_loop_x(img_loop, 0, 88, angle / 2, LCD_WIDTH_PX);
-      displayUpdate(88, 92);
-      draw_loop_x(img_bush, 0, 100, angle, LCD_WIDTH_PX);
-      displayUpdate(100, 108);
+      if (bgRedraw) {
+        displayUpdate(88, 92);
+        displayUpdate(100, 108);
+      }
 
     // if (state.totalFrameCount % 2 == 0) {
       // Update timer on screen
@@ -833,6 +853,7 @@ void main_loop() {
 
 int main() {
   platformInit();
+  initSliders();
   initData();
 
   fillSky(0, LCD_HEIGHT_PX);

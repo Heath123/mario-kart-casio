@@ -7,6 +7,7 @@ project(MarioKart)
 set(SOURCES
   src/3d.c
   src/buttons.c
+  src/configurableConstants.c
   src/data.c
   src/debugHud.c
   src/images.c

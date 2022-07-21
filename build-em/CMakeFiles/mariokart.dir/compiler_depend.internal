@@ -20,6 +20,18 @@ CMakeFiles/mariokart.dir/src/buttons.c.o
  /home/heath/mk-gint/src/platforms/emscripten.h
  /home/heath/mk-gint/src/main.h
 
+CMakeFiles/mariokart.dir/src/configurableConstants.c.o
+ /home/heath/mk-gint/src/configurableConstants.c
+ /home/heath/mk-gint/src/configurableConstants.h
+ /home/heath/.emscripten_cache/sysroot/include/emscripten.h
+ /home/heath/.emscripten_cache/sysroot/include/emscripten/emscripten.h
+ /home/heath/.emscripten_cache/sysroot/include/emscripten/em_asm.h
+ /home/heath/.emscripten_cache/sysroot/include/emscripten/em_macros.h
+ /home/heath/.emscripten_cache/sysroot/include/emscripten/em_types.h
+ /home/heath/.emscripten_cache/sysroot/include/emscripten/em_js.h
+ /home/heath/.emscripten_cache/sysroot/include/emscripten/wget.h
+ /home/heath/.emscripten_cache/sysroot/include/emscripten/version.h
+
 CMakeFiles/mariokart.dir/src/data.c.o
  /home/heath/mk-gint/src/data.c
  /home/heath/mk-gint/src/data.h
@@ -82,6 +94,7 @@ CMakeFiles/mariokart.dir/src/main.c.o
  /home/heath/mk-gint/src/debugHud.h
  /home/heath/mk-gint/src/particles.h
  /home/heath/mk-gint/src/data.h
+ /home/heath/mk-gint/src/configurableConstants.h
  /home/heath/mk-gint/data-headers/images.h
  /home/heath/mk-gint/src/platforms/emscripten.h
  /home/heath/.emscripten_cache/sysroot/include/stdio.h

@@ -10,6 +10,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/heath/mk-gint/src/3d.c" "CMakeFiles/mariokart.dir/src/3d.c.o" "gcc" "CMakeFiles/mariokart.dir/src/3d.c.o.d"
   "/home/heath/mk-gint/src/buttons.c" "CMakeFiles/mariokart.dir/src/buttons.c.o" "gcc" "CMakeFiles/mariokart.dir/src/buttons.c.o.d"
+  "/home/heath/mk-gint/src/configurableConstants.c" "CMakeFiles/mariokart.dir/src/configurableConstants.c.o" "gcc" "CMakeFiles/mariokart.dir/src/configurableConstants.c.o.d"
   "/home/heath/mk-gint/src/data.c" "CMakeFiles/mariokart.dir/src/data.c.o" "gcc" "CMakeFiles/mariokart.dir/src/data.c.o.d"
   "/home/heath/mk-gint/src/debugHud.c" "CMakeFiles/mariokart.dir/src/debugHud.c.o" "gcc" "CMakeFiles/mariokart.dir/src/debugHud.c.o.d"
   "/home/heath/mk-gint/src/images.c" "CMakeFiles/mariokart.dir/src/images.c.o" "gcc" "CMakeFiles/mariokart.dir/src/images.c.o.d"

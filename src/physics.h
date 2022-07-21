@@ -16,7 +16,8 @@ typedef struct {
   double angularVelocity;
 } Kart;
 
-extern double drag;
+extern bool applyOffRoadDrag;
+extern bool applyBoost;
 // extern double turnSpeedModifier;
 extern double maxPower;
 extern double powerFactor;

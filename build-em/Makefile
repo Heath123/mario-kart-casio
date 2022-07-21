@@ -177,6 +177,30 @@ src/buttons.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/mariokart.dir/build.make CMakeFiles/mariokart.dir/src/buttons.c.s
 .PHONY : src/buttons.c.s
 
+src/configurableConstants.o: src/configurableConstants.c.o
+.PHONY : src/configurableConstants.o
+
+# target to build an object file
+src/configurableConstants.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mariokart.dir/build.make CMakeFiles/mariokart.dir/src/configurableConstants.c.o
+.PHONY : src/configurableConstants.c.o
+
+src/configurableConstants.i: src/configurableConstants.c.i
+.PHONY : src/configurableConstants.i
+
+# target to preprocess a source file
+src/configurableConstants.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mariokart.dir/build.make CMakeFiles/mariokart.dir/src/configurableConstants.c.i
+.PHONY : src/configurableConstants.c.i
+
+src/configurableConstants.s: src/configurableConstants.c.s
+.PHONY : src/configurableConstants.s
+
+# target to generate assembly for a file
+src/configurableConstants.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/mariokart.dir/build.make CMakeFiles/mariokart.dir/src/configurableConstants.c.s
+.PHONY : src/configurableConstants.c.s
+
 src/data.o: src/data.c.o
 .PHONY : src/data.o
 
@@ -480,6 +504,9 @@ help:
 	@echo "... src/buttons.o"
 	@echo "... src/buttons.i"
 	@echo "... src/buttons.s"
+	@echo "... src/configurableConstants.o"
+	@echo "... src/configurableConstants.i"
+	@echo "... src/configurableConstants.s"
 	@echo "... src/data.o"
 	@echo "... src/data.i"
 	@echo "... src/data.s"
