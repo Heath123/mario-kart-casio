@@ -18,5 +18,5 @@ void scanButtons() {
   buttons.debug = check_key(BUTTON_DEBUG);
   buttons.save = check_key(BUTTON_SAVE);
   buttons.load = check_key(BUTTON_LOAD);
-  buttons.debug_boost = check_key(BUTTON_DEBUG_BOOST);
+  buttons.framecap_toggle = check_key(BUTTON_FRAMECAP_TOGGLE);
 }

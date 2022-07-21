@@ -31,13 +31,13 @@ static int callback_tick(volatile int *newFrameNeeded) {
 
 void runMainLoop(void (*loop)(), int fps) {
   static volatile int newFrameNeeded = false;
-
   int t = timer_configure(TIMER_ANY, 1000000 / fps, GINT_CALL(callback_tick, &newFrameNeeded));
-
   if (t >= 0) timer_start(t);
 
   while (1) {
-    while (!newFrameNeeded) sleep();
+    if (frameCapEnabled) {
+      while (!newFrameNeeded) sleep();
+    }
     newFrameNeeded = 0;
     loop();
   }
@@ -57,7 +57,7 @@ void updateKeys() {
 #define alignTo4Up(n) (((n) + 3) & ~3)
 
 void displayUpdateBox(int x, int y, int w, int h) {
-  // TODO
+  r61524_display_rect(gint_vram, x, x + w - 1, y, y + h - 1);
 }
 
 void displayUpdate(int minY, int maxY) {
@@ -101,13 +101,17 @@ void draw_flipped(const struct image *img, int x, int y) {
 // void draw_loop_x(const struct image* data, int x, int y, int xOffset, int drawWidth);
 
 void draw_partial(const struct image *img, int x, int y, int sx, int sy, int w, int h) {
-  dsubimage(x + img->xOffset, y + img->yOffset, img->data, sx, sy, w, h, 0);
+  dsubimage(x + img->xOffset + sx, y + img->yOffset + sy, img->data, sx, sy, w, h, 0);
 }
 
 void draw_partial_flipped(const struct image *img, int x, int y, int sx, int sy, int w, int h) {
-  dsubimage_p8_effect(x + img->xOffset, y + img->yOffset, img->data, sx, sy, w, h, IMAGE_HFLIP);
+  dsubimage_p8_effect(x + img->xOffset + sx, y + img->yOffset + sy, img->data, sx, sy, w, h, IMAGE_HFLIP);
 }
 
 int get_width(const struct image* img) {
   return img->data->width;
+}
+
+int get_height(const struct image* img) {
+  return img->data->height;
 }

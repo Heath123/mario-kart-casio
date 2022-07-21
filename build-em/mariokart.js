@@ -1692,8 +1692,8 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  490940: () => { window.canvasContext = Module['canvas'].getContext('2d'); window.canvasImageData = canvasContext.getImageData(0, 0, 396, 224); },  
- 491071: ($0) => { let data = Module.HEAPU8.slice($0, $0 + 396 * 224 * 4); canvasImageData.data.set(data); canvasContext.putImageData(canvasImageData, 0, 0); }
+  417732: () => { window.canvasContext = Module['canvas'].getContext('2d'); window.canvasImageData = canvasContext.getImageData(0, 0, 396, 224); },  
+ 417863: ($0) => { let data = Module.HEAPU8.slice($0, $0 + 396 * 224 * 4); canvasImageData.data.set(data); canvasContext.putImageData(canvasImageData, 0, 0); }
 };
 function getTimeMS() { return Date.now() - 1657104690407; }
 function logInit() { console.log("platformInit"); }

@@ -86,9 +86,6 @@ kart_21.png:
   type: bopti-image
   name: b_kart_21
   profile: p8
-loop.png:
-  type: bopti-image
-  name: b_loop
 castle.png:
   type: bopti-image
   name: b_castle
@@ -113,9 +110,6 @@ smoke_2.png:
   type: bopti-image
   name: b_smoke_2
   profile: p8
-bg.png:
-  type: bopti-image
-  name: b_bg
 boost_0.png:
   type: bopti-image
   name: b_boost_0
@@ -240,3 +234,18 @@ lap_2.png:
   type: bopti-image
   name: b_lap_2
   profile: p8
+bg_dither.png:
+  type: bopti-image
+  name: b_bg_dither
+loop_old.png:
+  type: bopti-image
+  name: b_loop_old
+loop.png:
+  type: bopti-image
+  name: b_loop
+bg_sunset.png:
+  type: bopti-image
+  name: b_bg_sunset
+bg.png:
+  type: bopti-image
+  name: b_bg

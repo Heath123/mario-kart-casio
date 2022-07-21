@@ -45,7 +45,8 @@ void initParticles() {
   }
 }
 
-void tickParticles() {
+bool tickParticles() {
+  bool anyUpdated = false;
   for (int i = 0; i < MAX_PARTICLES; i++) {
     ParticleState *particle = &particles[i];
     // Age < 0 means the particle is not active
@@ -55,6 +56,7 @@ void tickParticles() {
         particle->age = -1;
         continue;
       }
+      anyUpdated = true;
       particle->age++;
       particle->x += particle->xVel;
       particle->y += particle->yVel;
@@ -63,6 +65,7 @@ void tickParticles() {
       draw(types[particle->type].animFrames[frame], particle->x, particle->y);
     }
   }
+  return anyUpdated;
 }
 
 void addParticle(int type, int x, int y, int xVel, int yVel) {

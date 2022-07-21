@@ -16,7 +16,7 @@ typedef struct {
   bool debug;
   bool save;
   bool load;
-  bool debug_boost;
+  bool framecap_toggle;
 } ButtonState;
 
 extern ButtonState buttons;

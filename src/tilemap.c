@@ -35,3 +35,15 @@ unsigned short samplePixel(short xPos, short yPos) {
   // Get the colour of the pixel in the tile
   return tileData[getTileType(xPos, yPos)][(yPixelInTile * precision) + xPixelInTile];
 }
+
+unsigned short samplePixelFast(short xPos, short yPos) {
+  xPos += xOffset;
+  yPos += yOffset;
+
+  // Divide by 4
+  xPos = xPos >> 2;
+  yPos = yPos >> 2;
+
+  // Get the colour of the middle pixel of the tile
+  return tileData[getTileType(xPos, yPos)][(4 * precision) + 4];
+}

@@ -1,4 +1,4 @@
-// #define PROFILING_ENABLED 1
+#define PROFILING_ENABLED
 
 #ifndef _PLATFORM_H
 #define _PLATFORM_H
@@ -24,7 +24,7 @@
 #define BUTTON_DEBUG KEY_EXE
 #define BUTTON_SAVE KEY_F1
 #define BUTTON_LOAD KEY_F2
-#define BUTTON_DEBUG_BOOST -1
+#define BUTTON_FRAMECAP_TOGGLE KEY_F3
 
 void platformInit(void);
 void runMainLoop(void (*loop)(), int fps);
@@ -47,8 +47,8 @@ void draw(const struct image *img, int x, int y);
 void draw_partial(const struct image *img, int x, int y, int sx, int sy, int w, int h);
 void draw_flipped(const struct image *img, int x, int y);
 void draw_partial_flipped(const struct image *img, int x, int y, int sx, int sy, int w, int h);
-// void draw_loop_x(const struct image* data, int x, int y, int xOffset, int drawWidth);
 
 int get_width(const struct image* img);
+int get_height(const struct image* img);
 
 #endif // _PLATFORM_H

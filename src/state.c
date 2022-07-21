@@ -33,8 +33,10 @@ State state;
 void initState() {
   state = (State) {
     .player = (Kart) {
-      .x = 3565.0 / 12,
-      .y = 2600.0 / 12,
+      // .x = 3565.0 / 12,
+      // .y = 2600.0 / 12,
+      .x = 7425.0 / 12,
+      .y = 3673.0 / 12,
       .xVelocity = 0,
       .yVelocity = 0,
       .power = 0,

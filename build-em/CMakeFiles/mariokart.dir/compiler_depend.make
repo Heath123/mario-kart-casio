@@ -3,10 +3,10 @@
 
 CMakeFiles/mariokart.dir/src/3d.c.o: ../src/3d.c \
   ../src/3d.h \
+  /opt/emscripten-llvm/lib/clang/15.0.0/include/stdbool.h \
   ../src/platform.h \
   ../src/platforms/emscripten.h \
   ../src/main.h \
-  /opt/emscripten-llvm/lib/clang/15.0.0/include/stdbool.h \
   ../src/tilemap.h \
   ../src/maths.h \
   ../data-headers/generated_lut.h
@@ -77,6 +77,7 @@ CMakeFiles/mariokart.dir/src/main.c.o: ../src/main.c \
   ../src/particles.h \
   ../src/data.h \
   ../data-headers/images.h \
+  ../src/platforms/emscripten.h \
   /home/heath/.emscripten_cache/sysroot/include/stdio.h \
   /home/heath/.emscripten_cache/sysroot/include/wasi/api.h \
   /opt/emscripten-llvm/lib/clang/15.0.0/include/stddef.h \
@@ -112,16 +113,17 @@ CMakeFiles/mariokart.dir/src/miniz.c.o: ../src/miniz.c \
 
 CMakeFiles/mariokart.dir/src/particles.c.o: ../src/particles.c \
   ../src/particles.h \
+  /opt/emscripten-llvm/lib/clang/15.0.0/include/stdbool.h \
   ../src/platform.h \
   ../src/platforms/emscripten.h \
   ../src/sprites.h \
-  /opt/emscripten-llvm/lib/clang/15.0.0/include/stdbool.h \
   ../data-headers/images.h
 
 CMakeFiles/mariokart.dir/src/physics.c.o: ../src/physics.c \
   ../src/physics.h \
   /opt/emscripten-llvm/lib/clang/15.0.0/include/stdbool.h \
   ../src/buttons.h \
+  ../src/configurableConstants.h \
   ../src/main.h \
   ../src/maths.h \
   ../src/state.h
@@ -160,8 +162,7 @@ CMakeFiles/mariokart.dir/src/sprites.c.o: ../src/sprites.c \
   ../src/sprites.h \
   /opt/emscripten-llvm/lib/clang/15.0.0/include/stdbool.h \
   ../src/platform.h \
-  ../src/platforms/emscripten.h \
-  ../src/main.h
+  ../src/platforms/emscripten.h
 
 CMakeFiles/mariokart.dir/src/state.c.o: ../src/state.c \
   ../src/state.h \
@@ -190,6 +191,8 @@ CMakeFiles/mariokart.dir/src/tilemap.c.o: ../src/tilemap.c \
 /home/heath/.emscripten_cache/sysroot/include/emscripten/eventloop.h:
 
 /home/heath/.emscripten_cache/sysroot/include/time.h:
+
+/home/heath/.emscripten_cache/sysroot/include/compat/time.h:
 
 /home/heath/.emscripten_cache/sysroot/include/strings.h:
 
@@ -231,8 +234,6 @@ CMakeFiles/mariokart.dir/src/tilemap.c.o: ../src/tilemap.c \
 
 ../src/tilemap.h:
 
-/home/heath/.emscripten_cache/sysroot/include/compat/time.h:
-
 /opt/emscripten-llvm/lib/clang/15.0.0/include/__stddef_max_align_t.h:
 
 ../src/data.h:
@@ -273,10 +274,6 @@ CMakeFiles/mariokart.dir/src/tilemap.c.o: ../src/tilemap.c \
 
 ../src/physics.h:
 
-/opt/emscripten-llvm/lib/clang/15.0.0/include/stdint.h:
-
-../src/main.c:
-
 ../src/sprites.h:
 
 ../data-headers/images.h:
@@ -292,6 +289,12 @@ CMakeFiles/mariokart.dir/src/tilemap.c.o: ../src/tilemap.c \
 /home/heath/.emscripten_cache/sysroot/include/emscripten/html5.h:
 
 ../src/physics.c:
+
+/opt/emscripten-llvm/lib/clang/15.0.0/include/stdint.h:
+
+../src/main.c:
+
+../src/configurableConstants.h:
 
 ../src/platforms/emscripten.c:
 

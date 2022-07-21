@@ -12,6 +12,8 @@
 #include "./data.h"
 
 #include "../data-headers/images.h"
+#include "platforms/emscripten.h"
+#include "stdbool.h"
 #ifdef PROFILING_ENABLED
 #include "libprof.h"
 #endif
@@ -94,21 +96,6 @@ void cameraBehind(short x, short y, short objectAngle, short distance) {
 void drawLapCount() {
   int lap = MIN(MAX(state.lapCount, 1), 3);
   draw(imgs_lap[lap - 1], 8, 8);
-}
-
-// TODO: max and min
-void fillSky(unsigned short yMin, unsigned short yMax) {
-  /* for (unsigned short x = 0; x < LCD_WIDTH_PX; x++) {
-    for (unsigned short y = yMin; y < yMax; y++) {
-      setPixel(x, y, 0x867D);
-    }
-  } */
-  draw(img_bg, 0, 0);
-  drawLapCount();
-  // extern bopti_image_t img_bg;
-  // dimage(0, 0, &img_bg);
-  // draw_loop_x(img_loop, 0, 0, 0, LCD_WIDTH_PX);
-  displayUpdate(yMin, yMax);
 }
 
 // https://prizm.cemetech.net/index.php?title=Useful_Routines
@@ -194,7 +181,109 @@ int timeSprites = 0;
 int timeKartSprite = 0;
 int timeDebugHud = 0;
 
+int timerFrames;
+
+int freezeForFrames = 0;
+int freezeTime;
+
+bool didFinishLap = false;
+bool hudUpdated = false;
+bool minutesUpdated = false;
+bool secondsUpdated = false;
+bool millisecondsUpdated = false;
+bool wholeTimerUpdated = false;
+bool trackNeedsUpdate = true;
+
+void drawTimer() {
+  // Calculate the total time in mm:ss:xx format
+  if (state.lapCount <= 3) {
+    timerFrames = state.totalFrameCount - 180;
+  }
+  // timerFrames *= 8;
+
+  int newTimerFrames = timerFrames;
+  static int lastLapTime = 0;
+  if (didFinishLap && state.lapCount > 1) {
+    freezeForFrames = 150;
+    freezeTime = (state.totalFrameCount - 180) - lastLapTime;
+    lastLapTime = (state.totalFrameCount - 180);
+  }
+
+  if (freezeForFrames > 0) {
+    freezeForFrames--;
+    newTimerFrames = freezeTime;
+  }
+
+  static bool wasVisible = false;
+  bool isVisible = newTimerFrames >= 0 && (freezeForFrames == 0 || (freezeForFrames / 10) % 2 == 0) && debugType <= 1;
+  if (isVisible != wasVisible) {
+    wasVisible = isVisible;
+    wholeTimerUpdated = true;
+  }
+  if (isVisible) {
+    static int lastMinutes = -1;
+    static int lastSeconds = -1;
+    static int lastMilliseconds = -1;
+
+    int minutes = newTimerFrames / 60 / 60;
+    int seconds = (newTimerFrames / 60) % 60;
+    int milliseconds = ((newTimerFrames % 60) * 16667) / 1000;
+    if (milliseconds >= 1000) {
+      milliseconds = 999;
+    }
+
+    if (minutes != lastMinutes) {
+      minutesUpdated = true;
+      lastMinutes = minutes;
+      printf("Minutes updated to %d\n", minutes);
+    }
+    if (seconds != lastSeconds) {
+      secondsUpdated = true;
+      lastSeconds = seconds;
+      printf("Seconds updated to %d\n", seconds);
+    }
+    if (milliseconds != lastMilliseconds) {
+      millisecondsUpdated = true;
+      lastMilliseconds = milliseconds;
+    }
+
+    char timeStr[9];
+    sprintf(timeStr, "%02d:%02d:%02d", minutes, seconds, milliseconds / 10);
+
+    // Draw text
+    draw_time(timeStr, LCD_WIDTH_PX - 90, 8);
+  }
+}
+
+// TODO: max and min
+void fillSky(unsigned short yMin, unsigned short yMax) {
+  /* for (unsigned short x = 0; x < LCD_WIDTH_PX; x++) {
+    for (unsigned short y = yMin; y < yMax; y++) {
+      setPixel(x, y, 0x867D);
+    }
+  } */
+  // TODO: more efficient drawing?
+  for (int x = 0; x < LCD_WIDTH_PX; x++) {
+    draw(img_bg, x, 0);
+  }
+  drawLapCount();
+  drawTimer();
+  // extern bopti_image_t img_bg;
+  // dimage(0, 0, &img_bg);
+  // draw_loop_x(img_loop, 0, 0, 0, LCD_WIDTH_PX);
+  displayUpdate(yMin, yMax);
+}
+
+bool frameCapEnabled = true;
+
 void main_loop() {
+  didFinishLap = false;
+  hudUpdated = false;
+  minutesUpdated = false;
+  secondsUpdated = false;
+  millisecondsUpdated = false;
+  wholeTimerUpdated = false;
+
   // Main game loop
   #ifdef PROFILING_ENABLED
   prof_t prof_logic = prof_make();
@@ -207,7 +296,10 @@ void main_loop() {
 
   scanButtons();
 
-  bool didFinishLap = false;
+  if (buttons.framecap_toggle && !lastButtons.framecap_toggle) {
+    frameCapEnabled = !frameCapEnabled;
+  }
+
   if (state.totalFrameCount > 180) {
     if (buttons.save) {
       savedState = state;
@@ -325,10 +417,10 @@ void main_loop() {
     prof_enter(prof_logic2);
     #endif
 
-    if (buttons.debug_boost) {
+    /* if (buttons.debug_boost) {
       state.boostTime = 30;
       addParticle(1, LCD_WIDTH_PX / 2 - 28, LCD_HEIGHT_PX - 70, 0, 0);
-    }
+    } */
 
     bool boosting = false;
     if (state.boostTime >= 0) {
@@ -425,8 +517,93 @@ void main_loop() {
     #endif
   }
 
+  if (abs_double(state.player.xVelocity) + abs_double(state.player.yVelocity) < 0.02) {
+    jitter = 0;
+  } else if (abs_double(state.player.xVelocity) + abs_double(state.player.yVelocity) < 0.30) {
+    jitter = (state.totalFrameCount / 4) % 4;
+  } else if (abs_double(state.player.xVelocity) + abs_double(state.player.yVelocity) < 0.50) {
+    jitter = (state.totalFrameCount / 3) % 4;
+  } else if (abs_double(state.player.xVelocity) + abs_double(state.player.yVelocity) < 1) {
+    jitter = (state.totalFrameCount / 2) % 4;
+  } else {
+    jitter = state.totalFrameCount % 4;
+  }
+
+  #define maxSteerAnim 10
+  int targetAnim = 0;
+  if (buttons.left && !buttons.right) {
+    targetAnim = maxSteerAnim;
+  } else if (buttons.right && !buttons.left) {
+    targetAnim = -maxSteerAnim;
+  } else {
+    targetAnim = 0;
+  }
+
+  if (state.drifting) {
+    targetAnim += (state.driftDir == -1) ? 10 : -10;
+    if (state.driftDir == 1 && targetAnim > -7) {
+      targetAnim = -7;
+    }
+    if (state.driftDir == -1 && targetAnim < 7) {
+      targetAnim = 7;
+    }
+    // debug_printf("state.driftDir: %d, targetAnim: %d\n", state.driftDir, targetAnim);
+  }
+
+  if (state.kartSteerAnim != targetAnim) {
+    if (state.kartSteerAnim > targetAnim) {
+      state.kartSteerAnim--;
+    } else {
+      state.kartSteerAnim++;
+    }
+  }
+
+  // TODO?
+  static int lastXOffset = 0;
+  static int lastYOffset = 0;
+  static int lastAngle = 0;
+  static int lastJitter = 0;
+  static int lastKartSteerAnim = 0;
+
+  if (lastXOffset != xOffset || lastYOffset != yOffset || lastAngle != angle || lastJitter != jitter || lastKartSteerAnim != state.kartSteerAnim) {
+    trackNeedsUpdate = true;
+    lastXOffset = xOffset;
+    lastYOffset = yOffset;
+    lastAngle = angle;
+    lastJitter = jitter;
+    lastKartSteerAnim = state.kartSteerAnim;
+  }
+
+  static int lastStage = -1;
+  if (state.totalFrameCount < 240) {
+    int stage = state.totalFrameCount / 60;
+    // If the countdown will be updated
+    if (stage != lastStage) {
+      trackNeedsUpdate = true;
+      printf("Stage %d\n", stage);
+    }
+  }
+
+  // If fire will be drawn
+  if (state.driftCharge >= 60) {
+    trackNeedsUpdate = true;
+  }
+
+  bool trackDisplayUpdateNeeded = false;
+
   time3D = profile({
-    draw3D();
+    static bool lastTrackNeedsUpdate = true;
+    if (trackNeedsUpdate) {
+      // Only use high quality during the countdown
+      draw3D(state.totalFrameCount <= 240);
+      trackDisplayUpdateNeeded = true;
+    } else if (lastTrackNeedsUpdate) {
+      // When nothing has changed, draw one high quality frame
+      draw3D(true);
+      trackDisplayUpdateNeeded = true;
+    }
+    lastTrackNeedsUpdate = trackNeedsUpdate;
+    trackNeedsUpdate = false;
   });
 
   #ifdef PROFILING_ENABLED
@@ -474,49 +651,12 @@ void main_loop() {
     #endif
   }
 
-  if (abs_double(state.player.xVelocity) + abs_double(state.player.yVelocity) < 0.02) {
-    jitter = 0;
-  } else if (abs_double(state.player.xVelocity) + abs_double(state.player.yVelocity) < 0.30) {
-    jitter = (state.totalFrameCount / 4) % 4;
-  } else if (abs_double(state.player.xVelocity) + abs_double(state.player.yVelocity) < 0.50) {
-    jitter = (state.totalFrameCount / 3) % 4;
-  } else if (abs_double(state.player.xVelocity) + abs_double(state.player.yVelocity) < 1) {
-    jitter = (state.totalFrameCount / 2) % 4;
-  } else {
-    jitter = state.totalFrameCount % 4;
-  }
-
   // debug_printf("state.totalFrameCount: %d\n", state.totalFrameCount);
 
-  #define maxSteerAnim 10
-  int targetAnim = 0;
-  if (buttons.left && !buttons.right) {
-    targetAnim = maxSteerAnim;
-  } else if (buttons.right && !buttons.left) {
-    targetAnim = -maxSteerAnim;
-  } else {
-    targetAnim = 0;
-  }
 
   if (state.drifting) {
-    targetAnim += (state.driftDir == -1) ? 10 : -10;
-    if (state.driftDir == 1 && targetAnim > -7) {
-      targetAnim = -7;
-    }
-    if (state.driftDir == -1 && targetAnim < 7) {
-      targetAnim = 7;
-    }
-    // debug_printf("state.driftDir: %d, targetAnim: %d\n", state.driftDir, targetAnim);
     if (state.totalFrameCount % 8 == 0) {
       addParticle(0, 192 + -32 * state.driftDir, 180, -5 * state.driftDir, state.totalFrameCount % 16 == 0 ? -1 : 1);
-    }
-  }
-
-  if (state.kartSteerAnim != targetAnim) {
-    if (state.kartSteerAnim > targetAnim) {
-      state.kartSteerAnim--;
-    } else {
-      state.kartSteerAnim++;
     }
   }
   
@@ -565,18 +705,22 @@ void main_loop() {
   #endif
 
   // TODO: Don't profile all of it as sprites?
-  tickParticles();
+  bool particlesUpdated = tickParticles();
+  // TODO: Make this happen before the 3D is drawn
+  trackNeedsUpdate = trackNeedsUpdate || particlesUpdated;
 
   // Bdisp_PutDisp_DD_stripe(horizon + 2, LCD_HEIGHT_PX);
   // dupdate();
 
   // const int fontWidths[] = {10, 5, 10, 9, 11, };
 
+  #define skyColor 0x0CDF
+  // #define skyColor 0xD80C
   if (debugType <= 1) {
     // Blank out the box that contains the time
     for (int x = (LCD_WIDTH_PX - 90) / 2; x < LCD_WIDTH_PX / 2; x++) {
       for (int y = 8; y < 20; y++) {
-        ((unsigned int *)VRAM)[y * (LCD_WIDTH_PX / 2) + x] = (0x0CDF << 16) | 0x0CDF;
+        ((unsigned int *)VRAM)[y * (LCD_WIDTH_PX / 2) + x] = (skyColor << 16) | skyColor;
       }
     }
   }
@@ -585,7 +729,6 @@ void main_loop() {
   prof_enter(prof_logic3);
   #endif
 
-  static int lastStage = -1;
   if (state.totalFrameCount < 240) {
     int stage = state.totalFrameCount / 60;
     // TODO: max and min
@@ -607,63 +750,26 @@ void main_loop() {
     displayUpdate(0, horizon + 2);
   }
 
-  // Calculate the total time in mm:ss:xx format
-  static int timerFrames;
+  #ifdef PROFILING_ENABLED
+  prof_leave(prof_logic3);
+  prof_enter(prof_sprites);
+  #endif
 
-  static int freezeForFrames = 0;
-  static int freezeTime;
+  drawTimer();
 
-  if (state.lapCount <= 3) {
-    timerFrames = state.totalFrameCount - 180;
+  // Lap count
+  static int lastLap = -1;
+  int lap = MIN(MAX(state.lapCount, 1), 3);
+  if (lap != lastLap) {
+    drawLapCount();
+    hudUpdated = true;
+    lastLap = lap;
   }
 
-  int newTimerFrames = timerFrames;
-  static int lastLapTime = 0;
-  if (didFinishLap && state.lapCount > 1) {
-    freezeForFrames = 150;
-    freezeTime = (state.totalFrameCount - 180) - lastLapTime;
-    lastLapTime = (state.totalFrameCount - 180);
-  }
-
-  if (freezeForFrames > 0) {
-    freezeForFrames--;
-    newTimerFrames = freezeTime;
-  }
-
-  if (newTimerFrames >= 0 && (freezeForFrames == 0 || (freezeForFrames / 10) % 2 == 0) && debugType <= 1) {
-    int minutes = newTimerFrames / 60 / 60;
-    int seconds = (newTimerFrames / 60) % 60;
-    int milliseconds = ((newTimerFrames % 60) * 16667) / 1000;
-    if (milliseconds >= 1000) {
-      milliseconds = 999;
-    }
-    char timeStr[9];
-    sprintf(timeStr, "%02d:%02d:%02d", minutes, seconds, milliseconds / 10);
-
-    #ifdef PROFILING_ENABLED
-    prof_leave(prof_logic3);
-    #endif
-
-    #ifdef PROFILING_ENABLED
-    prof_enter(prof_sprites);
-    #endif
-
-    // Draw text
-    draw_time(timeStr, LCD_WIDTH_PX - 90, 8);
-
-    // Lap count
-    static int lastLap = -1;
-    int lap = MIN(MAX(state.lapCount, 1), 3);
-    if (lap != lastLap) {
-      drawLapCount();
-      lastLap = lap;
-    }
-
-    #ifdef PROFILING_ENABLED
-    prof_leave(prof_sprites);
-    prof_enter(prof_logic3);
-    #endif
-  }
+  #ifdef PROFILING_ENABLED
+  prof_leave(prof_sprites);
+  prof_enter(prof_logic3);
+  #endif
 
   #ifdef PROFILING_ENABLED
   prof_leave(prof_logic3);
@@ -674,12 +780,37 @@ void main_loop() {
   #endif
 
   timeUpdate = profile({
+      // draw(img_loop, angle, 92);
+
+      draw_loop_x(img_loop, 0, 88, angle / 2, LCD_WIDTH_PX);
+      displayUpdate(88, 92);
+      draw_loop_x(img_bush, 0, 100, angle, LCD_WIDTH_PX);
+      displayUpdate(100, 108);
+
     // if (state.totalFrameCount % 2 == 0) {
       // Update timer on screen
-      displayUpdate(8, 24);
+
+      // Update HUD
+      if (hudUpdated) {
+        displayUpdate(8, 24);
+      } else if (wholeTimerUpdated) {
+        displayUpdateBox(306, 8, 81, 12);
+      } else {
+        if (minutesUpdated) {
+          displayUpdateBox(306, 8, 24, 12);
+        }
+        if (secondsUpdated) {
+          displayUpdateBox(336, 8, 24, 12);
+        }
+        if (millisecondsUpdated) {
+          displayUpdateBox(365, 8, 24, 12);
+        }
+      }
 
       // Update track on screen
-      displayUpdate(horizon + 2, LCD_HEIGHT_PX);
+      if (trackDisplayUpdateNeeded) {
+        displayUpdate(horizon + 2, LCD_HEIGHT_PX);
+      }
     // }
   });
 

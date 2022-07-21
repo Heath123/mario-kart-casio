@@ -31,4 +31,6 @@ extern int timeSprites;
 extern int timeKartSprite;
 extern int timeDebugHud;
 
+extern bool frameCapEnabled;
+
 #endif // _MAIN_H

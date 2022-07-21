@@ -40,7 +40,7 @@ void handleDebugHud() {
     int x = 8;
     if (debugType == 1) {
       char buffer[17];
-      snprintf(buffer, 60, "FPS: %d", currentFps);
+      snprintf(buffer, 60, "FPS:% 4d", currentFps);
       // Move it right to get out of the way of the lap counter
       x = 96;
     } else if (debugType == 2) {

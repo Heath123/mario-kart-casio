@@ -1,6 +1,8 @@
 #ifndef _PARTICLES_H_
 #define _PARTICLES_H_
 
+#include <stdbool.h>
+
 #include "./platform.h"
 
 typedef struct {
@@ -22,7 +24,7 @@ typedef struct {
 } ParticleType;
 
 void initParticles();
-void tickParticles();
+bool tickParticles();
 void addParticle(int type, int x, int y, int xVel, int yVel);
 
 #endif // _PARTICLES_H_

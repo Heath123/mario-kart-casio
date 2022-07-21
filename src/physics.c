@@ -1,5 +1,6 @@
 #include "./physics.h"
 
+#include "./configurableConstants.h"
 #include "./main.h"
 #include "./maths.h"
 #include "./buttons.h"
@@ -12,15 +13,17 @@
 // #define maxPower 0.1
 double maxPower = 0.1;
 #define maxReverse 0.0375
-// #define powerFactor 0.001
+// #define powerFactor 0.001#include "./configurableConstants.h"
 double powerFactor = 0.001;
 #define reverseFactor 0.0005
 
 // #define drag 0.9
 double drag = 0.9;
 #define angularDrag 0.9
-// #define turnSpeed 0.002
-double turnSpeed = 0.002;
+#define turnSpeed 0.002
+// define_constant(double, turnSpeed, 0.002, range(0, 0.01), "Turn speed")
+// extern double turnSpeed;
+// double turnSpeedModifier = 1;
 
 #define WIDTH 500
 #define HEIGHT 500

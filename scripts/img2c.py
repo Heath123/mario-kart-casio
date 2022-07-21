@@ -25,9 +25,9 @@ def toData(path):
   # Crop the image to the box.
   img = img.crop(box)
 
-  # Reduce palette
-  img = img.convert("P", palette=Image.ADAPTIVE, colors=256)
-  img = img.convert("RGBA")
+  # # Reduce palette
+  # img = img.convert("P", palette=Image.ADAPTIVE, colors=256)
+  # img = img.convert("RGBA")
 
   # Add the height and width to the header.
   outData.append(img.size[0])

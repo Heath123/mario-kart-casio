@@ -140,19 +140,12 @@ void changedFov() {
   }
 }
 
-int lastXOffset = 0;
-int lastYOffset = 0;
-int lastAngle = 0;
-
-void draw3D() {
+void draw3D(bool highQuality) {
   if (hFovModifier == 1 << 12) {
-    if (angle == lastAngle && xOffset == lastXOffset && yOffset == lastYOffset) {
+    if (highQuality) {
       fullRes();
     } else {
       normalFov();
-      lastXOffset = xOffset;
-      lastYOffset = yOffset;
-      lastAngle = angle;
     }
   } else {
     changedFov();

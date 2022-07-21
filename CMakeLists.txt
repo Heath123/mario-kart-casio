@@ -43,6 +43,7 @@ if (DEFINED FXSDK_PLATFORM_LONG)
     # assets-cg/bg.png
 
     assets-cg/bg.png
+    assets-cg/bush.png
     assets-cg/boost_0.png
     assets-cg/boost_1.png
     assets-cg/boost_2.png
@@ -93,7 +94,7 @@ if (DEFINED FXSDK_PLATFORM_LONG)
     assets-cg/lap_0.png
     assets-cg/lap_1.png
     assets-cg/lap_2.png
-    # assets-cg/loop.png
+    assets-cg/loop.png
     assets-cg/shadow1.png
     assets-cg/shadow2.png
     assets-cg/smallboost_0.png
