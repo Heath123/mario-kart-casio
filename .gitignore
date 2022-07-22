@@ -1,6 +1,7 @@
 # Build files
 /build-fx
 /build-cg
+/build-em
 /*.g1a
 /*.g3a
 
@@ -11,3 +12,9 @@
 *.sublime-project
 *.sublime-workspace
 .vscode
+
+.cache
+.cmake
+.idea
+.clangd
+compile_commands.json

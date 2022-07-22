@@ -1,8 +1,0 @@
-CompileFlags:
-  Add:
-    - "--include-directory=/home/heath/.local/share/giteapc/Lephenixnoir/gint/include/"
-    - "--include-directory=/home/heath/.local/share/giteapc/Lephenixnoir/sh-elf-gcc/lib/gcc/sh3eb-elf/11.1.0/include/"
-  Remove:
-    - "-m4-nofpu"
-    - "-mb"
-    - "-fstrict-volatile-bitfields"
