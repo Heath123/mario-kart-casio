@@ -1,5 +1,7 @@
 #include "./state.h"
 
+#include "./data.h"
+
 /*
 typedef struct {
   double x;
@@ -33,10 +35,8 @@ State state;
 void initState() {
   state = (State) {
     .player = (Kart) {
-      .x = 3565.0 / 12,
-      .y = 2600.0 / 12,
-      // .x = 7425.0 / 12,
-      // .y = 3673.0 / 12,
+      .x = ((float) track.startX) / 12,
+      .y = ((float) track.startY) / 12,
       .xVelocity = 0,
       .yVelocity = 0,
       .power = 0,

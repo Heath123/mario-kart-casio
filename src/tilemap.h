@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-unsigned char getTileType(short xPos, short yPos);
+unsigned char getTileID(short xPos, short yPos);
 unsigned short samplePixel(short xPos, short yPos);
 
 #endif // _TILEMAP_H

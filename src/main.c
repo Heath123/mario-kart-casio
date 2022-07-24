@@ -13,8 +13,10 @@
 #include "./configurableConstants.h"
 
 #include "../data-headers/images.h"
-#include "platforms/emscripten.h"
-#include "stdbool.h"
+
+#include <stdbool.h>
+#include <stdio.h>
+
 #ifdef PROFILING_ENABLED
 #include "libprof.h"
 #endif
@@ -73,6 +75,122 @@ double abs_double(double x) {
 int abs_int(int x) {
   if (x < 0) return -x;
   return x;
+}
+
+#ifdef __EMSCRIPTEN__
+void printTileType(enum TileType tileType) {
+  printf("%d: ", tileType);
+  // TODO: This seems ugly, do it a better way?
+  switch (tileType) {
+    case JumpBar:
+      printf("JumpBar\n");
+      break;
+    case BumpEdge:
+      printf("BumpEdge\n");
+      break;
+    case ItemBlock:
+      printf("ItemBlock\n");
+      break;
+    case Zipper:
+      printf("Zipper\n");
+      break;
+    case OilSlick:
+      printf("OilSlick\n");
+      break;
+    case Coin:
+      printf("Coin\n");
+      break;
+    case Bump:
+      printf("Bump\n");
+      break;
+    case WoodPlank:
+      printf("WoodPlank\n");
+      break;
+    case Empty:
+      printf("Empty\n");
+      break;
+    case Water:
+      printf("Water\n");
+      break;
+    case Lava:
+      printf("Lava\n");
+      break;
+    case OutOfBounds:
+      printf("OutOfBounds\n");
+      break;
+    case EmptyBorder:
+      printf("EmptyBorder\n");
+      break;
+    case Road:
+      printf("Road\n");
+      break;
+    case PlankJunction:
+      printf("PlankJunction\n");
+      break;
+    case BrickRoad:
+      printf("BrickRoad\n");
+      break;
+    case Clay:
+      printf("Clay\n");
+      break;
+    case WetSand:
+      printf("WetSand\n");
+      break;
+    case SoftSand:
+      printf("SoftSand\n");
+      break;
+    case RoughClay:
+      printf("RoughClay\n");
+      break;
+    case FlatSurface:
+      printf("FlatSurface\n");
+      break;
+    case Bridge:
+      printf("Bridge\n");
+      break;
+    case SlipperyRoad:
+      printf("SlipperyRoad\n");
+      break;
+    case Sand:
+      printf("Sand\n");
+      break;
+    case Offroad:
+      printf("Offroad\n");
+      break;
+    case Snow:
+      printf("Snow\n");
+      break;
+    case Grass:
+      printf("Grass\n");
+      break;
+    case ShallowWater:
+      printf("ShallowWater\n");
+      break;
+    case Mud:
+      printf("Mud\n");
+      break;
+    case SolidBlock:
+      printf("SolidBlock\n");
+      break;
+    case FrailBlock:
+      printf("FrailBlock\n");
+      break;
+    case IceBlock:
+      printf("IceBlock\n");
+      break;
+    default:
+      printf("Unknown\n");
+      break;
+  }
+}
+#else
+void printTileType(enum TileType tileType) {
+  // nop
+}
+#endif
+
+enum TileType getTileType(int tileID) {
+  return (enum TileType) track.tileTypes[tileID];
 }
 
 short index2;
@@ -168,8 +286,6 @@ void draw_time(char* str, int x, int y) {
     x += 10;
   }
 }
-
-#include <stdio.h>
 
 int timeUpdate = 0;
 int time3D = 0;
@@ -284,6 +400,14 @@ void fillSky(unsigned short yMin, unsigned short yMax) {
 bool frameCapEnabled = true;
 
 void main_loop() {
+  const color_t paletteAnim[3] = {
+    0xB882, 0xCBCE, 0xF6BA
+  };
+  palette[0x3C] = paletteAnim[(state.totalFrameCount / 3) % 3];
+  // for (int i = 0; i < 256; i++) {
+  //   palette[i] = 0xFFFF;
+  // }
+
   updateConstants();
 
   didFinishLap = false;
@@ -331,13 +455,14 @@ void main_loop() {
 
     // turnSpeed = state.drifting ? 0.003: 0.002;
 
-    unsigned char currentTile = getTileType(kartX / scale, kartY / scale);
-    bool isOffRoad =
-      (currentTile == 0 || currentTile == 3 || currentTile == 4 || currentTile == 7 || currentTile == 8 ||
-        currentTile == 9 || currentTile == 10 || currentTile == 12 || currentTile == 13 || currentTile == 14 ||
-        currentTile == 15 || currentTile == 17 || currentTile == 33 || currentTile == 48 || currentTile == 49 || currentTile == 50 || currentTile == 51 ||
-        currentTile == 52 || currentTile == 53 || currentTile == 64 || currentTile == 67 || currentTile == 68 ||
-        currentTile == 69 || currentTile == 80 || currentTile == 96 || currentTile == 152 || currentTile == 168 || currentTile == 200 || currentTile == 201 || currentTile == 218);
+    unsigned char currentTile = getTileID(kartX / scale, kartY / scale);
+    enum TileType tileType = getTileType(currentTile);
+    printTileType(tileType);
+    bool isOffRoad = tileType == Offroad || tileType == Grass || tileType == ShallowWater;
+    if (tileType == Zipper) {
+      state.boostTime = 100;
+      addParticle(2, LCD_WIDTH_PX / 2 - 28, LCD_HEIGHT_PX - 70, 0, 0);
+    }
 
     if (state.drifting && !isOffRoad) {
       if ((buttons.left && state.driftDir == -1) || (buttons.right && state.driftDir == 1)) {
@@ -483,8 +608,8 @@ void main_loop() {
     prof_enter(prof_logic2);
     #endif
 
-    unsigned char newTile = getTileType(state.player.x * 12 / scale, state.player.y * 12 / scale);
-    if (newTile >= 240 && newTile <= 243) {  // Barrier
+    unsigned char newTile = getTileID(state.player.x * 12 / scale, state.player.y * 12 / scale);
+    if (getTileType(newTile) == SolidBlock) {
       state.player.x = oldKartX;
       state.player.y = oldKartY;
     }
@@ -841,20 +966,34 @@ void main_loop() {
   // draw_loop_x(img_bush, 0, 0, angle * 2, LCD_WIDTH_PX);
   // Bdisp_PutDisp_DD();
 
-  // #ifdef __EMSCRIPTEN__
-  // if (state.totalFrameCount % 30 == 0) {
-  //   printf("kartX: %d, kartY: %d\n", kartX, kartY);
-  //   printf("Tile: %d\n", getTileType(kartX / scale, kartY / scale));
-  // }
-  // #endif
+  #ifdef __EMSCRIPTEN__
+  if (state.totalFrameCount % 30 == 0) {
+    printf("kartX: %f, kartY: %f\n", state.player.x, state.player.y);
+  }
+  #endif
 
   state.totalFrameCount += 1;
 }
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 int main() {
   platformInit();
   initSliders();
-  initData();
+
+  int trackId;
+  #ifdef __EMSCRIPTEN__
+  trackId = EM_ASM_INT(
+    // Prompt for track ID
+    return Number(prompt("Track ID:", "0"));
+  );
+  #else
+  trackId = 0;
+  #endif
+
+  initData(trackId);
 
   fillSky(0, LCD_HEIGHT_PX);
 

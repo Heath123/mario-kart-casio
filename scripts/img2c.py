@@ -44,7 +44,7 @@ def toData(path):
       r, g, b, a = img.getpixel((x, y))
       # print(r, g, b, a)
       # Convert to RGB565.
-      rgb = ((r & 0b11111000) << 8) | ((g & 0b11111100) << 3) | (b >> 3);
+      rgb = ((r & 0b11111000) << 8) | ((g & 0b11111100) << 3) | (b >> 3)
       if (rgb == 0x4fe0):
         rgb = 0x4fe1
       if a < 128:

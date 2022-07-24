@@ -5,6 +5,7 @@ cmake_minimum_required(VERSION 3.15)
 project(MarioKart)
 
 set(SOURCES
+  data-headers/track.c
   src/3d.c
   src/buttons.c
   src/configurableConstants.c
@@ -130,6 +131,7 @@ else()
 
   set(CMAKE_EXECUTABLE_SUFFIX ".html")
   add_executable(mariokart ${SOURCES})
+  # -fsanitize=undefined on both
   target_compile_options(mariokart PRIVATE -Wall -Wextra -Werror=implicit-function-declaration -Werror=incompatible-pointer-types -g)
   target_link_options(mariokart PRIVATE --shell-file=../emscripten.html -g)
 endif()
