@@ -7,15 +7,6 @@
 typedef struct {
   Kart player;
 
-  // TODO: Put these in Kart
-  int kartSteerAnim;
-  int hopStage;
-  bool drifting;
-  int driftDir;
-  int driftCharge;
-  int boostTime;
-  int lapCount;
-
   int totalFrameCount;
 } State;
 

@@ -213,7 +213,7 @@ void cameraBehind(short x, short y, short objectAngle, short distance) {
 // #include <gint/display.h>
 
 void drawLapCount() {
-  int lap = MIN(MAX(state.lapCount, 1), 3);
+  int lap = MIN(MAX(state.player.lapCount, 1), 3);
   draw(imgs_lap[lap - 1], 8, 8);
 }
 
@@ -313,14 +313,14 @@ bool trackNeedsUpdate = true;
 
 void drawTimer() {
   // Calculate the total time in mm:ss:xx format
-  if (state.lapCount <= 3) {
+  if (state.player.lapCount <= 3) {
     timerFrames = state.totalFrameCount - 180;
   }
   // timerFrames *= 8;
 
   int newTimerFrames = timerFrames;
   static int lastLapTime = 0;
-  if (didFinishLap && state.lapCount > 1) {
+  if (didFinishLap && state.player.lapCount > 1) {
     freezeForFrames = 150;
     freezeTime = (state.totalFrameCount - 180) - lastLapTime;
     lastLapTime = (state.totalFrameCount - 180);
@@ -453,25 +453,25 @@ void main_loop() {
     prof_enter(prof_logic);
     #endif
 
-    // turnSpeed = state.drifting ? 0.003: 0.002;
+    // turnSpeed = state.player.drifting ? 0.003: 0.002;
 
     unsigned char currentTile = getTileID(kartX / scale, kartY / scale);
     enum TileType tileType = getTileType(currentTile);
     printTileType(tileType);
     bool isOffRoad = tileType == Offroad || tileType == Grass || tileType == ShallowWater;
     if (tileType == Zipper) {
-      state.boostTime = 100;
+      state.player.boostTime = 100;
       addParticle(2, LCD_WIDTH_PX / 2 - 28, LCD_HEIGHT_PX - 70, 0, 0);
     }
 
-    if (state.drifting && !isOffRoad) {
-      if ((buttons.left && state.driftDir == -1) || (buttons.right && state.driftDir == 1)) {
-        state.driftCharge += 2;
+    if (state.player.drifting && !isOffRoad) {
+      if ((buttons.left && state.player.driftDir == -1) || (buttons.right && state.player.driftDir == 1)) {
+        state.player.driftCharge += 2;
       } else {
-        state.driftCharge++;
+        state.player.driftCharge++;
       }
     } else {
-      state.driftCharge = 0;
+      state.player.driftCharge = 0;
       /* for (int x = 0; x < LCD_WIDTH_PX / 2; x++) {
         for (int y = 0; y < 4; y++) {
           // setPixel(i, j, 0xF800);
@@ -480,13 +480,13 @@ void main_loop() {
       } */
     }
 
-    // if (state.driftCharge > 60) {
-    //   state.driftCharge = 60;
+    // if (state.player.driftCharge > 60) {
+    //   state.player.driftCharge = 60;
     // }
 
-    /* if (state.driftCharge > 0) {
+    /* if (state.player.driftCharge > 0) {
       // Draw a 4px red bar at the top of the screen
-      int barWidth = state.driftCharge * LCD_WIDTH_PX / 60 / 2;
+      int barWidth = state.player.driftCharge * LCD_WIDTH_PX / 60 / 2;
       for (int x = 0; x < barWidth; x++) {
         for (int y = 0; y < 4; y++) {
           // setPixel(i, j, 0xF800);
@@ -501,43 +501,43 @@ void main_loop() {
     #endif
 
     if (!buttons.hop) {
-      if (state.drifting && state.driftCharge >= 60) {
-        if (state.driftCharge > 360) {
-          state.boostTime = 100;
+      if (state.player.drifting && state.player.driftCharge >= 60) {
+        if (state.player.driftCharge > 360) {
+          state.player.boostTime = 100;
           addParticle(2, LCD_WIDTH_PX / 2 - 28, LCD_HEIGHT_PX - 70, 0, 0);
-        } else if (state.driftCharge >= 180) {
-          state.boostTime = 50;
+        } else if (state.player.driftCharge >= 180) {
+          state.player.boostTime = 50;
           addParticle(1, LCD_WIDTH_PX / 2 - 28, LCD_HEIGHT_PX - 70, 0, 0);
         } else {
-          state.boostTime = 20;
+          state.player.boostTime = 20;
           addParticle(3, LCD_WIDTH_PX / 2 - 28, LCD_HEIGHT_PX - 70, 0, 0);
         }
       }
-      state.drifting = false;
+      state.player.drifting = false;
     }
 
-    if (buttons.hop && !lastButtons.hop && state.hopStage == 0) {
-      state.hopStage = 1;
+    if (buttons.hop && !lastButtons.hop && state.player.hopStage == 0) {
+      state.player.hopStage = 1;
       if (buttons.left || buttons.right) {
-        state.drifting = true;
-        state.driftDir = buttons.left ? -1 : 1;
+        state.player.drifting = true;
+        state.player.driftDir = buttons.left ? -1 : 1;
       }
     }
 
-    if (state.hopStage != 0) {
-      state.hopStage++;
-      if (state.hopStage >= 15) {
-        state.hopStage = 0;
-        if (!state.drifting && (buttons.left || buttons.right)) {
-          state.drifting = true;
-          state.driftDir = buttons.left ? -1 : 1;
+    if (state.player.hopStage != 0) {
+      state.player.hopStage++;
+      if (state.player.hopStage >= 15) {
+        state.player.hopStage = 0;
+        if (!state.player.drifting && (buttons.left || buttons.right)) {
+          state.player.drifting = true;
+          state.player.driftDir = buttons.left ? -1 : 1;
         }
       }
     }
 
-    /* if (state.drifting) {
-      // debug_printf("state.driftDir: %d\n", state.driftDir);
-      if (state.driftDir == 1) {
+    /* if (state.player.drifting) {
+      // debug_printf("state.player.driftDir: %d\n", state.player.driftDir);
+      if (state.player.driftDir == 1) {
         buttons.right = true;
         buttons.left = false;
       } else {
@@ -552,13 +552,13 @@ void main_loop() {
     #endif
 
     /* if (buttons.debug_boost) {
-      state.boostTime = 30;
+      state.player.boostTime = 30;
       addParticle(1, LCD_WIDTH_PX / 2 - 28, LCD_HEIGHT_PX - 70, 0, 0);
     } */
 
     bool boosting = false;
-    if (state.boostTime >= 0) {
-      state.boostTime--;
+    if (state.player.boostTime >= 0) {
+      state.player.boostTime--;
       boosting = true;
     }
     
@@ -641,10 +641,10 @@ void main_loop() {
     } */
     
     if (newTile == 254 && currentTile != 254) {
-      state.lapCount++;
+      state.player.lapCount++;
       didFinishLap = true;
       #ifdef __EMSCRIPTEN__
-      printf("Lap %d\n", state.lapCount);
+      printf("Lap %d\n", state.player.lapCount);
       #endif
     }
 
@@ -675,22 +675,22 @@ void main_loop() {
     targetAnim = 0;
   }
 
-  if (state.drifting) {
-    targetAnim += (state.driftDir == -1) ? 10 : -10;
-    if (state.driftDir == 1 && targetAnim > -7) {
+  if (state.player.drifting) {
+    targetAnim += (state.player.driftDir == -1) ? 10 : -10;
+    if (state.player.driftDir == 1 && targetAnim > -7) {
       targetAnim = -7;
     }
-    if (state.driftDir == -1 && targetAnim < 7) {
+    if (state.player.driftDir == -1 && targetAnim < 7) {
       targetAnim = 7;
     }
-    // debug_printf("state.driftDir: %d, targetAnim: %d\n", state.driftDir, targetAnim);
+    // debug_printf("state.player.driftDir: %d, targetAnim: %d\n", state.player.driftDir, targetAnim);
   }
 
-  if (state.kartSteerAnim != targetAnim) {
-    if (state.kartSteerAnim > targetAnim) {
-      state.kartSteerAnim--;
+  if (state.player.kartSteerAnim != targetAnim) {
+    if (state.player.kartSteerAnim > targetAnim) {
+      state.player.kartSteerAnim--;
     } else {
-      state.kartSteerAnim++;
+      state.player.kartSteerAnim++;
     }
   }
 
@@ -701,13 +701,13 @@ void main_loop() {
   static int lastJitter = 0;
   static int lastKartSteerAnim = 0;
 
-  if (lastXOffset != xOffset || lastYOffset != yOffset || lastAngle != angle || lastJitter != jitter || lastKartSteerAnim != state.kartSteerAnim) {
+  if (lastXOffset != xOffset || lastYOffset != yOffset || lastAngle != angle || lastJitter != jitter || lastKartSteerAnim != state.player.kartSteerAnim) {
     trackNeedsUpdate = true;
     lastXOffset = xOffset;
     lastYOffset = yOffset;
     lastAngle = angle;
     lastJitter = jitter;
-    lastKartSteerAnim = state.kartSteerAnim;
+    lastKartSteerAnim = state.player.kartSteerAnim;
   }
 
   static int lastStage = -1;
@@ -721,7 +721,7 @@ void main_loop() {
   }
 
   // If fire will be drawn
-  if (state.driftCharge >= 60) {
+  if (state.player.driftCharge >= 60) {
     trackNeedsUpdate = true;
   }
 
@@ -756,22 +756,22 @@ void main_loop() {
     lastAngle2 = angle;
   }
 
-  if (state.driftCharge >= 60) {
+  if (state.player.driftCharge >= 60) {
     // Draw fire effect on the wheels
     int fireStage;
-    if (state.driftCharge > 360) {
+    if (state.player.driftCharge > 360) {
       fireStage = 2;
-    } else if (state.driftCharge >= 180) {
+    } else if (state.player.driftCharge >= 180) {
       fireStage = 1;
     } else {
       fireStage = 0;
     }
-    int sign = state.kartSteerAnim < 0 ? -1 : 1;
+    int sign = state.player.kartSteerAnim < 0 ? -1 : 1;
     sign *= -1;
     int x = LCD_WIDTH_PX / 2 - (44 * sign) - 8;
     x += 2;
     int y = LCD_HEIGHT_PX - 50;
-    int positive = abs_int(state.kartSteerAnim);
+    int positive = abs_int(state.player.kartSteerAnim);
     int v = positive - 10;
     if (v < 0) {
       v = 0;
@@ -800,13 +800,13 @@ void main_loop() {
   // debug_printf("state.totalFrameCount: %d\n", state.totalFrameCount);
 
 
-  if (state.drifting) {
+  if (state.player.drifting) {
     if (state.totalFrameCount % 8 == 0) {
-      addParticle(0, 192 + -32 * state.driftDir, 180, -5 * state.driftDir, state.totalFrameCount % 16 == 0 ? -1 : 1);
+      addParticle(0, 192 + -32 * state.player.driftDir, 180, -5 * state.player.driftDir, state.totalFrameCount % 16 == 0 ? -1 : 1);
     }
   }
   
-  int animNo = abs_int(state.kartSteerAnim) / 2;
+  int animNo = abs_int(state.player.kartSteerAnim) / 2;
   int newAnimNo = animNo + ((jitter / 2) * 11);
   // debug_printf("animNo: %d\n", animNo);
 
@@ -822,26 +822,26 @@ void main_loop() {
   #endif
 
   timeKartSprite = profile({
-    if (state.hopStage != 0) {
+    if (state.player.hopStage != 0) {
       draw(img_shadow1, (LCD_WIDTH_PX / 2) - (96 / 2), 112);
     }
-    if (state.kartSteerAnim >= 0) {
-      // CopySpriteMasked(/*mksprites[state.kartSteerAnim / 2]*/sprite, (LCD_WIDTH_PX / 2) - 39, 128, 78, 81, 0x07e0);
-      // CopySpriteMasked(mksprites[state.kartSteerAnim / 4], (LCD_WIDTH_PX / 2) - 36, 128, 72, 80, 0x4fe0);
+    if (state.player.kartSteerAnim >= 0) {
+      // CopySpriteMasked(/*mksprites[state.player.kartSteerAnim / 2]*/sprite, (LCD_WIDTH_PX / 2) - 39, 128, 78, 81, 0x07e0);
+      // CopySpriteMasked(mksprites[state.player.kartSteerAnim / 4], (LCD_WIDTH_PX / 2) - 36, 128, 72, 80, 0x4fe0);
       if (newAnimNo == animNo) {
-        draw(imgs_kart[animNo], (LCD_WIDTH_PX / 2) - (96 / 2), horizon + 4 + (jitter % 2) - (hopAnim[state.hopStage] * 3));
+        draw(imgs_kart[animNo], (LCD_WIDTH_PX / 2) - (96 / 2), horizon + 4 + (jitter % 2) - (hopAnim[state.player.hopStage] * 3));
       } else {
-        draw_partial(imgs_kart[animNo], (LCD_WIDTH_PX / 2) - (96 / 2), horizon + 4 + (jitter % 2) - (hopAnim[state.hopStage] * 3), 0, 0, 96, 52);
-        draw(imgs_kart[newAnimNo], (LCD_WIDTH_PX / 2) - (96 / 2), horizon + 4 + (jitter % 2) - (hopAnim[state.hopStage] * 3));
+        draw_partial(imgs_kart[animNo], (LCD_WIDTH_PX / 2) - (96 / 2), horizon + 4 + (jitter % 2) - (hopAnim[state.player.hopStage] * 3), 0, 0, 96, 52);
+        draw(imgs_kart[newAnimNo], (LCD_WIDTH_PX / 2) - (96 / 2), horizon + 4 + (jitter % 2) - (hopAnim[state.player.hopStage] * 3));
       }
     } else {
-      // CopySpriteMaskedFlipped(/*mksprites[-state.kartSteerAnim / 2]*/sprite, (LCD_WIDTH_PX / 2) - 39, 128, 78, 81, 0x07e0);
-      // CopySpriteMaskedFlipped(mksprites[-state.kartSteerAnim / 4], (LCD_WIDTH_PX / 2) - 36, 128, 72, 80, 0x4fe0);
+      // CopySpriteMaskedFlipped(/*mksprites[-state.player.kartSteerAnim / 2]*/sprite, (LCD_WIDTH_PX / 2) - 39, 128, 78, 81, 0x07e0);
+      // CopySpriteMaskedFlipped(mksprites[-state.player.kartSteerAnim / 4], (LCD_WIDTH_PX / 2) - 36, 128, 72, 80, 0x4fe0);
       if (newAnimNo == animNo) {
-        draw_flipped(imgs_kart[animNo], (LCD_WIDTH_PX / 2) - (96 / 2), horizon + 4 + (jitter % 2) - (hopAnim[state.hopStage] * 3));
+        draw_flipped(imgs_kart[animNo], (LCD_WIDTH_PX / 2) - (96 / 2), horizon + 4 + (jitter % 2) - (hopAnim[state.player.hopStage] * 3));
       } else {
-        draw_partial_flipped(imgs_kart[animNo], (LCD_WIDTH_PX / 2) - (96 / 2), horizon + 4 + (jitter % 2) - (hopAnim[state.hopStage] * 3), 0, 0, 96, 52);
-        draw_flipped(imgs_kart[newAnimNo], (LCD_WIDTH_PX / 2) - (96 / 2) - (state.kartSteerAnim == -20 ? 1 : 0), horizon + 4 + (jitter % 2) - (hopAnim[state.hopStage] * 3));
+        draw_partial_flipped(imgs_kart[animNo], (LCD_WIDTH_PX / 2) - (96 / 2), horizon + 4 + (jitter % 2) - (hopAnim[state.player.hopStage] * 3), 0, 0, 96, 52);
+        draw_flipped(imgs_kart[newAnimNo], (LCD_WIDTH_PX / 2) - (96 / 2) - (state.player.kartSteerAnim == -20 ? 1 : 0), horizon + 4 + (jitter % 2) - (hopAnim[state.player.hopStage] * 3));
       }
     }
   });
@@ -888,7 +888,7 @@ void main_loop() {
     lastStage = stage;
   }
   if (state.totalFrameCount == 180) {
-    state.boostTime = 30;
+    state.player.boostTime = 30;
     addParticle(1, LCD_WIDTH_PX / 2 - 28, LCD_HEIGHT_PX - 70, 0, 0);
   }
   if (state.totalFrameCount == 240) {
@@ -905,7 +905,7 @@ void main_loop() {
 
   // Lap count
   static int lastLap = -1;
-  int lap = MIN(MAX(state.lapCount, 1), 3);
+  int lap = MIN(MAX(state.player.lapCount, 1), 3);
   if (lap != lastLap) {
     drawLapCount();
     hudUpdated = true;

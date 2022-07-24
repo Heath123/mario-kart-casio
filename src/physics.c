@@ -91,8 +91,8 @@ void updateWithControls(Kart *kart, ButtonState controls) {
   int direction = 1;
 
   // double change = isTurningLeft ? -1 : isTurningRight ? 1 : 0;
-  // if (state.drifting) {
-  //   if (state.driftDir == -1) {
+  // if (kart->drifting) {
+  //   if (kart->driftDir == -1) {
   //     change += 1.2;
   //   } else {
   //     change -= 1.2;
@@ -100,12 +100,12 @@ void updateWithControls(Kart *kart, ButtonState controls) {
   //   change *= 1.7 / 2.2;
   // }
   double change = 0;
-  if (!state.drifting) {
+  if (!kart->drifting) {
     change = isTurningLeft ? -maxSteerNormal : isTurningRight ? maxSteerNormal : 0;
   } else {
     // This is negated from what you'd expect, hence the - (pretend it's not there if you want to understand this)
     // I need to fix the coordinate system so it's less broken and inconsistent
-    if (-state.driftDir == 1) {
+    if (-kart->driftDir == 1) {
       if (isTurningRight) {
         // Steering matches drift direction - maximum steering angle
         change = maxSteerDrift;

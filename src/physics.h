@@ -14,6 +14,14 @@ typedef struct {
   // double reverse;
   double angle;
   double angularVelocity;
+
+  int kartSteerAnim;
+  int hopStage;
+  bool drifting;
+  int driftDir;
+  int driftCharge;
+  int boostTime;
+  int lapCount;
 } Kart;
 
 extern bool applyOffRoadDrag;
