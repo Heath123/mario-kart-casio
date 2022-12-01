@@ -3,21 +3,29 @@
 
 #include "./platform.h"
 
+#include <stdbool.h>
+
+// https://github.com/thomasgoldstein/epicedit/blob/0a48fc/EpicEdit/Rom/Tracks/Road/RoadTileGenre.cs
 enum TileType {
   JumpBar = 0x10,
+  // Edge of Choco Island road bump
   BumpEdge = 0x12,
   ItemBlock = 0x14,
-  Zipper = 0x16,
+  BoostPad = 0x16,
   OilSlick = 0x18,
   Coin = 0x1A,
+  // Choco Island road bump
   Bump = 0x1C,
   WoodPlank = 0x1E,
+  // Air where you fall off the road (e.g. on Rainbow Road)
   Empty = 0x20,
   Water = 0x22,
   Lava = 0x24,
   OutOfBounds = 0x26,
+  // Empty border that delimits the road and the void, on Rainbow Road
   EmptyBorder = 0x28,
   Road = 0x40,
+  // Ghost Valley plank intersection
   PlankJunction = 0x42,
   BrickRoad = 0x44,
   Clay = 0x46,
@@ -33,8 +41,11 @@ enum TileType {
   Grass = 0x5A,
   ShallowWater = 0x5C,
   Mud = 0x5E,
+  // Boundary that can't be driven through or jumped over
   SolidBlock = 0x80,
+  // Breaks when hit
   FrailBlock = 0x82,
+  // Also breaks when hit
   IceBlock = 0x84
 };
 
@@ -50,6 +61,9 @@ typedef struct {
   int startX;
   int startY;
   // color_t skyColor;
+  const struct image* bg;
+  bool fullBg;
+  bool drawLoop;
 } trackData;
 
 extern trackData track;

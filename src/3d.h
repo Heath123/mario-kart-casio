@@ -4,6 +4,8 @@
 #include <stdbool.h>
 
 unsigned short getScreenPixel(unsigned short x, unsigned short y);
+void screenToWorldSpace(int x, int y, int* worldX, int* worldY);
+void worldToScreenSpace(int worldX, int worldY, int* x, int* y, int* dist);
 void draw3D(bool highQuality);
 extern int hFovModifier;
 

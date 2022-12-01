@@ -249,3 +249,13 @@ bg_sunset.png:
 bg.png:
   type: bopti-image
   name: b_bg
+skygarden_bg.png:
+  type: bopti-image
+  name: b_skygarden_bg
+skygarden_bg2.png:
+  type: bopti-image
+  name: b_skygarden_bg2
+tree.png:
+  type: bopti-image
+  name: b_tree
+  profile: rgb565a

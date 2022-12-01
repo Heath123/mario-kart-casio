@@ -37,7 +37,7 @@ typedef enum {
   REC_KEY_DEBUG,
   REC_KEY_SAVE,
   REC_KEY_LOAD,
-  REC_KEY_DEBUG_BOOST,
+  // REC_KEY_FRAMECAP_TOGGLE,
 } keyType;
 
 typedef struct {
@@ -104,12 +104,13 @@ void updateButtonState(ButtonState *state) {
   if (state->load) {
     addEvent(EVENT_PRESS, REC_KEY_LOAD);
   }
-  if (state->debug_boost) {
-    addEvent(EVENT_PRESS, REC_KEY_DEBUG_BOOST);
-  }
+  // if (state->framecap_toggle) {
+  //   addEvent(EVENT_PRESS, REC_KEY_FRAMECAP_TOGGLE);
+  // }
 
   if (recording.events[recording.numEvents - 1].type == EVENT_WAIT) {
     // If the last event was a wait event, increment the counter by 1
+    // TODO: Check for overflow
     recording.events[recording.numEvents - 1].data++;
   } else {
     // Otherwise, add a new wait event

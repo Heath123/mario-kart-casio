@@ -36,7 +36,7 @@ EM_JS(void, initSliders, (), {
       max: 1,
       step: 0.01,
       value: 0.1,
-      description: "A multiplier that is applied to the velocity every frame. This also affects the top speed, so if you adjust this, you'll probably want to adjust maxPower unless this is intended (as in the case of being off road)."
+      description: "A multiplier that is applied to the velocity every frame. The value multiplied by is one minus this value. This also affects the top speed, so if you adjust this, you'll probably want to adjust maxPower unless this is intended (as in the case of being off road)."
     },
     {
       name: "offRoadDrag",
@@ -51,14 +51,14 @@ EM_JS(void, initSliders, (), {
       min: 0,
       max: 1,
       step: 0.01,
-      value: 0.9,
-      description: "A multiplier that is applied to the angular velocity every frame. Turning this up makes turning feel more slippery, as you will continue to turn for a bit after you stop pressing a direction."
+      value: 0.1,
+      description: "A multiplier that is applied to the angular velocity every frame. The value multiplied by is one minus this value. Turning this up makes turning feel more slippery, as you will continue to turn for a bit after you stop pressing a direction."
     },
     {
       name: "maxPower",
       min: 0,
       max: 0.5,
-      step: 0.0001,
+      step: 0.01,
       value: 0.1,
       description: "The maximum acceleration that can be applied to the kart - this is the main way of changing the top speed, along with drag."
     },
@@ -175,7 +175,7 @@ void updateConstants() {
   offRoadDrag = 1.0 - EM_ASM_DOUBLE({
     return window.constantValues.offRoadDrag;
   });
-  angularDrag = EM_ASM_DOUBLE({
+  angularDrag = 1.0 - EM_ASM_DOUBLE({
     return window.constantValues.angularDrag;
   });
   maxPower = EM_ASM_DOUBLE({

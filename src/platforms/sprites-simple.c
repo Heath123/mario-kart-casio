@@ -126,6 +126,78 @@ void draw_partial_flipped(const struct image *img, int x, int y, int sx, int sy,
   }
 }
 
+// void draw_scaled(const struct image *img, int x, int y, float scaleX, float scaleY) {
+//   const unsigned short* data = img->data;
+//   // The height and width of the sprite are the first two elements in the data array
+//   int width = data[0];
+//   int height = data[1];
+
+//   int screenWidth = width * scaleX;
+//   int screenHeight = height * scaleY;
+
+//   // The offsets of the x and y positions are the third and fourth elements in the data array
+//   x += data[2];
+//   y += data[3];
+
+//   // Now draw the sprite
+//   // The data array starts at index 4
+//   color_t* datac = (color_t*) (data + 4);
+//   for (int j = y; j < y + screenHeight; j++) {
+//     for (int i = x; i < x + screenWidth; i++) {
+//       // Skip if out of bounds
+//       if (i < 0 || i >= LCD_WIDTH_PX || j < 0 || j >= LCD_HEIGHT_PX) {
+//         continue;
+//       }
+//       color_t colour = datac[(int) ((j - y) / scaleY) * width + (int) ((i - x) / scaleX)];
+//       if (colour != 0x4fe0) {
+//         VRAM[j * LCD_WIDTH_PX + i] = colour;
+//       }
+//     }
+//   }
+// }
+
+void draw_scaled(const struct image *img, int x, int y, float scaleX, float scaleY) {
+  const unsigned short* data = img->data;
+  // The height and width of the sprite are the first two elements in the data array
+  int width = data[0];
+  int height = data[1];
+
+  int screenWidth = width * scaleX;
+  int screenHeight = height * scaleY;
+
+  // The offsets of the x and y positions are the third and fourth elements in the data array
+  x += data[2];
+  y += data[3];
+
+  // Calculate an offset for each pixel to be incremeneted by in 16:16 fixed point
+  int offsetX = (1 << 16) / scaleX;
+  int offsetY = (1 << 16) / scaleY;
+
+  int currentX = 0;
+  int currentY = 0;
+
+  // Now draw the sprite
+  // The data array starts at index 4
+  color_t* datac = (color_t*) (data + 4);
+  for (int j = y; j < y + screenHeight; j++) {
+    currentX = 0;
+    for (int i = x; i < x + screenWidth; i++) {
+      int sampleX = currentX >> 16;
+      int sampleY = currentY >> 16;
+      // Skip if out of bounds
+      if (i < 0 || i >= LCD_WIDTH_PX || j < 0 || j >= LCD_HEIGHT_PX) {
+        continue;
+      }
+      color_t colour = datac[sampleY * width + sampleX];
+      if (colour != 0x4fe0) {
+        VRAM[j * LCD_WIDTH_PX + i] = colour;
+      }
+      currentX += offsetX;
+    }
+    currentY += offsetY;
+  }
+}
+
 // // Copy a sprite that loops around with an X offset
 // void CopySpriteLoopX(const void* datar, int x, int y, int width, int height, int xOffset, int drawWidth, int maskcolor) {
 //   color_t* data = (color_t*)datar;

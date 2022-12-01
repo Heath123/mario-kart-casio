@@ -72,7 +72,7 @@ void displayUpdate(int minY, int maxY) {
 
 void drawText(int x, int y, const char *text) {
   dtext_opt(x, y, C_BLACK, C_WHITE, DTEXT_LEFT, DTEXT_TOP, text, -1);
-  displayUpdate(y, y + 12);
+  // displayUpdate(y, y + 12);
 }
 
 int getTimeMS(void) {
@@ -106,6 +106,23 @@ void draw_partial(const struct image *img, int x, int y, int sx, int sy, int w, 
 
 void draw_partial_flipped(const struct image *img, int x, int y, int sx, int sy, int w, int h) {
   dsubimage_p8_effect(x + img->xOffset + sx, y + img->yOffset + sy, img->data, sx, sy, w, h, IMAGE_HFLIP);
+}
+
+void draw_scaled(const struct image *img, int x, int y, float scaleX, float scaleY) {
+  // Create an image_linear_map
+  struct image_linear_map map;
+  image_scale(img->data, scaleX * (1 << 16), scaleY * (1 << 16), &map);
+  // If x is negative, cut the image off on the left.
+  const image_t* newData;
+  if (x < 0) {
+  // image_sub(const image_t *src, int x, int y, int w, int h, image_t *dst)
+    newData = image_sub(img->data, -x, 0, img->data->width + x, img->data->height);
+  } else {
+    newData = img->data;
+  }
+  // Use it to draw the image
+  // TODO: Free the created image or cache it
+  image_linear(newData, image_at(image_create_vram(), x, y), &map);
 }
 
 int get_width(const struct image* img) {

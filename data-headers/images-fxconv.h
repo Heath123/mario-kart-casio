@@ -72,3 +72,6 @@ extern const struct image* img_loop_old;
 extern const struct image* img_loop;
 extern const struct image* img_bg_sunset;
 extern const struct image* img_bg;
+extern const struct image* img_skygarden_bg;
+extern const struct image* img_skygarden_bg2;
+extern const struct image* img_tree;

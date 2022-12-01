@@ -35,8 +35,9 @@ State state;
 void initState() {
   state = (State) {
     .player = (Kart) {
-      .x = ((float) track.startX) / 12,
-      .y = ((float) track.startY) / 12,
+      .isPlayer = true,
+      .x = ((float) track.startX),
+      .y = ((float) track.startY),
       .xVelocity = 0,
       .yVelocity = 0,
       .power = 0,

@@ -3,9 +3,11 @@
 
 // #include "../data-headers/compressedTrack.h"
 #include "../data-headers/track.h"
+#include "../data-headers/images.h"
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 // extern unsigned char* compressedTrack;
 // extern int compressedTrackSize;
@@ -35,6 +37,9 @@ trackData tracks[] = {
     .tileTypes = peach_circuit_tileattr,
     .startX = 3565,
     .startY = 2600,
+    .bg = 0,
+    .fullBg = false,
+    .drawLoop = true,
   },
   // Sunset Wilds
   {
@@ -48,6 +53,9 @@ trackData tracks[] = {
     .tileTypes = sunset_wilds_tileattr,
     .startX = 7425,
     .startY = 3673,
+    .bg = 0,
+    .fullBg = false,
+    .drawLoop = false,
   },
   // Sky Garden
   {
@@ -61,6 +69,9 @@ trackData tracks[] = {
     .tileTypes = sky_garden_tileattr,
     .startX = 7060,
     .startY = 2900,
+    .bg = 0,
+    .fullBg = true,
+    .drawLoop = false,
   },
 };
 
@@ -70,6 +81,17 @@ void initData(int trackID) {
   // uncompress(trackData, &trackDataSize, compressedTrack, compressedTrackSize);
 
   track = tracks[trackID];
+  switch (trackID) {
+    case 0:
+      track.bg = img_bg;
+      break;
+    case 1:
+      track.bg = img_bg_sunset;
+      break;
+    case 2:
+      track.bg = img_skygarden_bg;
+      break;
+  }
 
   mz_ulong size;
 

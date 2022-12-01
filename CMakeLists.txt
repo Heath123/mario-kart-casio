@@ -45,6 +45,8 @@ if (DEFINED FXSDK_PLATFORM_LONG)
     # assets-cg/bg.png
 
     assets-cg/bg.png
+    assets-cg/bg_sunset.png
+    assets-cg/skygarden_bg.png
     assets-cg/bush.png
     assets-cg/boost_0.png
     assets-cg/boost_1.png
@@ -107,12 +109,13 @@ if (DEFINED FXSDK_PLATFORM_LONG)
     assets-cg/smoke_0.png
     assets-cg/smoke_1.png
     assets-cg/smoke_2.png
+    assets-cg/tree.png
   )
 
   fxconv_declare_assets(${ASSETS} ${ASSETS_fx} ${ASSETS_cg} WITH_METADATA)
 
   add_executable(mariokart ${SOURCES} ${ASSETS} ${ASSETS_${FXSDK_PLATFORM}})
-  target_compile_options(mariokart PRIVATE -Wall -Wextra -Werror-implicit-function-declaration -Ofast -flto)
+  target_compile_options(mariokart PRIVATE -Wall -Wextra -Werror-implicit-function-declaration -Ofast -flto -g)
   target_link_libraries(mariokart Gint::Gint)
   target_link_libraries(mariokart LibProf::LibProf)
 
@@ -132,6 +135,6 @@ else()
   set(CMAKE_EXECUTABLE_SUFFIX ".html")
   add_executable(mariokart ${SOURCES})
   # -fsanitize=undefined on both
-  target_compile_options(mariokart PRIVATE -Wall -Wextra -Werror=implicit-function-declaration -Werror=incompatible-pointer-types -g)
+  target_compile_options(mariokart PRIVATE -Wall -Wextra -Werror=implicit-function-declaration -Werror=incompatible-pointer-types -O3 -g)
   target_link_options(mariokart PRIVATE --shell-file=../emscripten.html -g)
 endif()

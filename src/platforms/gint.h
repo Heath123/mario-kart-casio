@@ -47,6 +47,7 @@ void draw(const struct image *img, int x, int y);
 void draw_partial(const struct image *img, int x, int y, int sx, int sy, int w, int h);
 void draw_flipped(const struct image *img, int x, int y);
 void draw_partial_flipped(const struct image *img, int x, int y, int sx, int sy, int w, int h);
+void draw_scaled(const struct image *img, int x, int y, float scaleX, float scaleY);
 
 int get_width(const struct image* img);
 int get_height(const struct image* img);

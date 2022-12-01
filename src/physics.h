@@ -4,8 +4,11 @@
 #include <stdbool.h>
 
 #include "./buttons.h"
+#include "./data.h"
 
 typedef struct {
+  bool isPlayer;
+
   double x;
   double y;
   double xVelocity;
@@ -22,6 +25,8 @@ typedef struct {
   int driftCharge;
   int boostTime;
   int lapCount;
+
+  bool lastHop;
 } Kart;
 
 extern bool applyOffRoadDrag;
