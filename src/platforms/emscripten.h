@@ -1,4 +1,4 @@
-// #define PROFILING_ENABLED 0
+#define NO_COUNTDOWN
 
 #ifndef _PLATFORM_H
 #define _PLATFORM_H

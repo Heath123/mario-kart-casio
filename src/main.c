@@ -325,7 +325,11 @@ bool trackNeedsUpdate = true;
 void drawTimer(bool didFinishLap) {
   // Calculate the total time in mm:ss:xx format
   if (state.player.lapCount <= LAPS) {
+    #ifdef NO_COUNTDOWN
+    timerFrames = state.totalFrameCount;
+    #else
     timerFrames = state.totalFrameCount - 180;
+    #endif
   }
   // timerFrames *= 8;
 
@@ -460,7 +464,11 @@ void main_loop() {
     frameCapEnabled = !frameCapEnabled;
   }
 
+  #ifdef NO_COUNTDOWN
+  if (true) {
+  #else
   if (state.totalFrameCount > 180) {
+  #endif
     if (buttons.save) {
       savedState = state;
     }
@@ -566,6 +574,7 @@ void main_loop() {
     lastKartSteerAnim = state.player.kartSteerAnim;
   }
 
+  #ifndef NO_COUNTDOWN
   static int lastStage = -1;
   if (state.totalFrameCount < 240) {
     int stage = state.totalFrameCount / 60;
@@ -575,6 +584,7 @@ void main_loop() {
       printf("Stage %d\n", stage);
     }
   }
+  #endif
 
   // If fire will be drawn
   if (state.player.driftCharge >= 60) {
@@ -652,43 +662,11 @@ void main_loop() {
   int animNo = abs_int(state.player.kartSteerAnim) / 2;
   int newAnimNo = animNo + ((jitter / 2) * 11);
 
-  // int y = LCD_HEIGHT_PX - 100;
-  // int x = LCD_WIDTH_PX / 2;
-  // VRAM[y * LCD_WIDTH_PX + x] = 0xF800;
-  // int worldX;
-  // int worldY;
-  // screenToWorldSpace(x, y, &worldX, &worldY);
-
   #define tileSize 8
   #define trackImageWidth 256 * tileSize
   #define trackImageHeight 256 * tileSize
 
-  // // Set the tile ID at worldX, worldY to 0
-  // if (!(worldX < 0 || worldX >= trackImageWidth || worldY < 0 || worldY >= trackImageHeight)) {
-  //   int xPixel = worldX >> 3;
-  //   int yPixel = worldY >> 3;
-  //   int tileID = tilemap[((yPixel * (trackImageWidth / tileSize)) + xPixel)];
-  //   if (tileID != 0) {
-  //     printf("Setting: %d, %d\n", worldX, worldY);
-  //     tilemap[((yPixel * (trackImageWidth / tileSize)) + xPixel)] = 0;
-  //     trackNeedsUpdate = true;
-  //   } else {
-  //     printf("Tile already 0\n");
-  //   }
-  // } else {
-  //   printf("Out of bounds: %d, %d\n", worldX, worldY);
-  // }
-
-   tilemap[(((239 >> 3) * (trackImageWidth / tileSize)) + (888 >> 3))] = 0;
-
-
-  // for (int i = -1; i <= 1; i++) {
-  //   for (int j = -1; j <= 1; j++) {
-  //     if ((y + i) >= 0 && (y + i) < LCD_HEIGHT_PX && (x + j) >= 0 && (x + j) < LCD_WIDTH_PX) {
-  //       VRAM[(y + i) * LCD_WIDTH_PX + (x + j)] = 0xF800;
-  //     }
-  //   }
-  // }
+  tilemap[(((239 >> 3) * (trackImageWidth / tileSize)) + (888 >> 3))] = 0;
 
   timeKartSprite = profile({
     if (state.player.hopStage != 0) {
@@ -727,13 +705,14 @@ void main_loop() {
     }
   }
 
+  #ifndef NO_COUNTDOWN
   if (state.totalFrameCount < 240) {
     int stage = state.totalFrameCount / 60;
     // TODO: max and min
     if (stage != lastStage) {
       fillSky(0, horizon);
     }
-    // draw(imgs_countdown[3 - stage], offX(-152 / 2), offY(-66 / 2));
+    draw(imgs_countdown[3 - stage], offX(-152 / 2), offY(-66 / 2));
     // draw_scaled(imgs_countdown[3 - stage], offX(-152 / 2), offY(-66 / 2), 0.5, 0.5);
     if (stage != lastStage) {
       displayUpdate(0, horizon + 2);
@@ -748,6 +727,7 @@ void main_loop() {
     fillSky(0, horizon);
     displayUpdate(0, horizon + 2);
   }
+  #endif
 
   drawTimer(didFinishLap);
 
@@ -760,23 +740,16 @@ void main_loop() {
     lastLap = lap;
   }
 
-  // Draw a sprite at 888, 239 in world space
-  // First calculate the distance from the camera
-  // int dx = 888 - (xOffset >> 2);
-  // int dy = 239 - (yOffset >> 2);
-  // float dist = sqrt(dx * dx + dy * dy);
-  // printf("Dist: %f\n", dist);
-  int x;
-  int y;
-  int dist;
-  worldToScreenSpace(888, 239, &x, &y, &dist);
-  printf("Dist: %d\n", dist);
-  const float size = 200;
-  if (dist >= 1 && (y - (64 * size / dist) > (LCD_HEIGHT_PX / 2) - 2)) {
-    VRAM[y * LCD_WIDTH_PX + x] = 0xF800;
-    draw_scaled(img_tree, x - (28 * size / dist), y - (64 * size / dist), size / dist, size / dist);
-  }
-
+  // int x;
+  // int y;
+  // int dist;
+  // worldToScreenSpace(888, 239, &x, &y, &dist);
+  // printf("Dist: %d\n", dist);
+  // const float size = 200;
+  // if (dist >= 1 && (y - (64 * size / dist) > (LCD_HEIGHT_PX / 2) - 2)) {
+  //   VRAM[y * LCD_WIDTH_PX + x] = 0xF800;
+  //   draw_scaled(img_tree, x - (28 * size / dist), y - (64 * size / dist), size / dist, size / dist);
+  // }
 
   timeUpdate = profile({
     // draw(img_loop, angle, 92);
