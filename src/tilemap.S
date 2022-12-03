@@ -148,7 +148,7 @@ _samplePixel: # (r4: xPos, r5: yPos) -> r0
 .type _draw3DLine, @function
 
 _draw3DLine: # (r4: x, r5: y, r6: dx, r7: dy) -> r0
-# vramLine is stored in a global because I don't want to deal with the stack
+# vramLine is stored in a global because I don't want to deal with loading it from the stack
         # Save registers
         mov.l r8,@-r15
         mov.l r9,@-r15
@@ -165,122 +165,117 @@ _draw3DLine: # (r4: x, r5: y, r6: dx, r7: dy) -> r0
         # Load vramLine into r8
         mov.l .vramLine, r8
         mov.l  @r8, r8
+
+        # Load xOffset into r12
+        mov.l .xOffset, r12
+        mov.w   @r12, r12
+
+        # Load yOffset into r2
+        mov.l .yOffset, r2
+        mov.w   @r2, r2
+
         # Use r9 as the loop counter
-        mov #0, r9
+        # Load 198 into it and go backwards
+        # Counting down is better because we only have to load the value of 198 once
+        mov.w .halfWidth, r9
 .loop:
-        # TODO: Avoid the mov by making r10/r11 the shifted values, and modify the inlined samplePixel to use r10/r11 instead of r4/r5?
-        # Set r4 to x >> 16
-        mov r4, r10
-        # shlr16 r4
-        swap.w  r4, r4
-        exts.w  r4, r4
-        # Set r5 to y >> 16
-        mov r5, r11
-        # shlr16 r5
-        swap.w  r5, r5
-        exts.w  r5, r5
+        # Set r10 to x >> 16
+        swap.w  r4, r10
+        exts.w  r10, r10
+        # Set r11 to y >> 16
+        swap.w  r5, r11
+        exts.w  r11, r11
         # Call samplePixel
 
-
-        # TODO: When inlining this into the loop, we can make sure to only do these loads once if we have the registers available
+        # START: INLINED VERSION OF samplePixel
+        # (though I made some changes to it to optimize it)
         # add xOffset to xPos
-        mov.l .xOffset, r1
-        mov.w   @r1, r1
-        add     r1, r4
+        add     r12, r10
         # add yOffset to yPos
-        mov.l .yOffset, r1
-        mov.w   @r1, r1
-        add     r1, r5
+        add     r2, r11
         # divide by 4
-        shlr2   r4
-        shlr2   r5
+        shlr2   r10
+        mov     #0b111, r0
+        shlr2   r11
         # get the position of the pixel in the tile
         # copy them into other registers so we can use the original ones for the tileID
-        mov     r4, r6
-        mov     #0b111, r0
+        mov     r10, r6
         and     r0, r6
-        mov     r5, r7
+        mov     r11, r7
         and     r0, r7
         # get the colour of the pixel in the tile
         # get the tile ID by calling getTileID
-        # Inlined version of getTileID
-        mov     r4, r0
-        or      r5, r0
+
+        # START: INLINED VERSION OF getTileID
+        # (also with some changes to optimize it)
+        mov     r10, r0
+        or      r11, r0
         shlr8   r0
         tst     #0b11111000, r0
         # T is now 0 if we want to return 0
-        bf     .return0v3
+        bf.s   .endv2
+        mov    #0, r0
         # otherwise, continue
         mov     #-3, r1
-        shad    r1, r4
-        shad    r1, r5
-        # multiply r5 by 256
-        shll8   r5
-        add     r5, r4
-        # read from the tilemap
-        mov.l .tilemap, r0
+        shad    r1, r10
+        shad    r1, r11
         # now r0 = _tilemap symbol = address of the variable, which is an array
-        # shll2 r4
-        mov.b @(r0, r4), r0
+        mov.l .tilemap, r0
+        # multiply r11 by 256
+        shll8   r11
+        add     r11, r10
+        # read from the tilemap
+        # shll2 r10
+        mov.b @(r0, r10), r0
         bra .endv2
         extu.b r0, r0
-.return0v3:
-        # rts
-        mov    #0, r0
 .endv2:
+        # END: INLINED VERSION OF getTileID
+
         # r0 now contains the tile ID
         # multiply r7 by 8
         # Happens in branch delay slot
-        shll2   r7
-        add     r7, r7
+        mov #3, r1
+        shad r1, r7
         # add r6 to r7
         add     r6, r7
         # multiply r0 by 64
-        shll8   r0
-        shlr2   r0
+        mov #6, r1
+        shad r1, r0
         # add r0 to r7
         add     r0, r7
         # read from the tileset
         mov.l .tileset, r0
         # now r0 = _tileset symbol = address of the variable, which is an array
         mov.b @(r0, r7), r0
-        extu.b r0, r0
         # read from the palette
         mov.l .palette, r1
+        extu.b r0, r0
         # now r1 = _palette symbol = address of the variable, which is an array
         # multiply r0 by 2
         add    r0, r0
         # read from the palette
         mov.w @(r0, r1), r0
         extu.w r0, r0
-        # End of samplePixel
+        # END: INLINED VERSION OF samplePixel
 
-
-
-
-        # Set r12 to the result
-        mov r0, r12
-        # Shift r12 left by 16
-        shll16 r12
-        # OR r12 with r0
-        or r0, r12
+        # Set r1 to the result
+        mov r0, r1
+        # Shift r1 left by 16
+        shll16 r1
+        # OR r1 with r0
+        or r0, r1
         # Store r12 in vramLine
-        mov.l r12, @r8
+        mov.l r1, @r8
+        # Decrement the loop counter and check if it's 0
+        dt r9
         # Increment vramLine
         add #4, r8
-        # Put the original values of r4 and r5 back
-        mov r10, r4
-        mov r11, r5
-        # Increment x and y by dx and dy
+        # Increment x by dx
         add r13, r4
+        bf.s .loop
+        # Increment y by dy (branch delay slot)
         add r14, r5
-        # Increment the loop counter
-        add #1, r9
-        # Check if we're done
-        # Load 198 from .halfWidth
-        mov.w .halfWidth, r10
-        cmp/eq  r9, r10
-        bf .loop
 
         # Restore registers
         mov.l @r15+,r14
