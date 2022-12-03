@@ -9,18 +9,20 @@
 #define trackImageWidth 256 * tileSize
 #define trackImageHeight 256 * tileSize
 
-unsigned char getTileID(short xPos, short yPos) {
+#ifndef USE_ASM
+unsigned char __attribute__ ((hot)) getTileID(int xPos, int yPos) {
   // __builtin_expect(xPos < 0 || xPos >= trackImageWidth || yPos < 0 || yPos >= trackImageHeight, 0);
-  if((unsigned short) xPos >= trackImageWidth || (unsigned short) yPos >= trackImageHeight) {
+  if ((unsigned short) xPos >= trackImageWidth || (unsigned short) yPos >= trackImageHeight) {
     return 0;  // Grass
   } else {
     // Divide by 8
     int xPixel = xPos >> 3;
     int yPixel = yPos >> 3;
 
-    return /*track.*/tilemap[((yPixel * (trackImageWidth / tileSize)) + xPixel)];
+    return /*track.*/tilemap[(yPixel * (trackImageWidth / tileSize)) + xPixel];
   }
 }
+#endif
 
 // unsigned char getTileID(short l0, short l1) {
 //   unsigned int si0, si1, si2;
@@ -55,7 +57,8 @@ enum TileType getTileType(int tileID) {
   return (enum TileType) track.tileTypes[tileID];
 }
 
-unsigned short samplePixel(short xPos, short yPos) {
+#ifndef USE_ASM
+unsigned short __attribute__ ((hot)) samplePixel(int xPos, int yPos) {
   xPos += xOffset;
   yPos += yOffset;
 
@@ -72,6 +75,7 @@ unsigned short samplePixel(short xPos, short yPos) {
   return /*track.*/palette[index];
   // return index;
 }
+#endif
 
 // unsigned short samplePixelFast(short xPos, short yPos) {
 //   xPos += xOffset;

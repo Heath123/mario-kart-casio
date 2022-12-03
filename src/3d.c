@@ -12,6 +12,10 @@
 #include "platforms/gint.h"
 // #include "./3d-bg-dat.h"
 
+// #ifdef PROFILING_ENABLED
+// #include "libprof.h"
+// #endif
+
 #define lowResCutoff (LCD_HEIGHT_PX * 3 / 4) - 30
 
 inline void setPixel(int x, int y, color_t color) {
@@ -20,61 +24,61 @@ inline void setPixel(int x, int y, color_t color) {
 
 int hFovModifier = 1 << 12;
 
-void normalFov() {
-  int angleCos = fpcos(angle);
-  int angleSin = fpsin(angle);
-  for (unsigned short y = horizon + 2; y < /*LCD_HEIGHT_PX*/lowResCutoff; y++) {
-    int dist = newLut[y - horizon];
-    int wx = -(LCD_WIDTH_PX / 2) / 2 * dist;
-    for (unsigned short x = 0; x < LCD_WIDTH_PX / 2; x++) {
-      int x2 = wx >> 6;
-      int y2 = dist;
+// void __attribute__ ((noinline, hot)) normalFov() {
+//   int angleCos = fpcos(angle);
+//   int angleSin = fpsin(angle);
+//   for (unsigned short y = horizon + 2; y < /*LCD_HEIGHT_PX*/lowResCutoff; y++) {
+//     int dist = newLut[y - horizon];
+//     int wx = -(LCD_WIDTH_PX / 2) / 2 * dist;
+//     for (unsigned short x = 0; x < LCD_WIDTH_PX / 2; x++) {
+//       int x2 = wx >> 6;
+//       int y2 = dist;
 
-      // Rotate by angle
-      int newX = ((x2 * angleCos) >> 15) + ((y2 * angleSin) >> 15);
-      int newY = ((y2 * angleCos) >> 15) - ((x2 * angleSin) >> 15);
+//       // Rotate by angle
+//       int newX = ((x2 * angleCos) >> 15) + ((y2 * angleSin) >> 15);
+//       int newY = ((y2 * angleCos) >> 15) - ((x2 * angleSin) >> 15);
 
-      color_t col = samplePixel(newX >> 1, newY >> 1);
-      // if (col == 0) {
-      //   color_t* img_data = (color_t*) data_3d_bg + 4;
-      //   col = img_data[(LCD_WIDTH_PX * (y - (horizon + 2))) + (x << 1)];
-      // }
-      // setPixel(x * 2, y, col);
-      // setPixel(x * 2 + 1, y, col);
-      // Cast to an unsigned int array so two pixels are stored at once.
-      ((unsigned int *)VRAM)[y * (LCD_WIDTH_PX / 2) + x] = (col << 16 | col);
+//       color_t col = samplePixel(newX >> 1, newY >> 1);
+//       // if (col == 0) {
+//       //   color_t* img_data = (color_t*) data_3d_bg + 4;
+//       //   col = img_data[(LCD_WIDTH_PX * (y - (horizon + 2))) + (x << 1)];
+//       // }
+//       // setPixel(x * 2, y, col);
+//       // setPixel(x * 2 + 1, y, col);
+//       // Cast to an unsigned int array so two pixels are stored at once.
+//       ((unsigned int *)VRAM)[y * (LCD_WIDTH_PX / 2) + x] = (col << 16 | col);
 
-      wx += dist;
-    }
-  }
-  // Fill in the low resolution area at half vertical resolution.
-  // TODO: remove duplicate code
-  for (unsigned short y = lowResCutoff; y < LCD_HEIGHT_PX; y += 2) {
-    int dist = newLut[y - horizon];
-    int wx = -(LCD_WIDTH_PX / 2) / 2 * dist;
-    for (unsigned short x = 0; x < LCD_WIDTH_PX / 2; x++) {
-      int x2 = wx >> 6;
-      int y2 = dist;
+//       wx += dist;
+//     }
+//   }
+//   // Fill in the low resolution area at half vertical resolution.
+//   // TODO: remove duplicate code
+//   for (unsigned short y = lowResCutoff; y < LCD_HEIGHT_PX; y += 2) {
+//     int dist = newLut[y - horizon];
+//     int wx = -(LCD_WIDTH_PX / 2) / 2 * dist;
+//     for (unsigned short x = 0; x < LCD_WIDTH_PX / 2; x++) {
+//       int x2 = wx >> 6;
+//       int y2 = dist;
 
-      // Rotate by angle
-      int newX = ((x2 * angleCos) >> 15) + ((y2 * angleSin) >> 15);
-      int newY = ((y2 * angleCos) >> 15) - ((x2 * angleSin) >> 15);
+//       // Rotate by angle
+//       int newX = ((x2 * angleCos) >> 15) + ((y2 * angleSin) >> 15);
+//       int newY = ((y2 * angleCos) >> 15) - ((x2 * angleSin) >> 15);
 
-      color_t col = samplePixel(newX >> 1, newY >> 1);
-      // if (col == 0) {
-      //   color_t* img_data = (color_t*) data_3d_bg + 4;
-      //   col = img_data[(LCD_WIDTH_PX * (y - (horizon + 2))) + (x << 1)];
-      // }
-      // setPixel(x * 2, y, col);
-      // setPixel(x * 2 + 1, y, col);
-      // Cast to an unsigned int array so two pixels are stored at once.
-      ((unsigned int *)VRAM)[y * (LCD_WIDTH_PX / 2) + x] = (col << 16 | col);
-      ((unsigned int *)VRAM)[(y + 1) * (LCD_WIDTH_PX / 2) + x] = (col << 16 | col);
+//       color_t col = samplePixel(newX >> 1, newY >> 1);
+//       // if (col == 0) {
+//       //   color_t* img_data = (color_t*) data_3d_bg + 4;
+//       //   col = img_data[(LCD_WIDTH_PX * (y - (horizon + 2))) + (x << 1)];
+//       // }
+//       // setPixel(x * 2, y, col);
+//       // setPixel(x * 2 + 1, y, col);
+//       // Cast to an unsigned int array so two pixels are stored at once.
+//       ((unsigned int *)VRAM)[y * (LCD_WIDTH_PX / 2) + x] = (col << 16 | col);
+//       ((unsigned int *)VRAM)[(y + 1) * (LCD_WIDTH_PX / 2) + x] = (col << 16 | col);
 
-      wx += dist;
-    }
-  }
-}
+//       wx += dist;
+//     }
+//   }
+// }
 
 // void normalFov() {
 //   for (unsigned short y = horizon + 2; y < LCD_HEIGHT_PX; y++) {
@@ -205,36 +209,101 @@ void worldToScreenSpace(int worldX, int worldY, int* x, int* y, int* dist) {
   printf("x: %d\n", *x);
 }
 
-void fullRes() {
+// Original
+// void __attribute__ ((noinline)) fullRes() {
+//   int angleCos = fpcos(angle);
+//   int angleSin = fpsin(angle);
+//   for (unsigned short y = horizon + 2; y < LCD_HEIGHT_PX; y++) {
+//     int dist = newLut[y - horizon];
+//     int wx = -(LCD_WIDTH_PX / 2) / 2 * dist;
+//     for (unsigned short x = 0; x < LCD_WIDTH_PX / 2; x++) {
+//       int x2 = wx >> 6;
+//       int y2 = dist;
+
+//       // Rotate by angle
+//       int newX = ((x2 * angleCos) >> 15) + ((y2 * angleSin) >> 15);
+//       int newY = ((y2 * angleCos) >> 15) - ((x2 * angleSin) >> 15);
+
+//       color_t col = samplePixel(newX >> 1, newY >> 1);
+//       // if (col == 0) {
+//       //   color_t* img_data = (color_t*) data_3d_bg + 4;
+//       //   col = img_data[(LCD_WIDTH_PX * (y - (horizon + 2))) + (x << 1)];
+//       // }
+//       // setPixel(x * 2, y, col);
+//       // setPixel(x * 2 + 1, y, col);
+//       // Cast to an unsigned int array so two pixels are stored at once.
+//       ((unsigned int *)VRAM)[y * (LCD_WIDTH_PX / 2) + x] = (col << 16 | col);
+
+//       wx += dist;
+//     }
+//   }
+// }
+
+// dx/dy version
+// void __attribute__ ((noinline)) fullRes() {
+//   int angleCos = fpcos(angle);
+//   int angleSin = fpsin(angle);
+//   for (unsigned short y = horizon + 2; y < LCD_HEIGHT_PX; y++) {
+//     int dist = newLut[y - horizon];
+//     int wx = -(LCD_WIDTH_PX / 2) / 2 * dist;
+    
+//     int y2 = dist;
+
+//     int newX = (wx * (angleCos >> 6)) + (y2 * angleSin);
+//     int newY = (y2 * angleCos) - (wx * (angleSin >> 6));
+
+//     int dx =  (dist * (angleCos >> 6));
+//     int dy = -(dist * (angleSin >> 6));
+
+//     for (unsigned short x = 0; x < LCD_WIDTH_PX / 2; x++) {
+//       color_t col = samplePixel(newX >> 16, newY >> 16);
+//       ((unsigned int *)VRAM)[y * (LCD_WIDTH_PX / 2) + x] = (col << 16 | col);
+
+//       newX += dx;
+//       newY += dy;
+//     }
+//   }
+// }
+
+// TODO: Put this in fast on-chip memory?
+unsigned int* vramLine;
+
+#ifndef USE_ASM
+void draw3DLine(int x, int y, int dx, int dy/*, unsigned int* vramLine*/) {
+  for (unsigned short x2 = 0; x2 < LCD_WIDTH_PX / 2; x2++) {
+    color_t col = samplePixel(x >> 16, y >> 16);
+    *vramLine = (col << 16 | col);
+    vramLine++;
+
+    x += dx;
+    y += dy;
+  }
+}
+#endif
+
+void __attribute__ ((noinline)) fullRes() {
   int angleCos = fpcos(angle);
   int angleSin = fpsin(angle);
   for (unsigned short y = horizon + 2; y < LCD_HEIGHT_PX; y++) {
     int dist = newLut[y - horizon];
     int wx = -(LCD_WIDTH_PX / 2) / 2 * dist;
-    for (unsigned short x = 0; x < LCD_WIDTH_PX / 2; x++) {
-      int x2 = wx >> 6;
-      int y2 = dist;
+    
+    int y2 = dist;
 
-      // Rotate by angle
-      int newX = ((x2 * angleCos) >> 15) + ((y2 * angleSin) >> 15);
-      int newY = ((y2 * angleCos) >> 15) - ((x2 * angleSin) >> 15);
+    int newX = (wx * (angleCos >> 6)) + (y2 * angleSin);
+    int newY = (y2 * angleCos) - (wx * (angleSin >> 6));
 
-      color_t col = samplePixel(newX >> 1, newY >> 1);
-      // if (col == 0) {
-      //   color_t* img_data = (color_t*) data_3d_bg + 4;
-      //   col = img_data[(LCD_WIDTH_PX * (y - (horizon + 2))) + (x << 1)];
-      // }
-      // setPixel(x * 2, y, col);
-      // setPixel(x * 2 + 1, y, col);
-      // Cast to an unsigned int array so two pixels are stored at once.
-      ((unsigned int *)VRAM)[y * (LCD_WIDTH_PX / 2) + x] = (col << 16 | col);
+    int dx =  (dist * (angleCos >> 6));
+    int dy = -(dist * (angleSin >> 6));
 
-      wx += dist;
-    }
+    vramLine = (unsigned int *)VRAM + y * (LCD_WIDTH_PX / 2);
+    draw3DLine(newX, newY, dx, dy/*, vramLine*/);
   }
 }
 
-void changedFov() {
+#define normalFov fullRes
+
+void __attribute__ ((noinline)) changedFov() {
   int angleCos = fpcos(angle);
   int angleSin = fpsin(angle);
   for (unsigned short y = horizon + 2; y < /*LCD_HEIGHT_PX*/lowResCutoff; y++) {
@@ -293,7 +362,7 @@ void changedFov() {
   }
 }
 
-void draw3D(bool highQuality) {
+void __attribute__ ((noinline)) draw3D(bool highQuality) {
   if (hFovModifier == 1 << 12) {
     if (highQuality) {
       fullRes();

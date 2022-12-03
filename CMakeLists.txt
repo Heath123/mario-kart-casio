@@ -2,7 +2,7 @@
 # toolchain file and module path of the fxSDK
 
 cmake_minimum_required(VERSION 3.15)
-project(MarioKart)
+project(MarioKart LANGUAGES C ASM)
 
 set(SOURCES
   data-headers/track.c
@@ -25,6 +25,7 @@ set(SOURCES
 if (DEFINED FXSDK_PLATFORM_LONG)
   set(SOURCES ${SOURCES}
     src/platforms/gint.c
+    # src/tilemap.S
   )
 
   include(GenerateG1A)
@@ -115,7 +116,7 @@ if (DEFINED FXSDK_PLATFORM_LONG)
   fxconv_declare_assets(${ASSETS} ${ASSETS_fx} ${ASSETS_cg} WITH_METADATA)
 
   add_executable(mariokart ${SOURCES} ${ASSETS} ${ASSETS_${FXSDK_PLATFORM}})
-  target_compile_options(mariokart PRIVATE -Wall -Wextra -Werror-implicit-function-declaration -Ofast -flto -g)
+  target_compile_options(mariokart PRIVATE -DUSE_ASM -Wall -Wextra -Werror-implicit-function-declaration -Ofast -flto -g)
   target_link_libraries(mariokart Gint::Gint)
   target_link_libraries(mariokart LibProf::LibProf)
 

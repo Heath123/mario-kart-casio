@@ -9,4 +9,6 @@ void worldToScreenSpace(int worldX, int worldY, int* x, int* y, int* dist);
 void draw3D(bool highQuality);
 extern int hFovModifier;
 
+void draw3DLine(int x, int y, int dx, int dy/*, unsigned int* vramLine*/);
+
 #endif // _3D_H_

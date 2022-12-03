@@ -3,8 +3,9 @@
 
 #include <stdbool.h>
 
-unsigned char getTileID(short xPos, short yPos);
+// unsigned char getTileID(short xPos, short yPos);
+unsigned char getTileID(int xPos, int yPos);
 enum TileType getTileType(int tileID);
-unsigned short samplePixel(short xPos, short yPos);
+unsigned short samplePixel(int xPos, int yPos);
 
 #endif // _TILEMAP_H
